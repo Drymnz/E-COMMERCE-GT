@@ -1,4 +1,5 @@
-CREATE DATABASE commerce;
+-- verificar si ya existe
+--CREATE DATABASE commerce;
 
 \c commerce;
 
@@ -151,3 +152,44 @@ CREATE TABLE Producto (
     CONSTRAINT fk__articulo FOREIGN KEY (id_articulo) REFERENCES Articulo(id_articulo) ON DELETE CASCADE
 );
 
+-- Inserts para datos básicos
+
+-- Estados de Pedido
+INSERT INTO Estado_Pedido (nombre) VALUES 
+('Curso'),
+('Entregado');
+
+-- Estados de Usuario
+INSERT INTO Estado_Usuario (nombre) VALUES 
+('fraudes'),
+('activo'),
+('incumplimientos'),
+('desactivado');
+
+-- Roles de Usuario
+INSERT INTO Rol (nombre) VALUES 
+('Común'),
+('Moderador'),
+('Logística'),
+('Administrador');
+
+-- Tipos de Categoría
+INSERT INTO Tipo_Categoria (nombre) VALUES 
+('Tecnología'),
+('hogar'),
+('académico'),
+('personal'),
+('decoración');
+
+-- Estados de Artículo
+INSERT INTO Estado_Articulo (nombre) VALUES 
+('Nuevo'),
+('usado');
+
+-- Usuario Administrador
+-- Email: admin@commerce.com
+-- Password: admin
+-- Estado: activo (id_estado = 2)
+-- Rol: Administrador (id_rol = 4)
+INSERT INTO Usuario (nombre, apellido, email, password, id_estado, id_rol) VALUES 
+('Admin', 'Sistema', 'admin@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 4);
