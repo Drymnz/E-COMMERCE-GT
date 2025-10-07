@@ -1,13 +1,22 @@
 package com.cunoc.commerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Usuario {
-     private int idUsuario;
+    @JsonProperty("id_usuario")
+    private int idUsuario;
+    
     private String nombre;
     private String apellido;
     private String email;
+    
+    @JsonProperty("id_estado")
     private String idEstado;
+    
+    @JsonProperty("id_rol")
     private String idRol;
-    private String password;
+    
+    private String password; 
 
     // Constructor completo
     public Usuario(int idUsuario, String nombre, String apellido, String email, String idEstado, String idRol) {
@@ -19,20 +28,18 @@ public class Usuario {
         this.idRol = idRol;
     }
 
-    // Constructor simplificado sin ID
+    // Constructor para creación de usuario sin ID
     public Usuario(String nombre, String apellido, String email, String password, String idRol) {
-        this(-1, nombre, apellido, email, password, idRol, "activo");
-    }
-
-    // Constructor base privado que incluye todos los campos
-    private Usuario(int idUsuario, String nombre, String apellido, String email, String password, String idRol, String idEstado) {
-        this.idUsuario = idUsuario;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.password = password;
         this.idRol = idRol;
-        this.idEstado = idEstado;
+        this.idEstado = "activo";
+    }
+
+    // Constructor vacío para frameworks
+    public Usuario() {
     }
 
     // Getters
@@ -91,6 +98,11 @@ public class Usuario {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    // Método estático para crear un usuario sin contraseña
+    public static Usuario crearDesdeDatos(int id, String nombre, String apellido, String email, String idEstado, String idRol) {
+        return new Usuario(id, nombre, apellido, email, idEstado, idRol);
     }
 
     // Actualiza los datos básicos del usuario

@@ -161,10 +161,10 @@ INSERT INTO Estado_Pedido (nombre) VALUES
 
 -- Estados de Usuario
 INSERT INTO Estado_Usuario (nombre) VALUES 
-('fraudes'),
-('activo'),
-('incumplimientos'),
-('desactivado');
+('Fraudes'),
+('Activo'),
+('Incumplimientos'),
+('Desactivado');
 
 -- Roles de Usuario
 INSERT INTO Rol (nombre) VALUES 
@@ -176,15 +176,15 @@ INSERT INTO Rol (nombre) VALUES
 -- Tipos de Categoría
 INSERT INTO Tipo_Categoria (nombre) VALUES 
 ('Tecnología'),
-('hogar'),
-('académico'),
-('personal'),
-('decoración');
+('Hogar'),
+('Académico'),
+('Personal'),
+('Decoración');
 
 -- Estados de Artículo
 INSERT INTO Estado_Articulo (nombre) VALUES 
 ('Nuevo'),
-('usado');
+('Usado');
 
 -- Usuario Administrador
 -- Email: admin@commerce.com
