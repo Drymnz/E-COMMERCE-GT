@@ -44,8 +44,8 @@ public class UsuarioDAO extends BaseDAO {
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("email"),
-                        rs.getString("id_estado"),
-                        rs.getString("id_rol"));
+                        rs.getInt("id_estado"),
+                        rs.getInt("id_rol"));
             }
 
         } catch (SQLException e) {
@@ -93,8 +93,8 @@ public class UsuarioDAO extends BaseDAO {
                             rs.getString("nombre"),
                             rs.getString("apellido"),
                             rs.getString("email"),
-                            rs.getString("id_estado"),
-                            rs.getString("id_rol"));
+                            rs.getInt("id_estado"),
+                            rs.getInt("id_rol"));
 
                     System.out.println("Login exitoso para: " + usuario.getEmail());
                     return usuario;
@@ -138,8 +138,8 @@ public class UsuarioDAO extends BaseDAO {
                     usuario.getApellido(),
                     usuario.getEmail(),
                     passwordEncriptada,
-                    usuario.getIdEstado() != null ? usuario.getIdEstado() : "2",
-                    usuario.getIdRol() != null ? usuario.getIdRol() : "1");
+                    usuario.getIdEstado() != 0 ? usuario.getIdEstado() : 2,
+                    usuario.getIdRol() != 0 ? usuario.getIdRol() : 1);
 
             if (rowsAffected > 0) {
                 Usuario insertado = findByEmailOrId(usuario.getEmail());

@@ -11,15 +11,15 @@ public class Usuario {
     private String email;
     
     @JsonProperty("id_estado")
-    private String idEstado;
+    private int idEstado;  
     
     @JsonProperty("id_rol")
-    private String idRol;
+    private int idRol; 
     
     private String password; 
 
     // Constructor completo
-    public Usuario(int idUsuario, String nombre, String apellido, String email, String idEstado, String idRol) {
+    public Usuario(int idUsuario, String nombre, String apellido, String email, int idEstado, int idRol) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -29,16 +29,16 @@ public class Usuario {
     }
 
     // Constructor para creación de usuario sin ID
-    public Usuario(String nombre, String apellido, String email, String password, String idRol) {
+    public Usuario(String nombre, String apellido, String email, String password, int idRol) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.password = password;
         this.idRol = idRol;
-        this.idEstado = "activo";
+        this.idEstado = 1; 
     }
 
-    // Constructor vacío para frameworks
+    // Constructor vacío
     public Usuario() {
     }
 
@@ -59,11 +59,11 @@ public class Usuario {
         return email;
     }
 
-    public String getIdEstado() {
+    public int getIdEstado() { 
         return idEstado;
     }
 
-    public String getIdRol() {
+    public int getIdRol() {  
         return idRol;
     }
 
@@ -88,11 +88,11 @@ public class Usuario {
         this.email = email;
     }
 
-    public void setIdEstado(String idEstado) {
+    public void setIdEstado(int idEstado) { 
         this.idEstado = idEstado;
     }
 
-    public void setIdRol(String idRol) {
+    public void setIdRol(int idRol) { 
         this.idRol = idRol;
     }
 
@@ -100,8 +100,8 @@ public class Usuario {
         this.password = password;
     }
 
-    // Método estático para crear un usuario sin contraseña
-    public static Usuario crearDesdeDatos(int id, String nombre, String apellido, String email, String idEstado, String idRol) {
+    // Método estático
+    public static Usuario crearDesdeDatos(int id, String nombre, String apellido, String email, int idEstado, int idRol) {
         return new Usuario(id, nombre, apellido, email, idEstado, idRol);
     }
 
@@ -119,8 +119,8 @@ public class Usuario {
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
-                ", idEstado='" + idEstado + '\'' +
-                ", idRol='" + idRol + '\'' +
+                ", idEstado=" + idEstado +
+                ", idRol=" + idRol +
                 '}';
     }
 }

@@ -192,4 +192,7 @@ INSERT INTO Estado_Articulo (nombre) VALUES
 -- Estado: activo (id_estado = 2)
 -- Rol: Administrador (id_rol = 4)
 INSERT INTO Usuario (nombre, apellido, email, password, id_estado, id_rol) VALUES 
-('Admin', 'Sistema', 'admin@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 4);
+('María Elena', 'García López', 'cliente@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 1),
+('Carlos Alberto', 'Rodríguez Méndez', 'moderador@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 2),
+('Ana Patricia', 'Hernández Castro', 'logística@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 3).
+('Benjamin de Jesus', 'Perez Aguilar', 'admin@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 4);
