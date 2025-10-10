@@ -1,5 +1,5 @@
 -- verificar si ya existe
---CREATE DATABASE commerce;
+CREATE DATABASE commerce;
 
 \c commerce;
 
@@ -194,5 +194,5 @@ INSERT INTO Estado_Articulo (nombre) VALUES
 INSERT INTO Usuario (nombre, apellido, email, password, id_estado, id_rol) VALUES 
 ('María Elena', 'García López', 'cliente@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 1),
 ('Carlos Alberto', 'Rodríguez Méndez', 'moderador@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 2),
-('Ana Patricia', 'Hernández Castro', 'logística@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 3).
+('Ana Patricia', 'Hernández Castro', 'logística@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 3),
 ('Benjamin de Jesus', 'Perez Aguilar', 'admin@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 4);
