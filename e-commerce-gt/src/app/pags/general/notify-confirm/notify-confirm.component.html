@@ -1,0 +1,53 @@
+<div
+  class="modal fade"
+  [class.show]="mostrar"
+  [style.display]="mostrar ? 'block' : 'none'"
+  tabindex="-1"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header text-white" [ngClass]="colorHeader">
+        <h5 class="modal-title">
+          <i class="bi me-2" [ngClass]="iconoAlerta"></i>{{ titulo }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="onCancelar()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">{{ mensaje }}</p>
+        <p *ngIf="mensajeSecundario" class="fw-bold mt-2 mb-0">{{ mensajeSecundario }}</p>
+        <div *ngIf="mostrarAdvertencia" class="alert mt-3 mb-0" [ngClass]="colorAdvertencia">
+          <i class="bi bi-info-circle me-2"></i>
+          {{ textoAdvertencia }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancelar()"
+        >
+          {{ textoCancelar }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [ngClass]="colorBoton"
+          (click)="onConfirmar()"
+        >
+          <i class="bi bi-check-circle-fill me-2"></i>{{ textoConfirmar }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (mostrar) {
+  <div
+    class="modal-backdrop fade"
+    [class.show]="mostrar"
+  ></div>
+}

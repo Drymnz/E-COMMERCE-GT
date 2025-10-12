@@ -30,7 +30,7 @@ export class AdminComponent implements OnInit {
     private userService: UserService,
     private constantService: ListConstantService
   ) {
-    // formulario para registrar usuario
+    // Formulario para registrar usuario
     this.registroForm = this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
@@ -40,12 +40,12 @@ export class AdminComponent implements OnInit {
       id_estado: ['', Validators.required]
     });
 
-    // formulario para buscar usuario por correo
+    // Formulario para buscar usuario
     this.busquedaForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
 
-    // formulario para editar datos del usuario
+    // Formulario para editar usuario
     this.edicionForm = this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
@@ -55,7 +55,7 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // obtener listas de roles y estados
+    // Obtener listas de roles y estados
     this.constantService.roles$.subscribe(roles => {
       this.roles = roles;
     });
@@ -65,6 +65,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  // Buscar usuario por email
   buscarUsuario(): void {
     if (this.busquedaForm.invalid) {
       this.errorBusqueda = 'Por favor ingrese un correo electrónico válido';
@@ -78,7 +79,6 @@ export class AdminComponent implements OnInit {
 
     const email = this.busquedaForm.get('email')?.value;
 
-    // buscar usuario por correo
     this.userService.buscarUsuario(email).subscribe({
       next: (usuario) => {
         this.usuarioEncontrado = usuario;
@@ -98,7 +98,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  // llena el formulario de edición con los datos del usuario encontrado
+  // Cargar datos del usuario en el formulario de edición
   private cargarDatosEdicion(usuario: Usuario): void {
     this.edicionForm.patchValue({
       nombre: usuario.nombre,
@@ -108,6 +108,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  // Actualizar usuario existente
   actualizarUsuario(): void {
     if (this.edicionForm.invalid || !this.usuarioEncontrado) return;
 
@@ -125,7 +126,6 @@ export class AdminComponent implements OnInit {
     this.errorBusqueda = '';
     this.mensajeExito = '';
 
-    // enviar actualización al servicio
     this.userService.modificarUsuario(usuarioActualizado).subscribe({
       next: (usuario) => {
         this.usuarioEncontrado = usuario;
@@ -140,7 +140,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  // limpia los formularios y mensajes
+  // Limpiar formularios y mensajes
   limpiarBusqueda(): void {
     this.busquedaForm.reset();
     this.edicionForm.reset();
@@ -149,6 +149,7 @@ export class AdminComponent implements OnInit {
     this.mensajeExito = '';
   }
 
+  // Registrar nuevo usuario
   registrarNuevoUsuario(): void {
     if (this.registroForm.invalid) {
       Object.keys(this.registroForm.controls).forEach(key => {
@@ -163,13 +164,14 @@ export class AdminComponent implements OnInit {
     this.errorBusqueda = '';
     this.mensajeExito = '';
     
-    // crear nuevo usuario
+    // Convertir strings a números antes de enviar
     this.userService.crearUsuario(
       formValue.nombre,
       formValue.apellido,
       formValue.email,
       formValue.password,
-      formValue.id_rol
+      Number(formValue.id_rol),
+      Number(formValue.id_estado)
     ).subscribe({
       next: () => {
         this.cargando = false;

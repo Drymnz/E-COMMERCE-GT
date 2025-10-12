@@ -1,0 +1,136 @@
+.card {
+  border: none;
+  border-radius: 10px;
+
+  .card-header {
+    border-radius: 10px 10px 0 0;
+    padding: 1rem 1.5rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Estilos para el formulario
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+
+  i {
+    color: #0d6efd;
+  }
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 0.625rem 0.875rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  }
+
+  &:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Estilos para checkboxes
+.form-check {
+  padding-left: 1.75rem;
+
+  .form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &:checked {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+    }
+  }
+
+  .form-check-label {
+    cursor: pointer;
+    margin-left: 0.5rem;
+    user-select: none;
+  }
+}
+
+// Botones
+.btn {
+  border-radius: 8px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// Preview de imagen pequeña
+.img-thumbnail {
+  border-radius: 8px;
+  padding: 0.25rem;
+  border: 2px solid #dee2e6;
+}
+
+// Sticky preview
+.position-sticky {
+  z-index: 10;
+}
+
+// Alertas
+.alert {
+  border-radius: 8px;
+  border: none;
+
+  &.alert-info {
+    background-color: #cfe2ff;
+    color: #084298;
+  }
+}
+
+// Form text
+.form-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+// Responsividad
+@media (max-width: 991px) {
+  .position-sticky {
+    position: relative !important;
+    top: 0 !important;
+    margin-top: 2rem;
+  }
+}
+
+// Animación suave en preview
+app-article {
+  transition: all 0.3s ease;
+}

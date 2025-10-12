@@ -20,16 +20,23 @@ export class HasRoleDirective implements OnInit {
     private authService: AuthService           // servicio para verificar roles del usuario
   ) {}
 
-  ngOnInit(): void {
+   ngOnInit(): void {
     this.updateView();
   }
 
   private updateView(): void {
-    this.viewContainer.clear(); // limpia el contenido actual
+    this.viewContainer.clear();// limpia el contenido actual
     
+    const user = this.authService.currentUserValue;
     // si el usuario tiene el rol, muestra el contenido
-    if (this.authService.hasAnyRole(this.roles)) {
-      this.viewContainer.createEmbeddedView(this.templateRef);
+    
+    if (user && user.id_rol !== undefined && user.id_rol !== null) {
+      const userRoleStr = String(user.id_rol);
+      const hasRole = this.roles.includes(userRoleStr);
+      
+      if (hasRole) {
+        this.viewContainer.createEmbeddedView(this.templateRef);
+      }
     }
   }
 }

@@ -1,0 +1,283 @@
+<div class="container-fluid my-4">
+  <div class="row">
+    <!-- FORMULARIO - Lado Izquierdo -->
+    <div class="col-lg-7">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-plus-circle me-2"></i>
+            Registrar Nuevo Artículo
+          </h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="articuloForm" (ngSubmit)="guardarArticulo()">
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">
+                <i class="bi bi-tag me-1"></i>
+                Nombre del Artículo <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="nombre"
+                formControlName="nombre"
+                placeholder="Ej: Laptop HP Pavilion 15"
+                [class.is-invalid]="isFieldInvalid('nombre')">
+              @if (isFieldInvalid('nombre')) {
+                <div class="invalid-feedback">
+                  {{ getErrorMessage('nombre') }}
+                </div>
+              }
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">
+                <i class="bi bi-file-text me-1"></i>
+                Descripción <span class="text-danger">*</span>
+              </label>
+              <textarea 
+                class="form-control" 
+                id="descripcion"
+                formControlName="descripcion"
+                rows="3"
+                placeholder="Describe las características del artículo..."
+                [class.is-invalid]="isFieldInvalid('descripcion')"></textarea>
+              @if (isFieldInvalid('descripcion')) {
+                <div class="invalid-feedback">
+                  {{ getErrorMessage('descripcion') }}
+                </div>
+              }
+            </div>
+
+            <!-- Precio y Stock -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="precio" class="form-label">
+                  <i class="bi bi-currency-dollar me-1"></i>
+                  Precio (Q) <span class="text-danger">*</span>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="precio"
+                  formControlName="precio"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  [class.is-invalid]="isFieldInvalid('precio')">
+                @if (isFieldInvalid('precio')) {
+                  <div class="invalid-feedback">
+                    {{ getErrorMessage('precio') }}
+                  </div>
+                }
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="stock" class="form-label">
+                  <i class="bi bi-box-seam me-1"></i>
+                  Stock <span class="text-danger">*</span>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="stock"
+                  formControlName="stock"
+                  min="0"
+                  placeholder="0"
+                  [class.is-invalid]="isFieldInvalid('stock')">
+                @if (isFieldInvalid('stock')) {
+                  <div class="invalid-feedback">
+                    {{ getErrorMessage('stock') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Estado del Artículo -->
+            <div class="mb-3">
+              <label for="estado" class="form-label">
+                <i class="bi bi-star me-1"></i>
+                Estado del Artículo <span class="text-danger">*</span>
+              </label>
+              <select 
+                class="form-select" 
+                id="estado"
+                formControlName="id_estado_articulo">
+                @for (estado of estadoArticulo; track $index) {
+                  <option [value]="$index + 1">{{ estado }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Categorías -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-grid-3x3-gap me-1"></i>
+                Categorías <span class="text-danger">*</span>
+              </label>
+              <div class="row" formArrayName="categorias">
+                @for (categoria of categorias; track categoria; let i = $index) {
+                  <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                      <input 
+                        class="form-check-input" 
+                        type="checkbox"
+                        [id]="'categoria-' + i"
+                        [formControlName]="i">
+                      <label class="form-check-label" [for]="'categoria-' + i">
+                        {{ categoria }}
+                      </label>
+                    </div>
+                  </div>
+                }
+                @empty {
+                  <div class="col-12">
+                    <p class="text-muted small mb-0">No hay categorías disponibles</p>
+                  </div>
+                }
+              </div>
+              @if (getCategoriasSeleccionadas().length === 0 && articuloForm.touched) {
+                <small class="text-danger">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Selecciona al menos una categoría
+                </small>
+              }
+            </div>
+
+            <!-- Imagen -->
+            <div class="mb-3">
+              <label for="imagen" class="form-label">
+                <i class="bi bi-image me-1"></i>
+                Imagen del Artículo
+              </label>
+              <input 
+                type="file" 
+                class="form-control" 
+                id="imagen"
+                accept="image/*"
+                (change)="onImagenSeleccionada($event)">
+              <div class="form-text">
+                Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB
+              </div>
+              
+              <!-- Preview pequeño de la imagen cargada -->
+              @if (imagenPreviewUrl) {
+                <div class="mt-2">
+                  <img 
+                    [src]="imagenPreviewUrl" 
+                    alt="Preview" 
+                    class="img-thumbnail"
+                    style="max-height: 100px;">
+                  <button 
+                    type="button" 
+                    class="btn btn-sm btn-outline-danger ms-2"
+                    (click)="eliminarImagen()">
+                    <i class="bi bi-trash"></i> Eliminar
+                  </button>
+                </div>
+              }
+            </div>
+
+            <!-- URL de imagen alternativa -->
+            <div class="mb-3">
+              <label for="imagenUrl" class="form-label">
+                <i class="bi bi-link-45deg me-1"></i>
+                O ingresa una URL de imagen
+              </label>
+              <input 
+                type="url" 
+                class="form-control" 
+                id="imagenUrl"
+                formControlName="imagen"
+                placeholder="https://ejemplo.com/imagen.jpg"
+                [disabled]="imagenPreviewUrl !== ''">
+            </div>
+
+            <!-- Información del formulario -->
+            <div class="alert alert-light border">
+              <strong>Estado del formulario:</strong>
+              <ul class="mb-0 mt-2 small">
+                <li>
+                  Válido: 
+                  @if (articuloForm.valid && getCategoriasSeleccionadas().length > 0) {
+                    <span class="badge bg-success">Sí</span>
+                  } @else {
+                    <span class="badge bg-danger">No</span>
+                  }
+                </li>
+                <li>Categorías seleccionadas: {{ getCategoriasSeleccionadas().length }}</li>
+              </ul>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="articuloForm.invalid || getCategoriasSeleccionadas().length === 0">
+                <i class="bi bi-save me-2"></i>
+                Guardar Artículo
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary"
+                (click)="limpiarFormulario()">
+                <i class="bi bi-x-circle me-2"></i>
+                Limpiar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW - Lado Derecho -->
+    <div class="col-lg-5">
+      <div class="position-sticky" style="top: 20px;">
+        <div class="card shadow">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-eye me-2"></i>
+              Vista Previa
+            </h5>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              Así se verá tu artículo en el catálogo
+            </p>
+            
+            <!-- Componente de artículo reutilizado -->
+            <app-article
+              [articulo]="articuloPreview"
+              [mostrarAcciones]="false"
+              [estadoNombre]="getEstadoNombre(articuloForm.get('id_estado_articulo')?.value || 1)"
+              [disponible]="isArticuloDisponible()">
+            </app-article>
+
+            <!-- Información adicional -->
+            <div class="mt-3">
+              <div class="alert alert-info small mb-0">
+                <strong>Información:</strong>
+                <ul class="mb-0 mt-2 ps-3">
+                  <li>Los campos marcados con <span class="text-danger">*</span> son obligatorios</li>
+                  <li>El precio se muestra en Quetzales (Q)</li>
+                  <li>
+                    @if (articuloForm.get('stock')?.value > 0) {
+                      <span class="badge bg-success">Disponible</span>
+                    } @else {
+                      <span class="badge bg-danger">No disponible</span>
+                    }
+                    según el stock
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

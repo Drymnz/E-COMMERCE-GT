@@ -1,0 +1,67 @@
+<main class="container my-4">
+  <div class="row">
+    <!-- Categorías -->
+    <aside class="col-md-3">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>
+            Categorías
+          </h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          @for (categoria of categorias; track categoria) {
+            <li class="list-group-item">
+              <a href="#" class="text-decoration-none">
+                <i class="bi bi-tag-fill me-2 text-primary"></i>
+                {{ categoria }}
+              </a>
+            </li>
+          }
+          @empty {
+            <li class="list-group-item text-muted">
+              <i class="bi bi-inbox me-2"></i>
+              No hay categorías disponibles
+            </li>
+          }
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Productos -->
+    <section class="col-md-9">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+          <i class="bi bi-shop me-2"></i>
+          Productos Destacados
+        </h2>
+        <span class="badge bg-secondary">
+          {{ articulos.length }} productos
+        </span>
+      </div>
+
+      <div class="row g-3">
+        @for (articulo of articulos; track articulo.id_articulo) {
+          <div class="col-md-4">
+            <app-article
+              [articulo]="articulo"
+              [mostrarAcciones]="true"
+              [estadoNombre]="getEstadoNombre(articulo.id_estado_articulo)"
+              [disponible]="isArticuloDisponible(articulo)"
+              (agregarCarrito)="onAgregarAlCarrito($event)"
+              (verDetalles)="onVerDetalles($event)">
+            </app-article>
+          </div>
+        }
+        @empty {
+          <div class="col-12">
+            <div class="alert alert-info text-center">
+              <i class="bi bi-info-circle me-2"></i>
+              No hay productos disponibles en este momento
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</main>

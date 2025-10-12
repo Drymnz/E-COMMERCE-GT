@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../service/user-service.service';
-import { AuthService } from '../../service/auth.service';
+import { UserService } from '../../../service/user-service.service';
+import { AuthService } from '../../../service/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -37,6 +37,7 @@ export class LoginComponent {
     this.loading = true;
     this.errorMessage = '';
 
+    //Servicio para el login
     this.userService.login(this.email, this.password).subscribe({
       next: (usuario) => {
         console.log('Login exitoso:', usuario);

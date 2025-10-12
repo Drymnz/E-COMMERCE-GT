@@ -1,20 +1,28 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pags/home/home.component';
+import { HomeComponent } from './pags/general/home/home.component';
 import { AdminComponent } from './pags/admin/admin.component';
-import { LoginComponent } from './pags/login/login.component';
-import { RegistroComponent } from './pags/registro/registro.component';
-import { roleGuard } from './guards/auth.guard';
-import { Error404Component } from './pags/error/error-404/error-404.component';
+import { LoginComponent } from './pags/general/login/login.component';
+import { RegistroComponent } from './pags/general/registro/registro.component';
+import { authGuard } from './guards/auth.guard';
+import { Error404Component } from './pags/general/error/error-404/error-404.component';
+import { ManageProductsSaleComponent } from './pags/customer/manage-products-sale/manage-products-sale.component';
+import { RegisterArticleComponent } from './pags/customer/register-article/register-article.component';
 
 export const routes: Routes = [
   {
     path: 'admin',
-    canActivate: [roleGuard(['4'])],
+    canActivate: [authGuard],
     component: AdminComponent
   },
   {
-    path: '',
-    component: HomeComponent  
+    path: 'manage-products-sale',
+    canActivate: [authGuard],
+    component: ManageProductsSaleComponent  
+  },
+  {
+    path: 'register-article',
+    canActivate: [authGuard],
+    component: RegisterArticleComponent  
   },
   {
     path: 'login',
@@ -23,6 +31,10 @@ export const routes: Routes = [
   {
     path: 'registro',
     component: RegistroComponent
+  },
+  {
+    path: '',
+    component: HomeComponent  
   },
   {
     path: '**',

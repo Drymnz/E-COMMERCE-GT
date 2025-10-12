@@ -1,0 +1,68 @@
+.card {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.btn-group {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .btn {
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+}
+
+.btn-primary.btn-lg {
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+  }
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+h2 {
+  font-weight: 600;
+  color: #333;
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.card-title {
+  font-weight: 700;
+}
+
+.bg-primary,
+.bg-success,
+.bg-secondary {
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+  
+  &.show {
+    display: block;
+  }
+}
+
+.modal-backdrop {
+  &.show {
+    opacity: 0.5;
+  }
+}

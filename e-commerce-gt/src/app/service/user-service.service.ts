@@ -12,10 +12,7 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * @param email - Correo electrónico del usuario
-   * @param password - Contraseña del usuario
-   */
+  // Login de usuario
   login(email: string, password: string): Observable<Usuario> {
     const params = new HttpParams()
       .set('email', email)
@@ -33,14 +30,42 @@ export class UserService {
     );
   }
 
-  /**
-   * @param nombre - Nombre del usuario
-   * @param apellido - Apellido del usuario
-   * @param email - Correo electrónico
-   * @param password - Contraseña
-   * @param id_rol - Rol del usuario 
-   */
-  crearUsuario(nombre: string, apellido: string, email: string, password: string, id_rol: string = '1', id_estado: string = '2'): Observable<Usuario> {
+  // Crear usuario (versión completa con id_estado)
+  crearUsuario(
+    nombre: string, 
+    apellido: string, 
+    email: string, 
+    password: string, 
+    id_rol: number,
+    id_estado: number
+  ): Observable<Usuario>;
+
+  // Crear usuario (versión sin id_estado, por defecto = 2)
+  crearUsuario(
+    nombre: string, 
+    apellido: string, 
+    email: string, 
+    password: string, 
+    id_rol: number
+  ): Observable<Usuario>;
+
+  // Crear usuario (versión registro público, id_rol=1, id_estado=2)
+  crearUsuario(
+    nombre: string, 
+    apellido: string, 
+    email: string, 
+    password: string
+  ): Observable<Usuario>;
+
+  // Implementación
+  crearUsuario(
+    nombre: string, 
+    apellido: string, 
+    email: string, 
+    password: string, 
+    id_rol: number = 1,
+    id_estado: number = 2
+  ): Observable<Usuario> {
     const body = {
       nombre,
       apellido,
@@ -56,16 +81,13 @@ export class UserService {
         response.nombre,
         response.apellido,
         response.email,
-        response.id_estado,
-        response.id_rol
+        response.id_estado.toString(),
+        response.id_rol.toString()
       ))
     );
   }
 
-  /**
-   * @param email - Correo electrónico del usuario
-   * @returns Observable<Usuario> - Usuario encontrado
-   */
+  // Buscar usuario por email
   buscarUsuario(email: string): Observable<Usuario> {
     const params = new HttpParams().set('email', email);
 
@@ -75,24 +97,21 @@ export class UserService {
         response.nombre,
         response.apellido,
         response.email,
-        response.id_estado,
-        response.id_rol
+        response.id_estado.toString(),
+        response.id_rol.toString()
       ))
     );
   }
 
-  /**
-   * @param usuario - Usuario con los datos actualizados
-   * @returns Observable<Usuario> - Usuario actualizado
-   */
+  // Modificar usuario existente
   modificarUsuario(usuario: Usuario): Observable<Usuario> {
     const body = {
       id_usuario: usuario.id_usuario,
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
-      id_estado: usuario.id_estado,
-      id_rol: usuario.id_rol
+      id_estado: Number(usuario.id_estado),
+      id_rol: Number(usuario.id_rol)
     };
 
     return this.http.put<any>(this.apiUrl, body).pipe(
@@ -101,8 +120,8 @@ export class UserService {
         response.nombre,
         response.apellido,
         response.email,
-        response.id_estado,
-        response.id_rol
+        response.id_estado.toString(),
+        response.id_rol.toString()
       ))
     );
   }

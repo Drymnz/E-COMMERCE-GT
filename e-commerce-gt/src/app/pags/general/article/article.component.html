@@ -1,0 +1,133 @@
+<div class="card h-100 shadow-sm hover-card">
+  <!-- Imagen del artículo -->
+  <div class="position-relative">
+    @if (articulo) {
+      <img 
+        [src]="imagenUrl" 
+        [alt]="nombreArticulo"
+        class="card-img-top"
+        style="height: 200px; object-fit: cover;"
+        (error)="onImagenError()">
+      
+      <!-- Badge de DISPONIBILIDAD  Verde/Rojo según stock -->
+      <span 
+        class="position-absolute top-0 end-0 m-2 badge"
+        [ngClass]="disponibilidadClass">
+        <i class="bi bi-box-seam me-1"></i>
+        {{ disponibilidadTexto }}
+      </span>
+
+      <!-- Badge de ESTADO del artículo -->
+      <span class="position-absolute top-0 start-0 m-2 badge bg-info text-dark">
+        <i class="bi bi-star-fill me-1"></i>
+        {{ estadoNombre }}
+      </span>
+    } @else {
+      <!-- Placeholder cuando no hay artículo -->
+      <div class="placeholder-image d-flex align-items-center justify-content-center bg-secondary text-white" 
+           style="height: 200px;">
+        <div class="text-center">
+          <i class="bi bi-image" style="font-size: 3rem;"></i>
+          <p class="mb-0 mt-2">Sin imagen</p>
+        </div>
+      </div>
+      
+      <span class="position-absolute top-0 end-0 m-2 badge bg-secondary">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        No disponible
+      </span>
+
+      <span class="position-absolute top-0 start-0 m-2 badge bg-secondary">
+        <i class="bi bi-question-circle me-1"></i>
+        Sin estado
+      </span>
+    }
+  </div>
+
+  <div class="card-body d-flex flex-column">
+    <!-- Título y categorías -->
+    <div class="mb-2">
+      @if (articulo) {
+        <h5 class="card-title text-truncate" [title]="nombreArticulo">
+          {{ nombreArticulo }}
+        </h5>
+      } @else {
+        <h5 class="card-title text-muted">
+          <i class="bi bi-box me-2"></i>
+          Artículo no cargado
+        </h5>
+      }
+      
+      <div class="mb-2">
+        @if (articulo && categoriasArticulo.length > 0) {
+          @for (categoria of categoriasArticulo; track categoria) {
+            <span class="badge bg-primary me-1 mb-1">
+              <i class="bi bi-tag-fill me-1"></i>{{ categoria }}
+            </span>
+          }
+        } @else {
+          <span class="badge bg-secondary">
+            <i class="bi bi-dash-circle me-1"></i>
+            Sin categoría
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <p class="card-text text-muted small flex-grow-1" 
+       style="max-height: 60px; overflow: hidden;">
+      @if (articulo) {
+        {{ descripcionArticulo }}
+      } @else {
+        <i class="bi bi-file-text me-1"></i>
+        <em>Sin descripción disponible</em>
+      }
+    </p>
+
+    <!-- Precio y acciones -->
+    <div class="mt-auto">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="mb-0 text-primary">
+          @if (articulo) {
+            {{ precioArticulo }}
+          } @else {
+            <span class="text-muted">Q 0.00</span>
+          }
+        </h4>
+        <span class="text-muted small">
+          <i class="bi bi-box me-1"></i>
+          @if (articulo) {
+            {{ stockArticulo }} disponibles
+          } @else {
+            0 disponibles
+          }
+        </span>
+      </div>
+
+      @if (mostrarAcciones) {
+        <div class="d-grid gap-2">
+          <button 
+            class="btn btn-primary"
+            [disabled]="!articulo || !disponible"
+            (click)="agregarAlCarrito()">
+            <i class="bi bi-cart-plus me-2"></i>
+            @if (articulo && disponible) {
+              Agregar al carrito
+            } @else {
+              No disponible
+            }
+          </button>
+          
+          <button 
+            class="btn btn-outline-secondary btn-sm"
+            [disabled]="!articulo"
+            (click)="verDetallesArticulo()">
+            <i class="bi bi-eye me-1"></i>
+            Ver detalles
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

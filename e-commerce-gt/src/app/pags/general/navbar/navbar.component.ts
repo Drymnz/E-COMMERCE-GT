@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../service/auth.service';
-import { HasRoleDirective } from '../../directives/has-role.directive';
+import { AuthService } from '../../../service/auth.service';
+import { HasRoleDirective } from '../../../directives/has-role.directive';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +17,7 @@ export class NavbarComponent {
   constructor(
     public authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   irHome(): void {
     this.router.navigate(['/']);
@@ -36,6 +36,20 @@ export class NavbarComponent {
   }
 
   irReportes(): void {
+    this.router.navigate(['/report']);
+  }
+
+  //Cliente
+  irGestionarProductos() {
+    this.router.navigate(['/manage-products-sale']);
+  }
+  irGestionarCarrito() {
+    this.router.navigate(['/report']);
+  }
+  irGestionarCalificaciones() {
+    this.router.navigate(['/report']);
+  }
+  irSeguimientoPedidos() {
     this.router.navigate(['/report']);
   }
 
