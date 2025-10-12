@@ -1,0 +1,110 @@
+<header class="bg-dark text-white py-3 sticky-top">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h3 mb-0 text-primary" style="cursor: pointer;" (click)="irHome()">
+        {{ nombreEmpresa }}
+      </h1>
+      
+      <div *ngIf="!authService.isAuthenticated()">
+        <button class="btn btn-outline-primary me-2" (click)="irRegistro()">
+          Registrarse
+        </button>
+        <button class="btn btn-primary" (click)="irLogin()">
+          Iniciar Sesión
+        </button>
+      </div>
+      
+      <div *ngIf="authService.isAuthenticated()" class="d-flex align-items-center gap-3">
+
+        <!-- Botones de admin -->
+        <button 
+          *appHasRole="'4'" 
+          class="btn btn-outline-warning" 
+          (click)="irAdmin()">
+          Panel Admin
+        </button>
+
+        <button 
+          *appHasRole="'4'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Reportes
+        </button>
+
+        <!-- Botones de Logística -->
+        <button 
+          *appHasRole="'3'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar pedidos en curso
+        </button>
+
+         <!-- Botones de Moderador -->
+        <button 
+          *appHasRole="'2'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar solicitudes de productos
+        </button>
+
+        <button 
+          *appHasRole="'2'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar sanciones
+        </button>
+
+        <!-- Botones de Comun -->
+        <button 
+          *appHasRole="'1'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar productos en venta
+        </button>
+
+        <button 
+          *appHasRole="'1'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar carrito de compras
+        </button>
+
+        <button 
+          *appHasRole="'1'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar carrito de compras
+        </button>
+
+        <button 
+          *appHasRole="'1'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar calificaciones y comentarios
+        </button>
+
+        <button 
+          *appHasRole="'1'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Gestionar calificaciones y comentarios
+        </button>
+
+        <button 
+          *appHasRole="'1'" 
+          class="btn btn-outline-warning" 
+          (click)="irReportes()">
+          Seguimiento de pedidos
+        </button>
+        
+        <span class="text-white">
+          bienvenid@, <strong>{{ getNombreCompleto() }}</strong>
+        </span>
+        
+        <button class="btn btn-outline-danger" (click)="logout()">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

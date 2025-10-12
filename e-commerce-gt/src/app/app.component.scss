@@ -1,0 +1,20 @@
+// Colores personalizados
+.text-primary, .btn-primary, .bg-primary {
+  --bs-primary: #3498db !important;
+  --bs-primary-rgb: 52, 152, 219 !important;
+}
+
+// Efectos hover en cards de productos
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Enlaces del footer con hover
+footer a:hover {
+  color: #3498db !important;
+}

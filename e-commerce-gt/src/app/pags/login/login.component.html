@@ -1,0 +1,53 @@
+<main class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Iniciar Sesión</h4>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onLogin()">
+            <div class="mb-3">
+              <label class="form-label">Correo electrónico</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                [(ngModel)]="email"
+                name="email"
+                placeholder="correo@ejemplo.com" 
+                required>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Contraseña</label>
+              <input 
+                type="password" 
+                class="form-control" 
+                [(ngModel)]="password"
+                name="password"
+                placeholder="Ingrese su contraseña" 
+                required>
+            </div>
+
+            @if (errorMessage) {
+              <div class="alert alert-danger">
+                {{ errorMessage }}
+              </div>
+            }
+            
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+              @if (loading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Iniciar Sesión
+            </button>
+
+            <div class="text-center mt-3">
+              <p class="mb-0">¿No tienes cuenta? <a [routerLink]="['/registro']" class="text-decoration-none">Regístrate aquí</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
