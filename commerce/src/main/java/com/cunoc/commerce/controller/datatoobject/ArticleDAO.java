@@ -74,98 +74,119 @@ public class ArticleDAO extends BaseDAO {
     }
 
     // Crea un artículo y su publicación en una transacción
-    public int create(Publicacion publicacion) {
-        String sqlArticulo = "INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo) " +
-                             "VALUES (?, ?, ?, ?, ?, ?)";
-        String sqlPublicacion = "INSERT INTO Publicacion (id_articulo, id_usuario, fecha_hora_entrega) " +
-                               "VALUES (?, ?, NULL)";
+public int create(Publicacion publicacion) {
+    String sqlArticulo = "INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo) " +
+                         "VALUES (?, ?, ?, ?, ?, ?)";
+    String sqlPublicacion = "INSERT INTO Publicacion (id_articulo, id_usuario, fecha_hora_entrega) " +
+                   "VALUES (?, ?, ?)";
+    String sqlCategoria = "INSERT INTO Categoria (id_articulo, id_categoria_tipo) VALUES (?, ?)";
+    
+    Connection conn = null;
+    PreparedStatement stmtArticulo = null;
+    PreparedStatement stmtPublicacion = null;
+    PreparedStatement stmtCategoria = null;
+    ResultSet rs = null;
+    
+    try {
+        conn = getConnection();
+        conn.setAutoCommit(false);
         
-        Connection conn = null;
-        PreparedStatement stmtArticulo = null;
-        PreparedStatement stmtPublicacion = null;
-        ResultSet rs = null;
+        Article articulo = publicacion.getArticulo();
         
-        try {
-            conn = getConnection();
-            conn.setAutoCommit(false);
-            
-            Article articulo = publicacion.getArticulo();
-            
-            // 1. Insertar el artículo
-            stmtArticulo = conn.prepareStatement(sqlArticulo, Statement.RETURN_GENERATED_KEYS);
-            stmtArticulo.setString(1, articulo.getNombre());
-            stmtArticulo.setString(2, articulo.getDescripcion());
-            stmtArticulo.setBigDecimal(3, articulo.getPrecio());
-            stmtArticulo.setString(4, articulo.getImagen());
-            stmtArticulo.setInt(5, articulo.getStock());
-            stmtArticulo.setInt(6, articulo.getIdEstadoArticulo());
-            
-            int affectedRows = stmtArticulo.executeUpdate();
-            
-            if (affectedRows > 0) {
-                rs = stmtArticulo.getGeneratedKeys();
-                if (rs.next()) {
-                    int idArticulo = rs.getInt(1);
-                    articulo.setIdArticulo(idArticulo);
-                    
-                    // 2. Insertar la publicación
-                    stmtPublicacion = conn.prepareStatement(sqlPublicacion, Statement.RETURN_GENERATED_KEYS);
-                    stmtPublicacion.setInt(1, idArticulo);
-                    stmtPublicacion.setInt(2, publicacion.getIdUsuario());
-                    
-                    int publicacionInserted = stmtPublicacion.executeUpdate();
-                    
-                    if (publicacionInserted > 0) {
-                        ResultSet rsPublicacion = stmtPublicacion.getGeneratedKeys();
-                        if (rsPublicacion.next()) {
-                            int idPublicacion = rsPublicacion.getInt(1);
-                            publicacion.setIdPublicacion(idPublicacion);
-                            rsPublicacion.close();
-                        }
-                        
-                        conn.commit();
-                        return idArticulo;
-                    } else {
-                        conn.rollback();
-                        System.err.println("Error: No se pudo crear la publicación");
-                        return 0;
+        // 1. Insertar el artículo
+        stmtArticulo = conn.prepareStatement(sqlArticulo, Statement.RETURN_GENERATED_KEYS);
+        stmtArticulo.setString(1, articulo.getNombre());
+        stmtArticulo.setString(2, articulo.getDescripcion());
+        stmtArticulo.setBigDecimal(3, articulo.getPrecio());
+        stmtArticulo.setString(4, articulo.getImagen());
+        stmtArticulo.setInt(5, articulo.getStock());
+        stmtArticulo.setInt(6, articulo.getIdEstadoArticulo());
+        
+        int affectedRows = stmtArticulo.executeUpdate();
+        
+        if (affectedRows > 0) {
+            rs = stmtArticulo.getGeneratedKeys();
+            if (rs.next()) {
+                int idArticulo = rs.getInt(1);
+                articulo.setIdArticulo(idArticulo);
+                
+                // 2. Insertar la publicación
+                stmtPublicacion = conn.prepareStatement(sqlPublicacion, Statement.RETURN_GENERATED_KEYS);
+                stmtPublicacion.setInt(1, idArticulo);
+                stmtPublicacion.setInt(2, publicacion.getIdUsuario());
+                stmtPublicacion.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+                
+                int publicacionInserted = stmtPublicacion.executeUpdate();
+                
+                if (publicacionInserted > 0) {
+                    ResultSet rsPublicacion = stmtPublicacion.getGeneratedKeys();
+                    if (rsPublicacion.next()) {
+                        int idPublicacion = rsPublicacion.getInt(1);
+                        publicacion.setIdPublicacion(idPublicacion);
+                        rsPublicacion.close();
                     }
-                }
-            }
-            
-            conn.rollback();
-            return 0;
-            
-        } catch (SQLException e) {
-            System.err.println("Error al crear publicación: " + e.getMessage());
-            e.printStackTrace();
-            
-            if (conn != null) {
-                try {
+                    
+                    // 3. NUEVO: Insertar las categorías
+                    if (articulo.getCategorias() != null && !articulo.getCategorias().isEmpty()) {
+                        stmtCategoria = conn.prepareStatement(sqlCategoria);
+                        for (String idCategoria : articulo.getCategorias()) {
+                            stmtCategoria.setInt(1, idArticulo);
+                            stmtCategoria.setInt(2, Integer.parseInt(idCategoria));
+                            stmtCategoria.addBatch();
+                        }
+                        stmtCategoria.executeBatch();
+                    }
+                    
+                    conn.commit();
+                    return idArticulo;
+                } else {
                     conn.rollback();
-                } catch (SQLException ex) {
-                    System.err.println("Error al hacer rollback: " + ex.getMessage());
-                }
-            }
-            return 0;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    System.err.println("Error al restaurar autocommit: " + e.getMessage());
-                }
-            }
-            closeResources(conn, stmtArticulo, rs);
-            if (stmtPublicacion != null) {
-                try {
-                    stmtPublicacion.close();
-                } catch (SQLException e) {
-                    System.err.println("Error al cerrar statement de publicación: " + e.getMessage());
+                    System.err.println("Error: No se pudo crear la publicación");
+                    return 0;
                 }
             }
         }
+        
+        conn.rollback();
+        return 0;
+        
+    } catch (SQLException e) {
+        System.err.println("Error al crear publicación: " + e.getMessage());
+        e.printStackTrace();
+        
+        if (conn != null) {
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                System.err.println("Error al hacer rollback: " + ex.getMessage());
+            }
+        }
+        return 0;
+    } finally {
+        if (conn != null) {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.err.println("Error al restaurar autocommit: " + e.getMessage());
+            }
+        }
+        closeResources(conn, stmtArticulo, rs);
+        if (stmtPublicacion != null) {
+            try {
+                stmtPublicacion.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar statement de publicación: " + e.getMessage());
+            }
+        }
+        if (stmtCategoria != null) {
+            try {
+                stmtCategoria.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar statement de categoría: " + e.getMessage());
+            }
+        }
     }
+}
 
 
     //Actualiza un artículo existente

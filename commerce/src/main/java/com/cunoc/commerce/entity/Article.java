@@ -1,16 +1,26 @@
 package com.cunoc.commerce.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Article {
+    @JsonProperty("id_articulo")
     private Integer idArticulo;
     private String nombre;
     private String descripcion;
     private BigDecimal precio;
-    private String imagen; // Base64
+    private String imagen;
     private Integer stock;
+
+    @JsonProperty("id_estado_articulo") 
     private Integer idEstadoArticulo;
-    private String nombreEstado; 
+    
+    @JsonProperty("nombre_estado")
+    private String nombreEstado;
+    
+    // NUEVO: Lista de IDs de categorías
+    private List<String> categorias;
     
     public Article() {}
     
@@ -24,7 +34,7 @@ public class Article {
         this.idEstadoArticulo = idEstadoArticulo;
     }
 
-    // Getters y Setters
+    // Getters y Setters existentes...
     public Integer getIdArticulo() {
         return idArticulo;
     }
@@ -89,6 +99,15 @@ public class Article {
         this.nombreEstado = nombreEstado;
     }
 
+    // NUEVO: Getter y Setter para categorías
+    public List<String> getCategorias() {
+        return categorias;
+    }
+
+    public void setCategorias(List<String> categorias) {
+        this.categorias = categorias;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
@@ -97,6 +116,7 @@ public class Article {
                 ", precio=" + precio +
                 ", stock=" + stock +
                 ", nombreEstado='" + nombreEstado + '\'' +
+                ", categorias=" + categorias +
                 '}';
     }
 }
