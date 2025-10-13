@@ -28,8 +28,7 @@ export class HasRoleDirective implements OnInit {
     this.viewContainer.clear();// limpia el contenido actual
     
     const user = this.authService.currentUserValue;
-    // si el usuario tiene el rol, muestra el contenido
-    
+    // si el usuario tiene el rol
     if (user && user.id_rol !== undefined && user.id_rol !== null) {
       const userRoleStr = String(user.id_rol);
       const hasRole = this.roles.includes(userRoleStr);

@@ -68,10 +68,12 @@ export class AuthService {
   }
 
   // verifica si el usuario tiene alguno de los roles permitidos
-  hasAnyRole(roles: string[]): boolean {
-    const user = this.currentUserValue;
-    return user ? roles.includes(user.id_rol || '') : false;
-  }
+ // Si id_rol es number
+hasAnyRole(roles: string[]): boolean {
+  const user = this.currentUserValue;
+  const userRoleStr = String(user?.id_rol); // Convertir a string
+  return user ? roles.includes(userRoleStr) : false;
+}
 
   // verifica si el usuario es administrador
   isAdmin(): boolean {

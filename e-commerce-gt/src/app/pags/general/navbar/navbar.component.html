@@ -9,103 +9,104 @@
         {{ nombreEmpresa }}
       </h1>
 
-      <div *ngIf="!authService.isAuthenticated()" class="d-flex gap-2">
-        <button class="btn btn-outline-primary" (click)="irRegistro()">
-          Registrarse
-        </button>
-        <button class="btn btn-primary" (click)="irLogin()">
-          Iniciar Sesión
-        </button>
-      </div>
+      @if (!authService.isAuthenticated()) {
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" (click)="irRegistro()">
+            Registrarse
+          </button>
+          <button class="btn btn-primary" (click)="irLogin()">
+            Iniciar Sesión
+          </button>
+        </div>
+      }
 
-      <div
-        *ngIf="authService.isAuthenticated()"
-        class="d-flex align-items-center flex-wrap gap-2"
-      >
-        <span class="text-white user-welcome me-3">
-          bienvenido, <strong>{{ getNombreCompleto() }}</strong>
-        </span>
+      @if (authService.isAuthenticated()) {
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <span class="text-white user-welcome me-3">
+            bienvenido, <strong>{{ getNombreCompleto() }}</strong>
+          </span>
 
-        <!-- Botones de admin -->
-        <button
-          *appHasRole="'4'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irAdmin()"
-        >
-          Panel Admin
-        </button>
+          <!-- Botones de admin (4) -->
+          <button
+            *appHasRole="'4'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irAdmin()"
+          >
+            Panel Admin
+          </button>
 
-        <button
-          *appHasRole="'4'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irReportes()"
-        >
-          Reportes
-        </button>
+          <button
+            *appHasRole="'4'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irReportes()"
+          >
+            Reportes
+          </button>
 
-        <!-- Botones de Logística -->
-        <button
-          *appHasRole="'3'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irReportes()"
-        >
-          Gestionar pedidos en curso
-        </button>
+          <!-- Botones de Logística (3) -->
+          <button
+            *appHasRole="'3'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irReportes()"
+          >
+            Gestionar pedidos en curso
+          </button>
 
-        <!-- Botones de Moderador -->
-        <button
-          *appHasRole="'2'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irReportes()"
-        >
-          Gestionar solicitudes de productos
-        </button>
+          <!-- Botones de Moderador (2) -->
+          <button
+            *appHasRole="'2'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irReportes()"
+          >
+            Gestionar solicitudes de productos
+          </button>
 
-        <button
-          *appHasRole="'2'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irReportes()"
-        >
-          Gestionar sanciones
-        </button>
+          <button
+            *appHasRole="'2'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irReportes()"
+          >
+            Gestionar sanciones
+          </button>
 
-        <!-- Botones de Común -->
-        <button
-          *appHasRole="'1'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irGestionarProductos()"
-        >
-          Gestionar productos en venta
-        </button>
+          <!-- Botones de Cliente (1) -->
+          <button
+            *appHasRole="'1'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irGestionarProductos()"
+          >
+            Gestionar productos en venta
+          </button>
 
-        <button
-          *appHasRole="'1'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irGestionarCarrito()"
-        >
-          Gestionar carrito de compras
-        </button>
+          <button
+            *appHasRole="'1'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irGestionarCarrito()"
+          >
+            Gestionar carrito de compras
+          </button>
 
-        <button
-          *appHasRole="'1'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irGestionarCalificaciones()"
-        >
-          Gestionar calificaciones y comentarios
-        </button>
+          <button
+            *appHasRole="'1'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irGestionarCalificaciones()"
+          >
+            Gestionar calificaciones y comentarios
+          </button>
 
-        <button
-          *appHasRole="'1'"
-          class="btn btn-outline-warning btn-header"
-          (click)="irSeguimientoPedidos()"
-        >
-          Seguimiento de pedidos
-        </button>
+          <button
+            *appHasRole="'1'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irSeguimientoPedidos()"
+          >
+            Seguimiento de pedidos
+          </button>
 
-        <button class="btn btn-outline-danger btn-header ms-2" (click)="logout()">
-          Cerrar Sesión
-        </button>
-      </div>
+          <button class="btn btn-outline-danger btn-header ms-2" (click)="logout()">
+            Cerrar Sesión
+          </button>
+        </div>
+      }
     </div>
   </div>
 </header>
