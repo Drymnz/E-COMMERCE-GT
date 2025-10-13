@@ -73,7 +73,7 @@ CREATE TABLE Articulo (
     nombre VARCHAR(200) NOT NULL,
     descripcion TEXT,
     precio DECIMAL(10, 2) NOT NULL CHECK (precio >= 0),
-    imagen VARCHAR(255),
+    imagen TEXT, --sera base64
     stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
     id_estado_articulo INT NOT NULL,
     CONSTRAINT fk_articulo_estado FOREIGN KEY (id_estado_articulo) REFERENCES Estado_Articulo(id_estado_articulo)
@@ -93,6 +93,7 @@ CREATE TABLE Publicacion (
     id_publicacion SERIAL PRIMARY KEY,
     id_articulo INT NOT NULL,
     id_usuario INT NOT NULL,
+    fecha_hora_entrega TIMESTAMP,
     CONSTRAINT fk_publicacion_articulo FOREIGN KEY (id_articulo) REFERENCES Articulo(id_articulo) ON DELETE CASCADE,
     CONSTRAINT fk_publicacion_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
 );

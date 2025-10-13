@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../service/auth.service';
+import { AuthService } from '../../../service/local/auth.service';
 import { HasRoleDirective } from '../../../directives/has-role.directive';
 
 @Component({

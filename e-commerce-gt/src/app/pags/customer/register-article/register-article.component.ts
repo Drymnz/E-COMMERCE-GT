@@ -1,61 +1,50 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ArticleComponent } from '../../general/article/article.component';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Articulo } from '../../../entities/Customer';
-import { ListConstantService } from '../../../service/list-constant.service';
+import { ListConstantService } from '../../../service/api/list-constant.service';
+import { ArticleComponent } from '../../general/article/article.component';
 
 @Component({
   selector: 'app-register-article',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ArticleComponent],
   templateUrl: './register-article.component.html',
-  styleUrls: ['./register-article.component.scss']
+  styleUrl: './register-article.component.scss'
 })
 export class RegisterArticleComponent implements OnInit {
   articuloForm!: FormGroup;
-
-  // Listas desde el servicio
   categorias: string[] = [];
   estadoArticulo: string[] = [];
-
-  // Artículo preview
-  articuloPreview: Articulo | null = null;
-
-  // Control de imagen
-  imagenFile: File | null = null;
   imagenPreviewUrl: string = '';
+
+  // Nuevas propiedades para el modo edición
+  articuloId: number | null = null;
+  isEditMode: boolean = false;
 
   constructor(
     private fb: FormBuilder,
-    private constantService: ListConstantService
+    private constantService: ListConstantService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Inicializar formulario reactivo
     this.initForm();
-
-    // Obtener categorías
-    this.constantService.tiposCategorias$.subscribe(categorias => {
-      this.categorias = categorias;
-      this.initCategoriasFormArray();
+    this.cargarConstantes();
+    
+    // Detectar si estamos en modo edición
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.articuloId = parseInt(id);
+        this.isEditMode = true;
+        this.cargarArticulo(this.articuloId);
+      }
     });
-
-    // Obtener estados de artículo
-    this.constantService.estadosArticulo$.subscribe(estadoArticulo => {
-      this.estadoArticulo = estadoArticulo;
-    });
-
-    // Actualizar preview al cambiar cualquier valor del formulario
-    this.articuloForm.valueChanges.subscribe(() => {
-      this.actualizarPreview();
-    });
-
-    // Actualizar preview inicial
-    this.actualizarPreview();
   }
 
-  // Inicializa el formulario reactivo
   initForm(): void {
     this.articuloForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -68,162 +57,164 @@ export class RegisterArticleComponent implements OnInit {
     });
   }
 
-  // Inicializa el FormArray de categorías
-  initCategoriasFormArray(): void {
-    const categoriasArray = this.articuloForm.get('categorias') as FormArray;
-    categoriasArray.clear();
+  cargarConstantes(): void {
+    this.constantService.tiposCategorias$.subscribe(categorias => {
+      this.categorias = categorias;
+      this.inicializarCategorias();
+    });
 
-    this.categorias.forEach(() => {
-      categoriasArray.push(this.fb.control(false));
+    this.constantService.estadosArticulo$.subscribe(estados => {
+      this.estadoArticulo = estados;
     });
   }
 
-  // Obtiene el FormArray de categorías
-  get categoriasFormArray(): FormArray {
-    return this.articuloForm.get('categorias') as FormArray;
+  inicializarCategorias(): void {
+    const categoriasArray = this.articuloForm.get('categorias') as FormArray;
+    categoriasArray.clear();
+    this.categorias.forEach(() => {
+      categoriasArray.push(new FormControl(false));
+    });
   }
 
-  // Obtiene las categorías seleccionadas
-  getCategoriasSeleccionadas(): string[] {
-    return this.categorias.filter((_, index) => 
-      this.categoriasFormArray.at(index).value === true
+  cargarArticulo(id: number): void {
+    // Aquí deberías cargar el artículo desde tu servicio
+    // Por ahora simulo la carga con datos de ejemplo
+    
+    // Simulación de datos (reemplaza con tu servicio real)
+    const articuloMock = new Articulo(
+      id,
+      'Laptop Dell Inspiron 15',
+      'Laptop potente para trabajo y estudio',
+      4500.00,
+      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
+      5,
+      1,
+      ['Electrónica', 'Computadoras']
     );
-  }
 
-  // Maneja la selección de archivo de imagen
-  onImagenSeleccionada(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      this.imagenFile = input.files[0];
-      
-      // Crear URL de preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagenPreviewUrl = e.target?.result as string;
-        this.articuloForm.patchValue({ imagen: this.imagenPreviewUrl });
-        this.actualizarPreview();
-      };
-      reader.readAsDataURL(this.imagenFile);
+    // Llenar el formulario con los datos del artículo
+    this.articuloForm.patchValue({
+      nombre: articuloMock.nombre,
+      descripcion: articuloMock.descripcion,
+      precio: articuloMock.precio,
+      stock: articuloMock.stock,
+      imagen: articuloMock.imagen,
+      id_estado_articulo: articuloMock.id_estado_articulo
+    });
+
+    // Marcar las categorías seleccionadas
+    const categoriasArray = this.articuloForm.get('categorias') as FormArray;
+    articuloMock.categorias.forEach(cat => {
+      const index = this.categorias.indexOf(cat);
+      if (index !== -1) {
+        categoriasArray.at(index).setValue(true);
+      }
+    });
+
+    // Si hay imagen, mostrarla
+    if (articuloMock.imagen) {
+      this.imagenPreviewUrl = articuloMock.imagen;
     }
   }
 
-  // Elimina la imagen cargada
-  eliminarImagen(): void {
-    this.imagenPreviewUrl = '';
-    this.imagenFile = null;
-    this.articuloForm.patchValue({ imagen: '' });
-    this.actualizarPreview();
-  }
-
-  // Actualiza el preview del artículo
-  actualizarPreview(): void {
+  get articuloPreview(): Articulo {
     const formValue = this.articuloForm.value;
-    
-    this.articuloPreview = new Articulo(
-      0, 
+    return new Articulo(
+      this.articuloId || 0,
       formValue.nombre || 'Nombre del artículo',
       formValue.descripcion || 'Descripción del artículo',
       formValue.precio || 0,
-      formValue.imagen || '',
+      this.imagenPreviewUrl || formValue.imagen || 'https://via.placeholder.com/400x300?text=Sin+Imagen',
       formValue.stock || 0,
       formValue.id_estado_articulo || 1,
       this.getCategoriasSeleccionadas()
     );
   }
 
-  // Obtiene el nombre del estado
-  getEstadoNombre(id_estado: number): string {
-    if (!this.estadoArticulo || this.estadoArticulo.length === 0) {
-      return 'Sin estado';
-    }
-    const index = id_estado - 1;
-    return this.estadoArticulo[index] || 'Desconocido';
+  getCategoriasSeleccionadas(): string[] {
+    const categoriasArray = this.articuloForm.get('categorias') as FormArray;
+    return this.categorias.filter((_, i) => categoriasArray.at(i).value);
   }
 
-  // Verifica si el artículo está disponible
-  isArticuloDisponible(): boolean {
-    return this.articuloForm.get('stock')?.value > 0;
-  }
-
-  // Guarda el artículo
   guardarArticulo(): void {
-    // Marcar todos los campos como touched para mostrar errores
-    this.articuloForm.markAllAsTouched();
+    if (this.articuloForm.valid && this.getCategoriasSeleccionadas().length > 0) {
+      const articuloData = {
+        ...this.articuloForm.value,
+        categorias: this.getCategoriasSeleccionadas()
+      };
 
-    // Validar que al menos una categoría esté seleccionada
-    if (this.getCategoriasSeleccionadas().length === 0) {
-      alert('Debe seleccionar al menos una categoría');
-      return;
-    }
+      if (this.isEditMode) {
+        console.log('Actualizando artículo:', this.articuloId, articuloData);
+        // Aquí llamarías a tu servicio para actualizar
+        // this.articuloService.actualizar(this.articuloId, articuloData).subscribe(...)
+        alert('Artículo actualizado correctamente');
+      } else {
+        console.log('Creando nuevo artículo:', articuloData);
+        // Aquí llamarías a tu servicio para crear
+        // this.articuloService.crear(articuloData).subscribe(...)
+        alert('Artículo creado correctamente');
+      }
 
-    if (this.articuloForm.valid) {
-      const formValue = this.articuloForm.value;
-      
-      const nuevoArticulo = new Articulo(
-        0, 
-        formValue.nombre,
-        formValue.descripcion,
-        formValue.precio,
-        formValue.imagen,
-        formValue.stock,
-        formValue.id_estado_articulo,
-        this.getCategoriasSeleccionadas()
-      );
-
-      console.log('Artículo a guardar:', nuevoArticulo);
-      // RECORATORIO DE COMUNICAR CON LA API AQUI
-      alert('Artículo guardado exitosamente!\n\n' + JSON.stringify(nuevoArticulo, null, 2));
-      
-      // Limpiar formulario
-      this.limpiarFormulario();
-    } else {
-      alert('Por favor, complete todos los campos obligatorios correctamente');
+      // Redirigir a la lista de productos
+      this.router.navigate(['/manage-products']);
     }
   }
 
-  // Limpia el formulario
+  onImagenSeleccionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagenPreviewUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  eliminarImagen(): void {
+    this.imagenPreviewUrl = '';
+    this.articuloForm.patchValue({ imagen: '' });
+  }
+
   limpiarFormulario(): void {
     this.articuloForm.reset({
-      nombre: '',
-      descripcion: '',
+      id_estado_articulo: 1,
       precio: 0,
-      stock: 0,
-      imagen: '',
-      id_estado_articulo: 1
+      stock: 0
     });
-    
-    // Limpiar checkboxes de categorías
-    this.categoriasFormArray.controls.forEach(control => {
-      control.setValue(false);
-    });
-
-    this.imagenFile = null;
     this.imagenPreviewUrl = '';
-    this.actualizarPreview();
+    this.inicializarCategorias();
   }
 
-  // Verifica si un campo es inválido y fue tocado
   isFieldInvalid(fieldName: string): boolean {
     const field = this.articuloForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
-  // Obtiene el mensaje de error de un campo
   getErrorMessage(fieldName: string): string {
     const field = this.articuloForm.get(fieldName);
-    
     if (field?.hasError('required')) {
       return 'Este campo es obligatorio';
     }
     if (field?.hasError('minlength')) {
       const minLength = field.errors?.['minlength'].requiredLength;
-      return `Debe tener al menos ${minLength} caracteres`;
+      return `Mínimo ${minLength} caracteres`;
     }
     if (field?.hasError('min')) {
-      const min = field.errors?.['min'].min;
-      return `El valor mínimo es ${min}`;
+      return 'El valor debe ser mayor a 0';
     }
-    
     return '';
+  }
+
+  getEstadoNombre(idEstado: number): string {
+    if (idEstado > 0 && idEstado <= this.estadoArticulo.length) {
+      return this.estadoArticulo[idEstado - 1];
+    }
+    return 'Sin estado';
+  }
+
+  isArticuloDisponible(): boolean {
+    return this.articuloForm.get('stock')?.value > 0;
   }
 }

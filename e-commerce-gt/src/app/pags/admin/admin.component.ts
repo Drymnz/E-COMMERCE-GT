@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UserService } from '../../service/user-service.service';
-import { ListConstantService } from '../../service/list-constant.service';
+import { UserService } from '../../service/api/user-service.service';
+import { ListConstantService } from '../../service/api/list-constant.service';
 import { Usuario } from '../../entities/Usuario';
 
 @Component({

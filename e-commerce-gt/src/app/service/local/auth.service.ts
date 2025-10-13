@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Usuario } from '../entities/Usuario';
+import { Usuario } from '../../entities/Usuario';
 
 @Injectable({
   providedIn: 'root'

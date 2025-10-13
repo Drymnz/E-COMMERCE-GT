@@ -18,14 +18,18 @@ export const routes: Routes = [
   {
     path: 'manage-products-sale',
     canActivate: [roleGuard(['1'])],
-    component: ManageProductsSaleComponent  
+    component: ManageProductsSaleComponent
   },
   {
     path: 'register-article',
     canActivate: [roleGuard(['1'])],
-    component: RegisterArticleComponent  
+    component: RegisterArticleComponent
   },
-
+  {
+    path: 'register-article/:id',
+    canActivate: [roleGuard(['1'])],
+    component: RegisterArticleComponent
+  },
   // RUTAS PÚBLICAS 
   {
     path: 'login',
@@ -37,7 +41,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    component: HomeComponent  
+    component: HomeComponent
   },
 
   //  RUTA ERROR 

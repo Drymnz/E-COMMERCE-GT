@@ -1,0 +1,296 @@
+package com.cunoc.commerce.controller;
+
+import com.cunoc.commerce.controller.datatoobject.ArticleDAO;
+import com.cunoc.commerce.entity.Article;
+import com.cunoc.commerce.entity.Publicacion;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/article")
+@CrossOrigin(origins = "*")
+public class ItemController {
+    
+    private final ArticleDAO articleDAO = new ArticleDAO();
+
+    //Lista todos los artículos disponibles (con stock > 0)
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableArticles() {
+        try {
+            List<Article> articles = articleDAO.findAllAvailable();
+            return ResponseEntity.ok(createSuccessResponse("Artículos disponibles obtenidos", articles));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al obtener artículos disponibles", e.getMessage()));
+        }
+    }
+
+
+    //Obtiene un artículo por su ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getArticleById(@PathVariable int id) {
+        try {
+            Article article = articleDAO.findById(id);
+            if (article != null) {
+                return ResponseEntity.ok(createSuccessResponse("Artículo encontrado", article));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al buscar artículo", e.getMessage()));
+        }
+    }
+
+     // Crea una nueva publicación con su artículo
+    @PostMapping
+    public ResponseEntity<?> createPublicacion(@RequestBody Publicacion publicacion) {
+        try {
+            // Validar que existe el objeto publicacion
+            if (publicacion == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "La publicación no puede ser nula"));
+            }
+            
+            // Validar id_usuario
+            if (publicacion.getIdUsuario() == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El ID del usuario es obligatorio"));
+            }
+            
+            // Validar que existe el artículo
+            Article articulo = publicacion.getArticulo();
+            if (articulo == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El artículo es obligatorio"));
+            }
+            
+            // Validaciones del artículo
+            if (articulo.getNombre() == null || articulo.getNombre().trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El nombre del artículo es obligatorio"));
+            }
+            if (articulo.getPrecio() == null || articulo.getPrecio().compareTo(BigDecimal.ZERO) < 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El precio debe ser mayor o igual a 0"));
+            }
+            if (articulo.getStock() == null || articulo.getStock() < 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El stock debe ser mayor o igual a 0"));
+            }
+            if (articulo.getIdEstadoArticulo() == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El estado del artículo es obligatorio"));
+            }
+            
+            int newId = articleDAO.create(publicacion);
+            if (newId > 0) {
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body(createSuccessResponse("Publicación creada exitosamente", publicacion));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(createErrorResponse("Error al crear publicación", "No se pudo insertar la publicación"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al crear publicación", e.getMessage()));
+        }
+    }
+
+    //Actualiza un artículo existente
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateArticle(@PathVariable int id, @RequestBody Article article) {
+        try {
+            // Verificar que el artículo existe
+            Article existingArticle = articleDAO.findById(id);
+            if (existingArticle == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
+            }
+            
+            // Validaciones básicas
+            if (article.getNombre() == null || article.getNombre().trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El nombre es obligatorio"));
+            }
+            if (article.getPrecio() == null || article.getPrecio().compareTo(BigDecimal.ZERO) < 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El precio debe ser mayor o igual a 0"));
+            }
+            if (article.getStock() == null || article.getStock() < 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El stock debe ser mayor o igual a 0"));
+            }
+            
+            article.setIdArticulo(id);
+            boolean updated = articleDAO.update(article);
+            
+            if (updated) {
+                Article updatedArticle = articleDAO.findById(id);
+                return ResponseEntity.ok(createSuccessResponse("Artículo actualizado exitosamente", updatedArticle));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(createErrorResponse("Error al actualizar", "No se pudo actualizar el artículo"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al actualizar artículo", e.getMessage()));
+        }
+    }
+
+    //Elimina un artículo
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteArticle(@PathVariable int id) {
+        try {
+            Article existingArticle = articleDAO.findById(id);
+            if (existingArticle == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
+            }
+            
+            boolean deleted = articleDAO.delete(id);
+            if (deleted) {
+                return ResponseEntity.ok(createSuccessResponse("Artículo eliminado exitosamente", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(createErrorResponse("Error al eliminar", "No se pudo eliminar el artículo"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al eliminar artículo", e.getMessage()));
+        }
+    }
+
+
+    //Busca artículos por nombre O descripción
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam String term) {
+        try {
+            if (term == null || term.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Parámetro inválido", "El término de búsqueda no puede estar vacío"));
+            }
+            
+            List<Article> articles = articleDAO.searchByNameOrDescription(term);
+            return ResponseEntity.ok(createSuccessResponse("Búsqueda completada", articles));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error en la búsqueda", e.getMessage()));
+        }
+    }
+
+    //Filtra artículos por categoría
+    @GetMapping("/filter/category")
+    public ResponseEntity<?> filterByCategory(@RequestParam String name) {
+        try {
+            if (name == null || name.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Parámetro inválido", "El nombre de categoría no puede estar vacío"));
+            }
+            
+            List<Article> articles = articleDAO.filterByCategory(name);
+            return ResponseEntity.ok(createSuccessResponse("Artículos filtrados por categoría", articles));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al filtrar por categoría", e.getMessage()));
+        }
+    }
+
+    /**
+     * Filtra artículos por múltiples criterios
+     * Parámetros opcionales: category, minPrice, maxPrice, stateId
+     */
+    @GetMapping("/filter/advanced")
+    public ResponseEntity<?> filterByMultipleCriteria(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Integer stateId) {
+        try {
+            List<Article> articles = articleDAO.filterByMultipleCriteria(category, minPrice, maxPrice, stateId);
+            return ResponseEntity.ok(createSuccessResponse("Artículos filtrados", articles));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al filtrar artículos", e.getMessage()));
+        }
+    }
+
+    //Actualiza solo el stock de un artículo
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<?> updateStock(@PathVariable int id, @RequestBody Map<String, Integer> body) {
+        try {
+            if (!body.containsKey("stock")) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Parámetro faltante", "Se requiere el campo 'stock'"));
+            }
+            
+            int newStock = body.get("stock");
+            if (newStock < 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El stock debe ser mayor o igual a 0"));
+            }
+            
+            Article existingArticle = articleDAO.findById(id);
+            if (existingArticle == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
+            }
+            
+            boolean updated = articleDAO.updateStock(id, newStock);
+            if (updated) {
+                Article updatedArticle = articleDAO.findById(id);
+                return ResponseEntity.ok(createSuccessResponse("Stock actualizado exitosamente", updatedArticle));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(createErrorResponse("Error al actualizar stock", "No se pudo actualizar el stock"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al actualizar stock", e.getMessage()));
+        }
+    }
+
+    //Obtiene las categorías de un artículo específico
+    @GetMapping("/{id}/categories")
+    public ResponseEntity<?> getArticleCategories(@PathVariable int id) {
+        try {
+            Article existingArticle = articleDAO.findById(id);
+            if (existingArticle == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
+            }
+            
+            List<String> categories = articleDAO.getCategoriesByArticleId(id);
+            return ResponseEntity.ok(createSuccessResponse("Categorías obtenidas", categories));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al obtener categorías", e.getMessage()));
+        }
+    }
+
+    //Crea una respuesta exitosa estandarizada
+    private Map<String, Object> createSuccessResponse(String message, Object data) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", message);
+        response.put("data", data);
+        return response;
+    }
+
+    //Crea una respuesta de error estandarizada
+    private Map<String, Object> createErrorResponse(String message, String detail) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("message", message);
+        response.put("error", detail);
+        return response;
+    }
+}

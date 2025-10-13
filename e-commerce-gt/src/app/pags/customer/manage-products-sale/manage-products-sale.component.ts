@@ -5,7 +5,7 @@ import { ProductCardManageComponent } from '../product-card-manage/product-card-
 import { Articulo } from '../../../entities/Customer';
 import { ModalSelectOptionComponent } from '../../general/modal-select-option/modal-select-option.component';
 import { NotifyConfirmComponent } from '../../general/notify-confirm/notify-confirm.component';
-import { ListConstantService } from '../../../service/list-constant.service';
+import { ListConstantService } from '../../../service/api/list-constant.service';
 
 @Component({
   selector: 'app-manage-products-sale',
@@ -123,7 +123,7 @@ export class ManageProductsSaleComponent implements OnInit {
   }
 
   editarProducto(articulo: Articulo): void {
-    this.router.navigate(['/editar-producto', articulo.id_articulo]);
+    this.router.navigate(['/register-article', articulo.id_articulo]);
   }
 
   eliminarProducto(articulo: Articulo): void {
