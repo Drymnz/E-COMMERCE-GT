@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ListConstantService } from '../../../service/api/list-constant.service';
 import { Articulo } from '../../../entities/Customer';
 import { ArticleComponent } from '../article/article.component';
+import { ArticleService } from '../../../service/api/article.service';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +18,8 @@ export class HomeComponent implements OnInit {
   articulos: Articulo[] = [];
 
   constructor(
-    private constantService: ListConstantService
+    private constantService: ListConstantService,
+    private listArticle:ArticleService
   ) { }
 
   ngOnInit(): void {
@@ -31,90 +33,21 @@ export class HomeComponent implements OnInit {
       this.estadoArticulo = estadoArticulo;
       // Cargar artículos después de obtener los estados
       if (this.estadoArticulo.length > 0 && this.articulos.length === 0) {
-        this.cargarArticulosEjemplo();
+        this.cargarArticulos();
       }
     });
   }
 
-  private cargarArticulosEjemplo(): void {
-    this.articulos = [
-      new Articulo(
-        1,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      ),
-      new Articulo(
-        2,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      )
-      ,
-      new Articulo(
-        3,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      )
-      ,
-      new Articulo(
-        4,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      )
-      ,
-      new Articulo(
-        5,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      )
-      ,
-      new Articulo(
-        6,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      )
-      ,
-      new Articulo(
-        7,
-        'Laptop HP Pavilion 15',
-        'Laptop con procesador Intel Core i7, 16GB RAM, SSD 512GB, pantalla 15.6" Full HD',
-        8500.00,
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-        15,
-        1,
-        ['Electrónica', 'Computadoras']
-      )
-    ];
-  }
+  private cargarArticulos(): void {
+  this.listArticle.getAvailableArticles().subscribe({
+    next: (articulos) => {
+      this.articulos = articulos;
+    },
+    error: (error) => {
+      console.error('Error al cargar artículos:', error);
+    }
+  });
+}
 
   // Obtiene el nombre del estado del artículo según su id
   getEstadoNombre(id_estado: number): string {

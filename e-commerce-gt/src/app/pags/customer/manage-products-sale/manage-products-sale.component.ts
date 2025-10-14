@@ -6,6 +6,8 @@ import { Articulo } from '../../../entities/Customer';
 import { ModalSelectOptionComponent } from '../../general/modal-select-option/modal-select-option.component';
 import { NotifyConfirmComponent } from '../../general/notify-confirm/notify-confirm.component';
 import { ListConstantService } from '../../../service/api/list-constant.service';
+import { AuthService } from '../../../service/local/auth.service';
+import { ArticleService } from '../../../service/api/article.service';
 
 @Component({
   selector: 'app-manage-products-sale',
@@ -30,7 +32,9 @@ export class ManageProductsSaleComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private constantService: ListConstantService
+    private constantService: ListConstantService,
+    private authService: AuthService,
+    private articleService: ArticleService
   ) { }
 
   ngOnInit(): void {
@@ -50,42 +54,25 @@ export class ManageProductsSaleComponent implements OnInit {
 
   cargarArticulos(): void {
     this.cargando = true;
+    const id_user = this.authService.currentUserValue?.id_usuario;
 
-    setTimeout(() => {
-      this.articulos = [
-        new Articulo(
-          1,
-          'Laptop Dell Inspiron 15',
-          'Laptop potente para trabajo y estudio con procesador Intel i7, 16GB RAM, SSD 512GB',
-          4500.00,
-          'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-          5,
-          1,
-          ['Electrónica', 'Computadoras']
-        ),
-        new Articulo(
-          2,
-          'Mouse Logitech MX Master 3',
-          'Mouse ergonómico inalámbrico de alta precisión',
-          350.00,
-          'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-          0,
-          2,
-          ['Accesorios', 'Periféricos']
-        ),
-        new Articulo(
-          3,
-          'Teclado Mecánico RGB',
-          'Teclado gaming con switches mecánicos y retroiluminación personalizable',
-          550.00,
-          'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-          12,
-          1,
-          ['Gaming', 'Periféricos']
-        )
-      ];
+    if (id_user) {
+      this.articleService.getArticlesByUserId(id_user).subscribe({
+        next: (articulos) => {
+          this.articulos = articulos;
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar artículos del usuario:', error);
+          this.articulos = [];
+          this.cargando = false;
+        }
+      });
+    } else {
+      console.error('No hay usuario autenticado');
+      this.articulos = [];
       this.cargando = false;
-    }, 500);
+    }
   }
 
   get articulosFiltrados(): Articulo[] {
@@ -133,9 +120,16 @@ export class ManageProductsSaleComponent implements OnInit {
 
   confirmarEliminar(confirmado: boolean): void {
     if (confirmado && this.articuloAEliminar) {
-      console.log('Eliminando producto:', this.articuloAEliminar);
-      this.articulos = this.articulos.filter(a => a.id_articulo !== this.articuloAEliminar!.id_articulo);
-      this.cerrarModalEliminar();
+      this.articleService.deleteArticle(this.articuloAEliminar.id_articulo).subscribe({
+        next: (response) => {
+          this.articulos = this.articulos.filter(a => a.id_articulo !== this.articuloAEliminar!.id_articulo);
+          this.cerrarModalEliminar();
+        },
+        error: (error) => {
+          console.error('Error al eliminar artículo:', error);
+          // Mostrar mensaje de error al usuario
+        }
+      });
     }
   }
 
@@ -152,8 +146,27 @@ export class ManageProductsSaleComponent implements OnInit {
   confirmarCambioEstado(nuevoEstado: string): void {
     if (this.articuloSeleccionado) {
       const indiceEstado = this.estadosArticulo.indexOf(nuevoEstado);
-      console.log('Cambiando estado del producto:', this.articuloSeleccionado, 'a:', nuevoEstado);
-      this.articuloSeleccionado.id_estado_articulo = indiceEstado;
+      const nuevoIdEstado = indiceEstado + 1;
+      const idArticulo = this.articuloSeleccionado.id_articulo; 
+
+      this.articleService.updateArticleStatus(idArticulo, nuevoIdEstado).subscribe({
+        next: (response) => {
+          // Buscar el artículo en el array y actualizar su estado
+          const articulo = this.articulos.find(a => a.id_articulo === idArticulo);
+          if (articulo) {
+            articulo.id_estado_articulo = nuevoIdEstado;
+          }
+
+          // Si el artículo seleccionado sigue existiendo, actualizarlo también
+          if (this.articuloSeleccionado) {
+            this.articuloSeleccionado.id_estado_articulo = nuevoIdEstado;
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar estado:', error);
+          // Mostrar mensaje de error al usuario
+        }
+      });
     }
   }
 

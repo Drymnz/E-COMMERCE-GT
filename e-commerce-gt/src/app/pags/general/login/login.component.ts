@@ -40,7 +40,6 @@ export class LoginComponent {
     //Servicio para el login
     this.userService.login(this.email, this.password).subscribe({
       next: (usuario) => {
-        console.log('Login exitoso:', usuario);
         this.authService.login(usuario);
         this.router.navigate([this.returnUrl]);
       },

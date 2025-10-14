@@ -31,8 +31,8 @@ export class RegisterArticleComponent implements OnInit {
     private constantService: ListConstantService,
     private route: ActivatedRoute,
     private router: Router,
-    public authService: AuthService,
-    public articleService: ArticleService
+    private authService: AuthService,
+    private articleService: ArticleService
   ) { }
 
   ngOnInit(): void {
@@ -175,7 +175,6 @@ export class RegisterArticleComponent implements OnInit {
           imagen: base64String
         });
 
-        console.log('Imagen cargada, tamaño:', base64String.length, 'caracteres');
       };
 
       reader.onerror = (error) => {
@@ -212,7 +211,6 @@ export class RegisterArticleComponent implements OnInit {
         console.log('Actualizando artículo:', this.articuloId, articuloData);
         alert('Artículo actualizado correctamente');
       } else {
-        console.log('Creando nuevo artículo:', articuloData);
         const id_user = this.authService.currentUserValue?.id_usuario;
 
         if (!id_user) {
@@ -240,13 +238,10 @@ export class RegisterArticleComponent implements OnInit {
 
         // DEBUG: Ver el JSON que se enviará
         const jsonToSend = nuevaPublicacion.toJSON();
-        console.log('JSON a enviar al backend:', JSON.stringify(jsonToSend, null, 2));
 
         // Llamar al servicio para crear la publicación
         this.articleService.createPublicacion(nuevaPublicacion).subscribe({
           next: (response) => {
-            console.log('Publicación creada exitosamente:', response);
-            alert('Artículo creado correctamente');
             this.router.navigate(['/manage-products-sale']);
           },
           error: (error) => {

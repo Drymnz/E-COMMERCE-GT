@@ -93,20 +93,15 @@ public class ItemController {
         }
     }
 
-    // Obtiene un artículo por su ID
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getArticleById(@PathVariable int id) {
+    // Lista todos los artículos de un usuario
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getArticlesByUserId(@PathVariable int id) {
         try {
-            Article article = articleDAO.findById(id);
-            if (article != null) {
-                return ResponseEntity.ok(createSuccessResponse("Artículo encontrado", article));
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
-            }
+            List<Article> articles = articleDAO.findByUserId(id);
+            return ResponseEntity.ok(createSuccessResponse("Artículos del usuario obtenidos", articles));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Error al buscar artículo", e.getMessage()));
+                    .body(createErrorResponse("Error al obtener artículos del usuario", e.getMessage()));
         }
     }
 
@@ -262,28 +257,45 @@ public class ItemController {
         }
     }
 
-    // Obtiene las categorías de un artículo específico
-    @GetMapping("/{id}/categories")
-    public ResponseEntity<?> getArticleCategories(@PathVariable int id) {
+    // Actualizando el estado
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateArticleStatus(
+            @PathVariable int id,
+            @RequestBody Map<String, Integer> body) {
         try {
+            // Validar que existe el campo id_estado_articulo
+            if (!body.containsKey("id_estado_articulo")) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("Validación fallida", "El campo id_estado_articulo es obligatorio"));
+            }
+
+            int idEstadoArticulo = body.get("id_estado_articulo");
+
+            // Verificar que el artículo existe
             Article existingArticle = articleDAO.findById(id);
             if (existingArticle == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(createErrorResponse("Artículo no encontrado", "No existe artículo con ID: " + id));
             }
 
-            List<String> categories = articleDAO.getCategoriesByArticleId(id);
-            return ResponseEntity.ok(createSuccessResponse("Categorías obtenidas", categories));
+            // Actualizar el estado
+            boolean updated = articleDAO.updateStatus(id, idEstadoArticulo);
+            if (updated) {
+                return ResponseEntity.ok(createSuccessResponse("Estado actualizado exitosamente", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(createErrorResponse("Error al actualizar estado",
+                                "No se pudo actualizar el estado del artículo"));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Error al obtener categorías", e.getMessage()));
+                    .body(createErrorResponse("Error al actualizar estado", e.getMessage()));
         }
     }
 
     // Crea una respuesta exitosa estandarizada
     private Map<String, Object> createSuccessResponse(String message, Object data) {
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
         response.put("message", message);
         response.put("data", data);
         return response;
@@ -292,7 +304,6 @@ public class ItemController {
     // Crea una respuesta de error estandarizada
     private Map<String, Object> createErrorResponse(String message, String detail) {
         Map<String, Object> response = new HashMap<>();
-        response.put("success", false);
         response.put("message", message);
         response.put("error", detail);
         return response;

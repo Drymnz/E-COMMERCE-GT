@@ -84,7 +84,6 @@ export class RegistroComponent {
       formValue.password
     ).subscribe({
       next: (usuario) => {
-        console.log('Registro exitoso:', usuario);
         this.successMessage = 'Registro exitoso. Redirigiendo...';
         this.loading = false;
 

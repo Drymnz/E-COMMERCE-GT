@@ -22,7 +22,7 @@ export class ArticleComponent {
 
   get imagenUrl(): string {
     if (!this.articulo || !this.articulo.imagen || this.imagenError) {
-      return 'assets/images/placeholder.jpg';
+      return 'load.jpg';
     }
     return this.articulo.imagen;
   }
