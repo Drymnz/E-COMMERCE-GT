@@ -98,7 +98,7 @@ export class Articulo {
   }
 
   get disponible(): boolean {
-    return this._stock > 0 && this._id_estado_articulo === 1;
+    return this._stock > 0 ;
   }
 
   get estadoStock(): string {

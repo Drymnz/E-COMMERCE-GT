@@ -1,0 +1,108 @@
+<div class="card mt-4">
+  <div class="card-body">
+    <h2 class="card-title h4">Comentarios</h2>
+    
+    <div class="add-comment mb-4">
+      <h3 class="h5">Deja tu opinión</h3>
+      
+      @if (!usuarioAutenticado) {
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          Debes <strong>iniciar sesión</strong> para poder comentar
+        </div>
+      } @else {
+        <div class="comment-form">
+          @if (errorSesion) {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Error de sesión. Por favor, inicia sesión nuevamente.
+              <button type="button" class="btn-close" (click)="errorSesion = false"></button>
+            </div>
+          }
+          
+          <div class="mb-3">
+            <label class="form-label">Tu puntuación:</label>
+            <div class="stars-input">
+              @for (star of [1,2,3,4,5]; track star) {
+                <span 
+                  class="fs-4" 
+                  [class.text-warning]="star <= puntuacionSeleccionada"
+                  [class.text-muted]="star > puntuacionSeleccionada"
+                  style="cursor: pointer;"
+                  (click)="seleccionarPuntuacion(star)">
+                  <i class="bi bi-star-fill"></i>
+                </span>
+              }
+            </div>
+            @if (errorPuntuacion) {
+              <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Por favor selecciona una puntuación
+              </div>
+            }
+          </div>
+          
+          <div class="mb-3">
+            <textarea 
+              [(ngModel)]="nuevaDescripcion"
+              placeholder="Escribe tu comentario aquí..." 
+              rows="4"
+              class="form-control"
+              [class.is-invalid]="errorDescripcion"
+              (input)="errorDescripcion = false">
+            </textarea>
+            @if (errorDescripcion) {
+              <div class="invalid-feedback d-block">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Por favor escribe un comentario
+              </div>
+            }
+          </div>
+          
+          <button (click)="publicarComentario()" class="btn btn-primary">
+            <i class="bi bi-send me-2"></i>Publicar comentario
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="comments-list">
+      @for (comentario of comentarios; track comentario.id_comentario) {
+        <div class="card mb-3" [class.border-primary]="esComentarioPropio(comentario)">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="d-flex align-items-center">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  {{ obtenerNombreUsuario(comentario.id_usuario).charAt(0) }}
+                </div>
+                <div>
+                  <span class="fw-bold d-block">
+                    {{ obtenerNombreUsuario(comentario.id_usuario) }}
+                    @if (esComentarioPropio(comentario)) {
+                      <span class="badge bg-primary ms-2">Tu comentario</span>
+                    }
+                  </span>
+                  <div>
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <span class="text-warning" [class.text-muted]="star > comentario.puntuacion">
+                        <i class="bi bi-star-fill"></i>
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="card-text mb-0">{{ comentario.descripcion }}</p>
+          </div>
+        </div>
+      }
+
+      @if (comentarios.length === 0) {
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-chat-dots fs-1"></i>
+          <p class="mb-0 mt-2">Aún no hay comentarios.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

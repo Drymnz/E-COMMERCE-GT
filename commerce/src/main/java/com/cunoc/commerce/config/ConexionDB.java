@@ -17,9 +17,7 @@ public class ConexionDB {
     private static final String USERNAME = "postgres";
     private static final String PASSWORD = "123456";
 
-    /**
-     * Inicializar el pool de conexiones
-     */
+    //Inicializar el pool de conexiones
     public static void inicializar() {
         if (dataSource != null) {
             return;
@@ -64,9 +62,7 @@ public class ConexionDB {
         return dataSource != null && !dataSource.isClosed();
     }
 
-    /**
-     * Cerrar el pool de conexiones
-     */
+    //Cerrar el pool de conexiones
     public static void cerrar() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();

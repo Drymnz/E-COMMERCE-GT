@@ -146,6 +146,27 @@ public class ItemController {
         }
     }
 
+    // Obtener articulo solo si el usuario es el creado
+    @GetMapping("/user/{idUsuario}/article/{idArticulo}")
+    public ResponseEntity<?> getArticleByUserAndId(
+            @PathVariable int idUsuario,
+            @PathVariable int idArticulo) {
+        try {
+            Article article = articleDAO.findByIdAndUserId(idArticulo, idUsuario);
+
+            if (article == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado",
+                                "No existe el artículo o no pertenece al usuario"));
+            }
+
+            return ResponseEntity.ok(createSuccessResponse("Artículo obtenido exitosamente", article));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al obtener artículo", e.getMessage()));
+        }
+    }
+
     // Elimina un artículo
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteArticle(@PathVariable int id) {
@@ -169,20 +190,26 @@ public class ItemController {
         }
     }
 
-    // Busca artículos por nombre O descripción
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String term) {
+    // Busca artículos por id (usando /details/{id} para evitar conflictos)
+    @GetMapping("/details/{id}")
+    public ResponseEntity<?> getArticle(@PathVariable int id) {
         try {
-            if (term == null || term.trim().isEmpty()) {
+            if (id <= 0) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("Parámetro inválido", "El término de búsqueda no puede estar vacío"));
+                        .body(createErrorResponse("Parámetro inválido", "El ID del artículo debe ser mayor a 0"));
             }
 
-            List<Article> articles = articleDAO.searchByNameOrDescription(term);
-            return ResponseEntity.ok(createSuccessResponse("Búsqueda completada", articles));
+            Article article = articleDAO.findById(id);
+
+            if (article != null) {
+                return ResponseEntity.ok(createSuccessResponse("Artículo encontrado exitosamente", article));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Artículo no encontrado", "No existe un artículo con el ID: " + id));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Error en la búsqueda", e.getMessage()));
+                    .body(createErrorResponse("Error al buscar el artículo", e.getMessage()));
         }
     }
 

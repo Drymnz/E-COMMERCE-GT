@@ -11,9 +11,7 @@ public abstract class BaseDAO {
         return ConexionDB.getConnection();
     }
 
-    /**
-     * Cierra los recursos de forma segura
-     */
+    //Cierra los recursos de forma segura
     protected void closeResources(Connection conn, PreparedStatement stmt, ResultSet rs) {
         try {
             if (rs != null) rs.close();
@@ -24,16 +22,12 @@ public abstract class BaseDAO {
         }
     }
 
-    /**
-     * Cierra conexión y statement (sobrecarga sin ResultSet)
-     */
+    //Cierra conexión y statement 
     protected void closeResources(Connection conn, PreparedStatement stmt) {
         closeResources(conn, stmt, null);
     }
 
-    /**
-     * Ejecuta un INSERT, UPDATE o DELETE y retorna las filas afectadas
-     */
+    //Ejecuta un INSERT, UPDATE o DELETE y retorna las filas afectadas
     protected int executeUpdate(String sql, Object... params) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -58,9 +52,7 @@ public abstract class BaseDAO {
         }
     }
 
-    /**
-     * Ejecuta una consulta SELECT y retorna el ResultSet
-     */
+    //Ejecuta una consulta SELECT y retorna el ResultSet
     protected ResultSet executeQuery(String sql, Object... params) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql);

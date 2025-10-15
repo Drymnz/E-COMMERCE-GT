@@ -1,0 +1,71 @@
+<div class="container">
+
+  @if (mensajeExito) {
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+      <i class="bi bi-check-circle me-2"></i>{{ mensajeExito }}
+      <button type="button" class="btn-close" (click)="cerrarMensaje('exito')"></button>
+    </div>
+  }
+  <!-- backend -->
+  @if (mensajeError) {
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ mensajeError }}
+      <button type="button" class="btn-close" (click)="cerrarMensaje('error')"></button>
+    </div>
+  }
+  <!-- Loader -->
+  @if (cargando) {
+    <div class="d-flex justify-content-center align-items-center flex-column my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando producto...</p>
+    </div>
+  }
+
+  <!-- Mensaje de error -->
+  @if (error && !cargando) {
+    <div class="alert alert-warning text-center my-5">
+      <h2 class="h4">{{ error }}</h2>
+      <button routerLink="/" class="btn btn-primary mt-3">Volver al inicio</button>
+    </div>
+  }
+
+  <!-- Contenido del producto -->
+  @if (articulo && !cargando) {
+    <div class="product-content">
+      <!-- Vista del artículo -->
+      <app-article-view [articulo]="articulo"></app-article-view>
+
+      <!-- Sección de puntuación -->
+      <div class="card mt-4">
+        <div class="card-body">
+          <h2 class="card-title h4">Valoraciones</h2>
+          <div class="d-flex align-items-center">
+            <div class="me-4">
+              <span class="h2 text-warning">{{ puntuacionPromedio }}</span>
+            </div>
+            <div>
+              <div class="mb-1">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <span class="text-warning" [class.text-muted]="star > puntuacionPromedio">
+                   <i class="bi bi-star-fill"></i>
+                  </span>
+                }
+              </div>
+              <span class="text-muted">{{ totalResenas }} {{ totalResenas === 1 ? 'valoración' : 'valoraciones' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Componente de comentarios -->
+      <app-comentarios 
+        [comentarios]="comentarios"
+        [usuarioAutenticado]="usuarioAutenticado"
+        [idUsuarioActual]="idUsuarioActual"
+        (comentarioAgregado)="agregarComentario($event)">
+      </app-comentarios>
+    </div>
+  }
+</div>

@@ -5,8 +5,10 @@ import { LoginComponent } from './pags/general/login/login.component';
 import { RegistroComponent } from './pags/general/registro/registro.component';
 import { Error404Component } from './pags/general/error/error-404/error-404.component';
 import { ManageProductsSaleComponent } from './pags/customer/manage-products-sale/manage-products-sale.component';
-import { RegisterArticleComponent } from './pags/customer/register-article/register-article.component';
 import { roleGuard } from './guards/auth.guard';
+import { RegisterArticleComponent } from './pags/customer/manage-products-sale/register-article/register-article.component';
+import { SeeProductComponent } from './pags/general/see-product/see-product.component';
+import { ManageShoppingCartComponent } from './pags/customer/manage-shopping-cart/manage-shopping-cart.component';
 
 export const routes: Routes = [
   // RUTAS PROTEGIDAS
@@ -30,7 +32,16 @@ export const routes: Routes = [
     canActivate: [roleGuard(['1'])],
     component: RegisterArticleComponent
   },
+  {
+    path: 'manage-shopping-cart',
+    canActivate: [roleGuard(['1'])],
+    component: ManageShoppingCartComponent
+  },
   // RUTAS PÚBLICAS 
+  {
+    path: 'see-product/:id',
+    component: SeeProductComponent
+  },
   {
     path: 'login',
     component: LoginComponent

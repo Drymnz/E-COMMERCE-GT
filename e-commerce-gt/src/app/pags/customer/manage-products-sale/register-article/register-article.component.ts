@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Articulo } from '../../../entities/Customer';
-import { ListConstantService } from '../../../service/api/list-constant.service';
-import { ArticleComponent } from '../../general/article/article.component';
-import { AuthService } from '../../../service/local/auth.service';
-import { ArticleService } from '../../../service/api/article.service';
-import { Publicacion } from '../../../entities/Publication';
+import { ArticleComponent } from '../../../general/article/article.component';
+import { ListConstantService } from '../../../../service/api/list-constant.service';
+import { AuthService } from '../../../../service/local/auth.service';
+import { ArticleService } from '../../../../service/api/article.service';
+import { Articulo } from '../../../../entities/Customer';
+import { Publicacion } from '../../../../entities/Publication';
 
 @Component({
   selector: 'app-register-article',
@@ -22,9 +22,13 @@ export class RegisterArticleComponent implements OnInit {
   estadoArticulo: string[] = [];
   imagenPreviewUrl: string = '';
 
-  // Nuevas propiedades para el modo edición
+  // Propiedades para el modo edición
   articuloId: number | null = null;
   isEditMode: boolean = false;
+
+  // Propiedades para mensajes
+  mensajeError: string = '';
+  mensajeExito: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -82,44 +86,50 @@ export class RegisterArticleComponent implements OnInit {
   }
 
   cargarArticulo(id: number): void {
-    // Aquí deberías cargar el artículo desde tu servicio
-    // Por ahora simulo la carga con datos de ejemplo
+    const id_user = this.authService.currentUserValue?.id_usuario;
+    
+    if (!id_user) {
+      this.mostrarError('No hay usuario autenticado');
+      return;
+    }
 
-    // Simulación de datos (reemplaza con tu servicio real)
-    const articuloMock = new Articulo(
-      id,
-      'Laptop Dell Inspiron 15',
-      'Laptop potente para trabajo y estudio',
-      4500.00,
-      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-      5,
-      1,
-      ['Electrónica', 'Computadoras']
-    );
+    this.articleService.getArticleByUserAndId(id_user, id).subscribe({
+      next: (articulo) => {
+        if (articulo) {
+          // Llenar el formulario con los datos del artículo
+          this.articuloForm.patchValue({
+            nombre: articulo.nombre,
+            descripcion: articulo.descripcion,
+            precio: articulo.precio,
+            stock: articulo.stock,
+            imagen: articulo.imagen,
+            id_estado_articulo: articulo.id_estado_articulo
+          });
 
-    // Llenar el formulario con los datos del artículo
-    this.articuloForm.patchValue({
-      nombre: articuloMock.nombre,
-      descripcion: articuloMock.descripcion,
-      precio: articuloMock.precio,
-      stock: articuloMock.stock,
-      imagen: articuloMock.imagen,
-      id_estado_articulo: articuloMock.id_estado_articulo
-    });
+          // Marcar las categorías seleccionadas
+          const categoriasArray = this.articuloForm.get('categorias') as FormArray;
+          articulo.categorias.forEach(cat => {
+            const index = this.categorias.indexOf(cat);
+            if (index !== -1) {
+              categoriasArray.at(index).setValue(true);
+            }
+          });
 
-    // Marcar las categorías seleccionadas
-    const categoriasArray = this.articuloForm.get('categorias') as FormArray;
-    articuloMock.categorias.forEach(cat => {
-      const index = this.categorias.indexOf(cat);
-      if (index !== -1) {
-        categoriasArray.at(index).setValue(true);
+          // Si hay imagen, mostrarla
+          if (articulo.imagen) {
+            this.imagenPreviewUrl = articulo.imagen;
+          }
+        } else {
+          this.mostrarError('Artículo no encontrado o no pertenece al usuario');
+          setTimeout(() => {
+            this.router.navigate(['/manage-products-sale']);
+          }, 2000);
+        }
+      },
+      error: (error) => {
+        this.mostrarError('Error al cargar artículo: ' + (error.error?.message || error.message));
       }
     });
-
-    // Si hay imagen, mostrarla
-    if (articuloMock.imagen) {
-      this.imagenPreviewUrl = articuloMock.imagen;
-    }
   }
 
   get articuloPreview(): Articulo {
@@ -143,7 +153,6 @@ export class RegisterArticleComponent implements OnInit {
       .filter(cat => cat !== null) as string[];
   }
 
-  // Método actualizado para manejar la selección de imagen
   onImagenSeleccionada(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -151,14 +160,14 @@ export class RegisterArticleComponent implements OnInit {
 
       // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        this.mostrarError('Por favor selecciona un archivo de imagen válido');
         return;
       }
 
-      // Validar tamaño (opcional, por ejemplo máximo 5MB)
+      // Validar tamaño (máximo 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('La imagen es demasiado grande. Tamaño máximo: 5MB');
+        this.mostrarError('La imagen es demasiado grande. Tamaño máximo: 5MB');
         return;
       }
 
@@ -170,16 +179,14 @@ export class RegisterArticleComponent implements OnInit {
         // Guardar para el preview
         this.imagenPreviewUrl = base64String;
 
-        // IMPORTANTE: Guardar en el formulario para enviar al backend
+        // Guardar en el formulario para enviar al backend
         this.articuloForm.patchValue({
           imagen: base64String
         });
-
       };
 
       reader.onerror = (error) => {
-        console.error('Error al leer la imagen:', error);
-        alert('Error al cargar la imagen');
+        this.mostrarError('Error al cargar la imagen');
       };
 
       // Convertir a base64
@@ -187,7 +194,6 @@ export class RegisterArticleComponent implements OnInit {
     }
   }
 
-  // Método actualizado para eliminar imagen
   eliminarImagen(): void {
     this.imagenPreviewUrl = '';
     this.articuloForm.patchValue({ imagen: '' });
@@ -199,7 +205,6 @@ export class RegisterArticleComponent implements OnInit {
     }
   }
 
-  // Método actualizado para guardar el artículo
   guardarArticulo(): void {
     if (this.articuloForm.valid && this.getCategoriasSeleccionadas().length > 0) {
       const articuloData = {
@@ -207,18 +212,40 @@ export class RegisterArticleComponent implements OnInit {
         categorias: this.getCategoriasSeleccionadas()
       };
 
-      if (this.isEditMode) {
-        console.log('Actualizando artículo:', this.articuloId, articuloData);
-        alert('Artículo actualizado correctamente');
+      if (this.isEditMode && this.articuloId) {
+        // MODO EDICIÓN: Actualizar artículo existente
+        const articuloActualizado = new Articulo(
+          this.articuloId,
+          articuloData.nombre,
+          articuloData.descripcion,
+          articuloData.precio,
+          articuloData.imagen,
+          articuloData.stock,
+          articuloData.id_estado_articulo,
+          articuloData.categorias
+        );
+
+        this.articleService.updateArticle(this.articuloId, articuloActualizado).subscribe({
+          next: (response) => {
+            this.mostrarExito('Artículo actualizado correctamente');
+            setTimeout(() => {
+              this.router.navigate(['/manage-products-sale']);
+            }, 1500);
+          },
+          error: (error) => {
+            this.mostrarError('Error al actualizar el artículo: ' + (error.error?.error || error.error?.message || error.message));
+          }
+        });
+
       } else {
+        // MODO CREACIÓN: Crear nuevo artículo
         const id_user = this.authService.currentUserValue?.id_usuario;
 
         if (!id_user) {
-          alert('Error: Usuario no autenticado');
+          this.mostrarError('Error: Usuario no autenticado');
           return;
         }
 
-        // Crear el artículo
         const nuevoArticulo = new Articulo(
           0,
           articuloData.nombre,
@@ -230,35 +257,29 @@ export class RegisterArticleComponent implements OnInit {
           articuloData.categorias
         );
 
-        // Crear la publicación con el artículo
-        const nuevaPublicacion = new Publicacion(
-          id_user,
-          nuevoArticulo
-        );
+        const nuevaPublicacion = new Publicacion(id_user, nuevoArticulo);
 
-        // DEBUG: Ver el JSON que se enviará
-        const jsonToSend = nuevaPublicacion.toJSON();
-
-        // Llamar al servicio para crear la publicación
         this.articleService.createPublicacion(nuevaPublicacion).subscribe({
           next: (response) => {
-            this.router.navigate(['/manage-products-sale']);
+            this.mostrarExito('Artículo creado correctamente');
+            setTimeout(() => {
+              this.router.navigate(['/manage-products-sale']);
+            }, 1500);
           },
           error: (error) => {
-            console.error('Error al crear la publicación:', error);
-            console.error('Detalle del error:', error.error);
-            alert('Error al crear el artículo: ' + (error.error?.error || error.error?.message || error.message));
+            this.mostrarError('Error al crear el artículo: ' + (error.error?.error || error.error?.message || error.message));
           }
         });
       }
     } else {
+      // Validaciones fallidas
       if (this.getCategoriasSeleccionadas().length === 0) {
-        alert('Debes seleccionar al menos una categoría');
+        this.mostrarError('Debes seleccionar al menos una categoría');
       }
       if (this.articuloForm.invalid) {
-        alert('Por favor completa todos los campos requeridos correctamente');
+        this.mostrarError('Por favor completa todos los campos requeridos correctamente');
         Object.keys(this.articuloForm.controls).forEach(key => {
-          const control = this.articuloForm.get(key);2
+          const control = this.articuloForm.get(key);
           if (control?.invalid) {
             control.markAsTouched();
           }
@@ -275,6 +296,7 @@ export class RegisterArticleComponent implements OnInit {
     });
     this.imagenPreviewUrl = '';
     this.inicializarCategorias();
+    this.limpiarMensajes();
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -306,5 +328,41 @@ export class RegisterArticleComponent implements OnInit {
 
   isArticuloDisponible(): boolean {
     return this.articuloForm.get('stock')?.value > 0;
+  }
+
+  // ============ MÉTODOS PARA MANEJO DE MENSAJES ============
+
+  /**
+   * Muestra un mensaje de error al usuario
+   */
+  mostrarError(mensaje: string): void {
+    this.mensajeError = mensaje;
+    this.mensajeExito = '';
+    console.error('Error:', mensaje);
+    
+    // Auto-limpiar después de 5 segundos
+    setTimeout(() => {
+      this.limpiarMensajes();
+    }, 5000);
+  }
+
+  /**
+   * Muestra un mensaje de éxito al usuario
+   */
+  mostrarExito(mensaje: string): void {
+    this.mensajeExito = mensaje;
+    this.mensajeError = '';
+    console.log('Éxito:', mensaje);
+    
+    // Auto-limpiar después de 3 segundos
+    setTimeout(() => {
+      this.limpiarMensajes();
+    }, 3000);
+  }
+
+  //Limpia todos los mensajes de error y éxito
+  limpiarMensajes(): void {
+    this.mensajeError = '';
+    this.mensajeExito = '';
   }
 }

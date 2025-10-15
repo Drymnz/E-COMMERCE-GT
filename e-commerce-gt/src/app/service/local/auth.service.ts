@@ -14,10 +14,10 @@ export class AuthService {
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     // verificar si se está ejecutando en el navegador
     this.isBrowser = isPlatformBrowser(platformId);
-    
+
     let storedUser = null;
 
-    // si hay un usuario guardado en localStorage, cargarlo
+    // si hay un usuario guardado en localStorage y cargarlo
     if (this.isBrowser) {
       const userString = localStorage.getItem('currentUser');
       if (userString) {
@@ -29,7 +29,7 @@ export class AuthService {
         }
       }
     }
-    
+
     // inicializa el usuario actual
     this.currentUserSubject = new BehaviorSubject<Usuario | null>(storedUser);
     this.currentUser = this.currentUserSubject.asObservable();
@@ -61,27 +61,11 @@ export class AuthService {
     return this.currentUserValue !== null;
   }
 
-  // verifica si el usuario tiene un rol específico
-  hasRole(rol: string): boolean {
-    const user = this.currentUserValue;
-    return user ? user.id_rol === rol : false;
-  }
-
   // verifica si el usuario tiene alguno de los roles permitidos
- // Si id_rol es number
-hasAnyRole(roles: string[]): boolean {
-  const user = this.currentUserValue;
-  const userRoleStr = String(user?.id_rol); // Convertir a string
-  return user ? roles.includes(userRoleStr) : false;
-}
-
-  // verifica si el usuario es administrador
-  isAdmin(): boolean {
-    return this.hasRole('4');
+  hasAnyRole(roles: string[]): boolean {
+    const user = this.currentUserValue;
+    const userRoleStr = String(user?.id_rol); // Convertir a string
+    return user ? roles.includes(userRoleStr) : false;
   }
 
-  // devuelve el rol actual del usuario
-  getUserRole(): string | null {
-    return this.currentUserValue?.id_rol || null;
-  }
 }

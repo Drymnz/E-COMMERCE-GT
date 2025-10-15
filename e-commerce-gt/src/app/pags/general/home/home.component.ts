@@ -4,6 +4,9 @@ import { ListConstantService } from '../../../service/api/list-constant.service'
 import { Articulo } from '../../../entities/Customer';
 import { ArticleComponent } from '../article/article.component';
 import { ArticleService } from '../../../service/api/article.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../service/local/auth.service';
+import { CarritoService } from '../../../service/local/carrito.service';
 
 @Component({
   selector: 'app-home',
@@ -18,8 +21,11 @@ export class HomeComponent implements OnInit {
   articulos: Articulo[] = [];
 
   constructor(
+    private carritoService: CarritoService,
     private constantService: ListConstantService,
-    private listArticle:ArticleService
+    private listArticle: ArticleService,
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -39,15 +45,15 @@ export class HomeComponent implements OnInit {
   }
 
   private cargarArticulos(): void {
-  this.listArticle.getAvailableArticles().subscribe({
-    next: (articulos) => {
-      this.articulos = articulos;
-    },
-    error: (error) => {
-      console.error('Error al cargar artículos:', error);
-    }
-  });
-}
+    this.listArticle.getAvailableArticles().subscribe({
+      next: (articulos) => {
+        this.articulos = articulos;
+      },
+      error: (error) => {
+        console.error('Error al cargar artículos:', error);
+      }
+    });
+  }
 
   // Obtiene el nombre del estado del artículo según su id
   getEstadoNombre(id_estado: number): string {
@@ -65,12 +71,17 @@ export class HomeComponent implements OnInit {
   }
 
   onAgregarAlCarrito(articulo: Articulo): void {
-    console.log('Agregar al carrito:', articulo);
-    alert(`${articulo.nombre} agregado al carrito`);
+    if (this.authService.isAuthenticated()) {
+      if (articulo.disponible && articulo.stock > 0) {
+        this.carritoService.agregarArticulo(articulo, 1);
+        this.router.navigate(['/manage-shopping-cart']);
+      }
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   onVerDetalles(articulo: Articulo): void {
-    console.log('Ver detalles:', articulo);
-    alert(`Ver detalles de: ${articulo.nombre}`);
+    this.router.navigate(['/see-product', articulo.id_articulo]);
   }
 }

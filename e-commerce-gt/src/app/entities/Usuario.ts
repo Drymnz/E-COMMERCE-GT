@@ -59,9 +59,7 @@ export class Usuario {
     return `${this._nombre} ${this._apellido}`;
   }
 
-  /**
-   * Crea una instancia de Usuario
-   */
+  //Crea una instancia de Usuario
   static crearDesdeDatos(
     id: number,
     nombre: string,
@@ -73,9 +71,7 @@ export class Usuario {
     return new Usuario(id, nombre, apellido, email, id_estado, id_rol);
   }
 
-  /**
-   * Crea una instancia de Usuario desde un objeto JSON
-   */
+  //Crea una instancia de Usuario desde un objeto JSON
   static fromJSON(json: any): Usuario {
     return new Usuario(
       json._id_usuario,

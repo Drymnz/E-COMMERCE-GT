@@ -40,16 +40,7 @@ export class UserService {
     id_estado: number
   ): Observable<Usuario>;
 
-  // Crear usuario (versión sin id_estado, por defecto = 2)
-  crearUsuario(
-    nombre: string, 
-    apellido: string, 
-    email: string, 
-    password: string, 
-    id_rol: number
-  ): Observable<Usuario>;
-
-  // Crear usuario (versión registro público, id_rol=1, id_estado=2)
+  // Crear usuario cliente id_rol=1, id_estado=2
   crearUsuario(
     nombre: string, 
     apellido: string, 

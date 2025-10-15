@@ -44,7 +44,7 @@ export class NavbarComponent {
     this.router.navigate(['/manage-products-sale']);
   }
   irGestionarCarrito() {
-    this.router.navigate(['/report']);
+    this.router.navigate(['/manage-shopping-cart']);
   }
   irGestionarCalificaciones() {
     this.router.navigate(['/report']);

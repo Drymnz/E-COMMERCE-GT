@@ -2,11 +2,15 @@
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card">
+        <!-- Encabezado -->
         <div class="card-header bg-success text-white">
           <h4 class="mb-0">Registrarse</h4>
         </div>
+        
         <div class="card-body">
           <form [formGroup]="registroForm" (ngSubmit)="onRegistro()">
+            
+            <!-- Nombre -->
             <div class="mb-3">
               <label class="form-label">Nombre</label>
               <input 
@@ -26,6 +30,7 @@
               }
             </div>
             
+            <!-- Apellido -->
             <div class="mb-3">
               <label class="form-label">Apellido</label>
               <input 
@@ -45,6 +50,7 @@
               }
             </div>
             
+            <!-- Email -->
             <div class="mb-3">
               <label class="form-label">Correo electrónico</label>
               <input 
@@ -64,6 +70,7 @@
               }
             </div>
             
+            <!-- Contraseña -->
             <div class="mb-3">
               <label class="form-label">Contraseña</label>
               <div class="input-group">
@@ -73,17 +80,19 @@
                   formControlName="password"
                   [class.is-invalid]="registroForm.get('password')?.invalid && registroForm.get('password')?.touched"
                   placeholder="Ingrese una contraseña">
+                <!-- Botón para mostrar/ocultar contraseña -->
                 <button 
                   class="btn btn-outline-secondary" 
                   type="button" 
                   (click)="toggleMostrarPassword()">
                   @if (mostrarPassword) {
-                    <i class="bi bi-eye-slash"></i>
+                    <i class="bi bi-eye-slash"></i> 
                   } @else {
-                    <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye"></i> 
                   }
                 </button>
               </div>
+              <!-- Mensajes de validación para contraseña -->
               @if (registroForm.get('password')?.invalid && registroForm.get('password')?.touched) {
                 <div class="text-danger small mt-1">
                   @if (registroForm.get('password')?.errors?.['required']) {
@@ -95,6 +104,7 @@
               }
             </div>
 
+            <!-- Confirmar contraseña -->
             <div class="mb-3">
               <label class="form-label">Confirmar Contraseña</label>
               <div class="input-group">
@@ -104,6 +114,7 @@
                   formControlName="confirmPassword"
                   [class.is-invalid]="registroForm.get('confirmPassword')?.invalid && registroForm.get('confirmPassword')?.touched"
                   placeholder="Confirme su contraseña">
+                <!-- Botón para mostrar/ocultar de contraseña -->
                 <button 
                   class="btn btn-outline-secondary" 
                   type="button" 
@@ -115,6 +126,7 @@
                   }
                 </button>
               </div>
+              <!-- Mensajes de validación de contraseña -->
               @if (registroForm.get('confirmPassword')?.invalid && registroForm.get('confirmPassword')?.touched) {
                 <div class="text-danger small mt-1">
                   @if (registroForm.get('confirmPassword')?.errors?.['required']) {
@@ -126,6 +138,7 @@
               }
             </div>
 
+            <!-- Mensaje de error -->
             @if (errorMessage) {
               <div class="alert alert-danger">
                 {{ errorMessage }}
@@ -138,6 +151,7 @@
               </div>
             }
             
+            <!-- Botón de enviar -->
             <button type="submit" class="btn btn-success w-100" [disabled]="loading">
               @if (loading) {
                 <span class="spinner-border spinner-border-sm me-2"></span>
@@ -147,6 +161,7 @@
               }
             </button>
 
+            <!-- Enviar a login -->
             <div class="text-center mt-3">
               <p class="mb-0">¿Ya tienes cuenta? <a [routerLink]="['/login']" class="text-decoration-none">Inicia sesión aquí</a></p>
             </div>

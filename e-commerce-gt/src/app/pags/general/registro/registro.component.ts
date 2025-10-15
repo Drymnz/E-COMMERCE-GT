@@ -24,6 +24,7 @@ export class RegistroComponent {
     private userService: UserService,
     private router: Router
   ) {
+    // Inicialización del formulario
     this.registroForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       apellido: ['', [Validators.required, Validators.minLength(2)]],
@@ -31,10 +32,11 @@ export class RegistroComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     }, {
-      validators: this.passwordsIguales
+      validators: this.passwordsIguales 
     });
   }
 
+  // Validador de si la contraseñas coinciden
   passwordsIguales(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
@@ -43,11 +45,13 @@ export class RegistroComponent {
       return null;
     }
 
+    // Si las contraseñas no coinciden
     if (password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ noCoinciden: true });
       return { noCoinciden: true };
     }
 
+    // Si coinciden y limpia el error
     if (confirmPassword.hasError('noCoinciden')) {
       confirmPassword.setErrors(null);
     }
@@ -55,15 +59,19 @@ export class RegistroComponent {
     return null;
   }
 
+  // Mostrar contraseña
   toggleMostrarPassword(): void {
     this.mostrarPassword = !this.mostrarPassword;
   }
 
+  // Mostrar contraseña
   toggleMostrarConfirmPassword(): void {
     this.mostrarConfirmPassword = !this.mostrarConfirmPassword;
   }
 
+  // Enviar la informacion
   onRegistro(): void {
+    // Si el formulario es inválido
     if (this.registroForm.invalid) {
       Object.keys(this.registroForm.controls).forEach(key => {
         this.registroForm.get(key)?.markAsTouched();
@@ -77,6 +85,7 @@ export class RegistroComponent {
 
     const formValue = this.registroForm.value;
 
+    // Servicio de crear
     this.userService.crearUsuario(
       formValue.nombre,
       formValue.apellido,
@@ -84,6 +93,7 @@ export class RegistroComponent {
       formValue.password
     ).subscribe({
       next: (usuario) => {
+        // Registro exitoso
         this.successMessage = 'Registro exitoso. Redirigiendo...';
         this.loading = false;
 
@@ -94,6 +104,7 @@ export class RegistroComponent {
       error: (error) => {
         console.error('Error en registro:', error);
         
+        // Manejo específico de diferentes tipos de errores
         if (error.status === 409) {
           this.errorMessage = 'El correo electrónico ya está registrado.';
         } else if (error.status === 400) {

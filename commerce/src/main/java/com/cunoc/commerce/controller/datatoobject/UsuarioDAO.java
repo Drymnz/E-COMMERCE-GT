@@ -12,9 +12,7 @@ public class UsuarioDAO extends BaseDAO {
 
     private final EncryptionService encryptionService = new EncryptionService();
 
-    /**
-     * @param search email o id del usuario
-     */
+    //@param search email o id del usuario
     public Usuario findByEmailOrId(String search) {
         if (search == null || search.trim().isEmpty()) {
             return null;

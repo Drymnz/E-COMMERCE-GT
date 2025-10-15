@@ -13,7 +13,7 @@ export class ArticleService {
 
   constructor(private http: HttpClient) { }
 
-  // Crear una nueva publicación (artículo + publicación)
+  // Crear una nueva publicación, es decir un nuevo articulo 
   createPublicacion(publicacion: Publicacion): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
@@ -57,5 +57,39 @@ export class ArticleService {
     return this.http.patch(`${this.apiUrl}/${idArticulo}/status`, {
       id_estado_articulo: idEstadoArticulo
     });
+  }
+
+  // Obtener un artículo específico de un usuario
+  getArticleByUserAndId(idUsuario: number, idArticulo: number): Observable<Articulo | null> {
+    return this.http.get<any>(`${this.apiUrl}/user/${idUsuario}/article/${idArticulo}`).pipe(
+      map(response => {
+        if (response.data) {
+          return Articulo.fromJSON(response.data);
+        }
+        return null;
+      })
+    );
+  }
+
+  // Actualizar un artículo completo
+  updateArticle(idArticulo: number, articulo: Articulo): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.put(`${this.apiUrl}/${idArticulo}`, articulo.toJSON(), {
+      headers: headers
+    });
+  }
+
+  // Obtener un artículo por su ID
+  getArticleById(idArticulo: number): Observable<Articulo | null> {
+    return this.http.get<any>(`${this.apiUrl}/details/${idArticulo}`).pipe(
+      map(response => {
+        if (response.data) {
+          return Articulo.fromJSON(response.data);
+        }
+        return null;
+      })
+    );
   }
 }

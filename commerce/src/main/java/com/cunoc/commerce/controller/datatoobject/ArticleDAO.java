@@ -106,7 +106,12 @@ public class ArticleDAO extends BaseDAO {
             stmt = (PreparedStatement) rs.getStatement();
 
             if (rs.next()) {
-                return mapResultSetToArticle(rs);
+                Article article = mapResultSetToArticle(rs);
+                // Cargar las categorías del artículo
+                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
+                article.setCategorias(categorias);
+
+                return article;
             }
         } catch (SQLException e) {
             System.err.println("Error al buscar artículo por ID: " + e.getMessage());
@@ -140,6 +145,42 @@ public class ArticleDAO extends BaseDAO {
         } finally {
             closeResources(conn, stmt, null);
         }
+    }
+
+    public Article findByIdAndUserId(int idArticulo, int idUsuario) {
+        String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "FROM Articulo a " +
+                "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
+                "INNER JOIN Publicacion p ON a.id_articulo = p.id_articulo " +
+                "WHERE a.id_articulo = ? AND p.id_usuario = ?";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            rs = executeQuery(sql, idArticulo, idUsuario);
+            conn = rs.getStatement().getConnection();
+            stmt = (PreparedStatement) rs.getStatement();
+
+            if (rs.next()) {
+                Article article = mapResultSetToArticle(rs);
+
+                // Cargar las categorías del artículo
+                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
+                article.setCategorias(categorias);
+
+                return article;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar artículo por ID y usuario: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+
+        return null;
     }
 
     // Crea un artículo y su publicación en una transacción

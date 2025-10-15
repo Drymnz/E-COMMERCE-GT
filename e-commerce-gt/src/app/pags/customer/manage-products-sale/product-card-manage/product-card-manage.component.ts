@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Articulo } from '../../../entities/Customer';
+import { Articulo } from '../../../../entities/Customer';
 
 @Component({
   selector: 'app-product-card-manage',

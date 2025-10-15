@@ -20,7 +20,6 @@ public class UserController {
             @RequestParam String email,
             @RequestParam String password) {
         Usuario usuario = usuarioDAO.login(email, password);
-
         if (usuario != null) {
             return ResponseEntity.ok(usuario);
         }
@@ -40,9 +39,7 @@ public class UserController {
         return ResponseEntity.badRequest().build();
     }
 
-    /**
-     * @param email del usuario a buscar
-     */
+    //@param email del usuario a buscar
     @GetMapping("/buscar")
     public ResponseEntity<Usuario> buscarUsuario(@RequestParam String email) {
         Usuario usuario = usuarioDAO.findByEmailOrId(email);
@@ -54,7 +51,7 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    /* modificar usuario existente */
+    //modificar usuario existente
     @PutMapping
     public ResponseEntity<Usuario> modificarUsuario(@RequestBody Usuario usuario) {
         boolean actualizado = usuarioDAO.update(usuario);

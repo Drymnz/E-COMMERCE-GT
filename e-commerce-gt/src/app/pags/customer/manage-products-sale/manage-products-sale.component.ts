@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ProductCardManageComponent } from '../product-card-manage/product-card-manage.component';
 import { Articulo } from '../../../entities/Customer';
 import { ModalSelectOptionComponent } from '../../general/modal-select-option/modal-select-option.component';
 import { NotifyConfirmComponent } from '../../general/notify-confirm/notify-confirm.component';
 import { ListConstantService } from '../../../service/api/list-constant.service';
 import { AuthService } from '../../../service/local/auth.service';
 import { ArticleService } from '../../../service/api/article.service';
+import { ProductCardManageComponent } from './product-card-manage/product-card-manage.component';
 
 @Component({
   selector: 'app-manage-products-sale',
@@ -148,18 +148,13 @@ export class ManageProductsSaleComponent implements OnInit {
       const indiceEstado = this.estadosArticulo.indexOf(nuevoEstado);
       const nuevoIdEstado = indiceEstado + 1;
       const idArticulo = this.articuloSeleccionado.id_articulo; 
-
+      this.articuloSeleccionado.id_estado_articulo = nuevoIdEstado-2;
       this.articleService.updateArticleStatus(idArticulo, nuevoIdEstado).subscribe({
         next: (response) => {
           // Buscar el artículo en el array y actualizar su estado
           const articulo = this.articulos.find(a => a.id_articulo === idArticulo);
           if (articulo) {
             articulo.id_estado_articulo = nuevoIdEstado;
-          }
-
-          // Si el artículo seleccionado sigue existiendo, actualizarlo también
-          if (this.articuloSeleccionado) {
-            this.articuloSeleccionado.id_estado_articulo = nuevoIdEstado;
           }
         },
         error: (error) => {

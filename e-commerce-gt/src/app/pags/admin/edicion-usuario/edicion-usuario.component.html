@@ -1,0 +1,142 @@
+<div class="container my-4">
+  <h2 class="mb-4">Buscar y Editar Usuario</h2>
+
+  @if (mensajeExito) {
+    <div class="alert alert-success alert-dismissible fade show">
+      {{ mensajeExito }}
+      <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+    </div>
+  }
+
+  <div class="card">
+    <div class="card-header bg-secondary text-white">
+      <h5 class="mb-0">Búsqueda de Usuario</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="busquedaForm">
+        <div class="mb-3">
+          <label class="form-label">Buscar por correo</label>
+          <div class="input-group">
+            <input 
+              type="email" 
+              class="form-control" 
+              formControlName="email"
+              placeholder="correo@ejemplo.com">
+            <button 
+              class="btn btn-secondary" 
+              type="button" 
+              (click)="buscarUsuario()" 
+              [disabled]="cargando">
+              @if (cargando) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Buscando...
+              } @else {
+                Buscar
+              }
+            </button>
+          </div>
+          @if (errorBusqueda) {
+            <div class="alert alert-danger mt-2 mb-0">
+              {{ errorBusqueda }}
+            </div>
+          }
+        </div>
+      </form>
+
+      <!-- Formulario de edición -->
+      @if (usuarioEncontrado) {
+        <div class="mt-4">
+          <h6 class="border-bottom pb-2 mb-3">Editar Datos del Usuario</h6>
+          <form [formGroup]="edicionForm" (ngSubmit)="actualizarUsuario()">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="nombre"
+                [class.is-invalid]="edicionForm.get('nombre')?.invalid && edicionForm.get('nombre')?.touched"
+                placeholder="Nombre del usuario">
+              @if (edicionForm.get('nombre')?.invalid && edicionForm.get('nombre')?.touched) {
+                <div class="invalid-feedback">
+                  El nombre es requerido
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Apellido</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="apellido"
+                [class.is-invalid]="edicionForm.get('apellido')?.invalid && edicionForm.get('apellido')?.touched"
+                placeholder="Apellido del usuario">
+              @if (edicionForm.get('apellido')?.invalid && edicionForm.get('apellido')?.touched) {
+                <div class="invalid-feedback">
+                  El apellido es requerido
+                </div>
+              }
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Correo electrónico</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                [value]="usuarioEncontrado.email" 
+                disabled>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Tipo de empleado</label>
+              <select 
+                class="form-select" 
+                formControlName="id_rol"
+                [class.is-invalid]="edicionForm.get('id_rol')?.invalid && edicionForm.get('id_rol')?.touched">
+                @for (rol of roles; track rol) {
+                  <option [value]="rol">{{ rol }}</option>
+                }
+              </select>
+              @if (edicionForm.get('id_rol')?.invalid && edicionForm.get('id_rol')?.touched) {
+                <div class="invalid-feedback">
+                  Debe seleccionar un tipo de empleado
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado</label>
+              <select 
+                class="form-select" 
+                formControlName="id_estado"
+                [class.is-invalid]="edicionForm.get('id_estado')?.invalid && edicionForm.get('id_estado')?.touched">
+                @for (estado of estadosUsuario; track estado) {
+                  <option [value]="estado">{{ estado }}</option>
+                }
+              </select>
+              @if (edicionForm.get('id_estado')?.invalid && edicionForm.get('id_estado')?.touched) {
+                <div class="invalid-feedback">
+                  Debe seleccionar un estado
+                </div>
+              }
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-success" [disabled]="cargando">
+                @if (cargando) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Actualizando...
+                } @else {
+                  Actualizar Usuario
+                }
+              </button>
+              <button type="button" class="btn btn-outline-secondary" (click)="limpiarBusqueda()">
+                Limpiar
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    </div>
+  </div>
+</div>
