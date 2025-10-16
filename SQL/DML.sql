@@ -28,14 +28,7 @@ CREATE TABLE Usuario (
     CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES Rol(id_rol)
 );
 
--- Tarjetas de crédito de los usuarios
-CREATE TABLE Tarjeta_de_Credito (
-    cvv VARCHAR(4) NOT NULL,
-    numero VARCHAR(16) PRIMARY KEY,
-    fecha_vencimiento DATE NOT NULL,
-    id_usuario INT NOT NULL,
-    CONSTRAINT fk_tarjeta_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
-);
+confirmación de elimi
 
 -- Notificaciones enviadas a usuarios
 CREATE TABLE Notificacion (

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../../service/local/carrito.service';
 import { ItemCarrito } from '../../../entities/ItemCarrito';
 
@@ -15,7 +15,8 @@ export class ManageShoppingCartComponent {
   mensajeExito: string | null = null;
   mensajeError: string | null = null;
 
-  constructor(public carritoService: CarritoService) {}
+
+  constructor(public carritoService: CarritoService, private router: Router) { }
 
   incrementarCantidad(item: ItemCarrito): void {
     if (item.cantidad < item.articulo.stock) {
@@ -48,7 +49,7 @@ export class ManageShoppingCartComponent {
       this.mostrarMensajeError('El carrito está vacío');
       return;
     }
-    // Implementar lógica de pago
+    this.router.navigate(['/payment-manager']);
   }
 
   private mostrarMensajeExito(mensaje: string): void {

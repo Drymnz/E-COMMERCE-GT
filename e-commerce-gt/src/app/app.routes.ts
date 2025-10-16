@@ -9,6 +9,7 @@ import { roleGuard } from './guards/auth.guard';
 import { RegisterArticleComponent } from './pags/customer/manage-products-sale/register-article/register-article.component';
 import { SeeProductComponent } from './pags/general/see-product/see-product.component';
 import { ManageShoppingCartComponent } from './pags/customer/manage-shopping-cart/manage-shopping-cart.component';
+import { PagoComponent } from './pags/general/pago/pago.component';
 
 export const routes: Routes = [
   // RUTAS PROTEGIDAS
@@ -36,6 +37,11 @@ export const routes: Routes = [
     path: 'manage-shopping-cart',
     canActivate: [roleGuard(['1'])],
     component: ManageShoppingCartComponent
+  },
+  {
+    path: 'payment-manager',
+    canActivate: [roleGuard(['1'])],
+    component: PagoComponent
   },
   // RUTAS PÚBLICAS 
   {
