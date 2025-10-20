@@ -138,6 +138,7 @@
       <app-product-card-manage
         [articulo]="articulo"
         [estadoNombre]="obtenerEstadoNombre(articulo.id_estado_articulo-1)"
+        [estadoModeracion]="obtenerEstadoModeracion(articulo.id_accion+1)"
         (editar)="editarProducto($event)"
         (eliminar)="eliminarProducto($event)"
         (cambiarEstado)="cambiarEstadoProducto($event)"

@@ -11,7 +11,8 @@ import java.util.List;
 
 public class ArticleDAO extends BaseDAO {
 
-    // Lista todos los artículos disponibles (con stock > 0)
+    // Lista todos los artículos disponibles (con stock > 0 Y aprobados por
+    // moderador)
     public List<Article> findAllAvailable() {
         List<Article> articles = new ArrayList<>();
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
@@ -19,6 +20,7 @@ public class ArticleDAO extends BaseDAO {
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "WHERE a.stock > 0 " +
+                "AND a.id_accion = 2 " + // <-- NUEVA LÍNEA: 2 = aprobado
                 "ORDER BY a.id_articulo DESC";
 
         Connection conn = null;

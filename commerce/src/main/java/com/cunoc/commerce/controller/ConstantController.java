@@ -13,6 +13,11 @@ public class ConstantController {
     
     private final ConstantDAO constantDAO = new ConstantDAO();
 
+    @GetMapping("/estados-moderacion")
+    public ResponseEntity<List<String>> getEstadosModeracion() {
+        return ResponseEntity.ok(constantDAO.getEstadosModeracion());
+    }
+
     @GetMapping("/estados-pedido")
     public ResponseEntity<List<String>> getEstadosPedido() {
         return ResponseEntity.ok(constantDAO.getEstadosPedido());

@@ -13,25 +13,30 @@ public class Article {
     private String imagen;
     private Integer stock;
 
-    @JsonProperty("id_estado_articulo") 
+    @JsonProperty("id_estado_articulo")
     private Integer idEstadoArticulo;
-    
+
     @JsonProperty("nombre_estado")
     private String nombreEstado;
-    
+
+    @JsonProperty("id_accion")
+    private Integer idAccion;
+
     // NUEVO: Lista de IDs de categorías
     private List<String> categorias;
-    
-    public Article() {}
-    
-    public Article(String nombre, String descripcion, BigDecimal precio, 
-                   String imagen, Integer stock, Integer idEstadoArticulo) {
+
+    public Article() {
+    }
+
+    public Article(String nombre, String descripcion, BigDecimal precio,
+            String imagen, Integer stock, Integer idEstadoArticulo,Integer idAccion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.imagen = imagen;
         this.stock = stock;
         this.idEstadoArticulo = idEstadoArticulo;
+        this.idAccion = idAccion;
     }
 
     // Getters y Setters existentes...
@@ -81,6 +86,10 @@ public class Article {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    public void setIdAccion(Integer idAccion){
+        this.idAccion =idAccion; 
     }
 
     public Integer getIdEstadoArticulo() {

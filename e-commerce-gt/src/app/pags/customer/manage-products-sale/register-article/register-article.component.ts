@@ -142,7 +142,8 @@ export class RegisterArticleComponent implements OnInit {
       this.imagenPreviewUrl || formValue.imagen || 'load.jpg',
       formValue.stock || 0,
       formValue.id_estado_articulo || 1,
-      this.getCategoriasSeleccionadas()
+      this.getCategoriasSeleccionadas(),
+      1
     );
   }
 
@@ -222,7 +223,8 @@ export class RegisterArticleComponent implements OnInit {
           articuloData.imagen,
           articuloData.stock,
           articuloData.id_estado_articulo,
-          articuloData.categorias
+          articuloData.categorias,
+          1
         );
 
         this.articleService.updateArticle(this.articuloId, articuloActualizado).subscribe({
@@ -254,7 +256,8 @@ export class RegisterArticleComponent implements OnInit {
           articuloData.imagen,
           articuloData.stock,
           articuloData.id_estado_articulo,
-          articuloData.categorias
+          articuloData.categorias,
+          1
         );
 
         const nuevaPublicacion = new Publicacion(id_user, nuevoArticulo);

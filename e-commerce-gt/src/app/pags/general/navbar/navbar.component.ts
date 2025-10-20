@@ -12,6 +12,7 @@ import { HasRoleDirective } from '../../../directives/has-role.directive';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
+
   nombreEmpresa: string = 'E-Commerce GT';
 
   constructor(
@@ -46,11 +47,18 @@ export class NavbarComponent {
   irGestionarCarrito() {
     this.router.navigate(['/manage-shopping-cart']);
   }
-  irGestionarCalificaciones() {
-    this.router.navigate(['/report']);
-  }
+
   irSeguimientoPedidos() {
     this.router.navigate(['/report']);
+  }
+
+  //Modedador 
+  irGestorProdutosModedador() {
+    this.router.navigate(['/panel-moderator']);
+  }
+
+  irListadoUsuarios() {
+    this.router.navigate(['/lits-usuario']);
   }
 
   logout(): void {

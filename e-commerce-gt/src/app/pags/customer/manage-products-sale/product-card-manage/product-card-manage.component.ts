@@ -12,6 +12,7 @@ import { Articulo } from '../../../../entities/Customer';
 export class ProductCardManageComponent {
   @Input() articulo!: Articulo;
   @Input() estadoNombre: string = 'Sin estado';
+  @Input() estadoModeracion: string = 'Pendiente'; 
   
   @Output() editar = new EventEmitter<Articulo>();
   @Output() eliminar = new EventEmitter<Articulo>();
@@ -34,6 +35,15 @@ export class ProductCardManageComponent {
     return this.articulo.stock > 0 ? 'bg-success' : 'bg-secondary';
   }
 
+  // NUEVO - Clase CSS según el estado de moderación
+  get estadoModeracionClass(): string {
+    const idAccion = this.articulo.id_accion;
+    if (idAccion === 1) return 'bg-warning text-dark'; // Pendiente
+    if (idAccion === 2) return 'bg-success'; // Aprobado
+    if (idAccion === 3) return 'bg-danger'; // Rechazado
+    return 'bg-secondary';
+  }
+
   get stockClass(): string {
     if (this.articulo.stock === 0) return 'text-danger';
     if (this.articulo.stock < 10) return 'text-warning';
@@ -45,7 +55,6 @@ export class ProductCardManageComponent {
   }
 
   editarProducto(): void {
-    //enviar evento al padre
     this.editar.emit(this.articulo);
   }
 

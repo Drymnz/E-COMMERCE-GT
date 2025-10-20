@@ -7,7 +7,8 @@ export class Articulo {
     private _imagen: string,
     private _stock: number,
     private _id_estado_articulo: number,
-    private _categorias: string[] = []
+    private _categorias: string[] = [],
+    private _id_accion: number
   ) {}
 
   static fromJSON(json: any): Articulo {
@@ -19,7 +20,8 @@ export class Articulo {
       json.imagen || json._imagen,
       json.stock || json._stock,
       json.id_estado_articulo || json._id_estado_articulo,
-      json.categorias || json._categorias || []
+      json.categorias || json._categorias || [],
+      json.id_accion || json._id_accion
     );
   }
 
@@ -38,6 +40,10 @@ export class Articulo {
 
   get precio(): number {
     return this._precio;
+  }
+
+  get id_accion(): number {
+    return this._id_accion;
   }
 
   get imagen(): string {
@@ -117,7 +123,8 @@ export class Articulo {
       this._imagen,
       this._stock,
       this._id_estado_articulo,
-      [...this._categorias]
+      [...this._categorias],
+      this._id_accion
     );
   }
 
@@ -131,7 +138,8 @@ export class Articulo {
       imagen: this._imagen,
       stock: this._stock,
       id_estado_articulo: this._id_estado_articulo,
-      categorias: [...this._categorias]
+      categorias: [...this._categorias],
+      id_accion : this.id_accion
     };
   }
 }

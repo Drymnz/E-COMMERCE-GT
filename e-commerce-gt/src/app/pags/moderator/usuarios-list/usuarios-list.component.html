@@ -1,0 +1,336 @@
+<div class="container mt-3">
+  <!-- Mensaje de éxito -->
+  <div *ngIf="mostrarMensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <strong>{{ mensajeExito }}</strong>
+    <button type="button" class="btn-close" (click)="ocultarMensajes()"></button>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="mostrarMensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>{{ mensajeError }}</strong>
+    <button type="button" class="btn-close" (click)="ocultarMensajes()"></button>
+  </div>
+</div>
+
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="h2">
+        <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
+      </h1>
+      <p class="text-muted">Total de usuarios: {{ totalUsuarios }}</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3 text-muted">Cargando usuarios...</p>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div *ngIf="!isLoading" class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><i class="bi bi-hash"></i> ID</th>
+              <th><i class="bi bi-person"></i> Nombre</th>
+              <th><i class="bi bi-envelope"></i> Email</th>
+              <th><i class="bi bi-shield"></i> Rol</th>
+              <th><i class="bi bi-circle-fill"></i> Estado</th>
+              <th class="text-center"><i class="bi bi-gear"></i> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of usuarios">
+              <td>{{ usuario.id_usuario }}</td>
+              <td>
+                <strong>{{ usuario.nombreCompleto }}</strong>
+              </td>
+              <td>{{ usuario.email }}</td>
+              <td>
+                <span class="badge bg-primary">
+                  {{ obtenerNombreRol(usuario.id_rol) }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="obtenerClaseBadgeEstado(usuario.id_estado)"
+                >
+                  {{ obtenerNombreEstado(usuario.id_estado) }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-sm btn-warning"
+                  (click)="abrirModalSancion(usuario)"
+                  title="Aplicar sanción"
+                >
+                  <i class="bi bi-exclamation-circle"></i> Sancionar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sin resultados -->
+      <div *ngIf="usuarios.length === 0" class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="mt-3 text-muted">No hay usuarios registrados</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Tabla de Usuarios Sancionados  -->
+<div class="container mt-5">
+  <h3 class="mb-4">Usuarios Sancionados</h3>
+  
+  <div *ngIf="isLoadingSancionados" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoadingSancionados && usuariosSancionados.length === 0" class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    No hay usuarios sancionados actualmente
+  </div>
+
+  <div *ngIf="!isLoadingSancionados && usuariosSancionados.length > 0" class="table-responsive">
+    <table class="table table-hover table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuariosSancionados">
+          <td>{{ usuario.id_usuario }}</td>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.apellido }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>{{ obtenerNombreRol(usuario.id_rol) }}</td>
+          <td>
+            <span [class]="'badge ' + obtenerClaseBadgeEstado(usuario.id_estado)">
+              {{ obtenerNombreEstado(usuario.id_estado) }}
+            </span>
+          </td>
+          <td>
+            <button 
+              class="btn btn-sm btn-success"
+              (click)="abrirModalCambioEstado(usuario)"
+              title="Cambiar estado">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>
+              Quitar Sanción
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal para cambiar estado de usuario sancionado -->
+<div class="modal fade show" *ngIf="mostrarModalCambioEstado" 
+     style="display: block; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>
+          Cambiar Estado de Usuario
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModalCambioEstado()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="usuarioParaCambiarEstado">
+          <p><strong>Usuario:</strong> {{ usuarioParaCambiarEstado.nombre }} {{ usuarioParaCambiarEstado.apellido }}</p>
+          <p><strong>Email:</strong> {{ usuarioParaCambiarEstado.email }}</p>
+          <p><strong>Estado actual:</strong> 
+            <span [class]="'badge ' + obtenerClaseBadgeEstado(usuarioParaCambiarEstado.id_estado)">
+              {{ obtenerNombreEstado(usuarioParaCambiarEstado.id_estado) }}
+            </span>
+          </p>
+          
+          <div class="mb-3 mt-4">
+            <label for="nuevoEstado" class="form-label">Seleccionar nuevo estado</label>
+            <select 
+              id="nuevoEstado" 
+              class="form-select" 
+              [(ngModel)]="nuevoEstadoSinSancion"
+              name="nuevoEstado">
+              <option *ngFor="let estado of estadosUsuario; let i = index" [value]="(i + 1).toString()">
+                {{ estado }}
+              </option>
+            </select>
+          </div>
+
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Nota:</strong> Este cambio no eliminará el registro de sanción de la base de datos, solo cambiará el estado del usuario.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCambioEstado()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-success" (click)="cambiarEstadoUsuario()">
+          <i class="bi bi-check-circle me-1"></i>
+          Cambiar Estado
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Paginación -->
+  <div
+    *ngIf="!isLoading && totalPages > 1"
+    class="d-flex justify-content-between align-items-center mt-4"
+  >
+    <div>
+      <span class="text-muted">
+        Página {{ currentPage }} de {{ totalPages }} | Total:
+        {{ totalUsuarios }} usuarios
+      </span>
+    </div>
+
+    <nav>
+      <ul class="pagination mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="paginaAnterior()">
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+        </li>
+
+        <li
+          class="page-item"
+          *ngFor="let pagina of obtenerPaginas()"
+          [class.active]="pagina === currentPage"
+        >
+          <button class="page-link" (click)="cambiarPagina(pagina)">
+            {{ pagina }}
+          </button>
+        </li>
+
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="paginaSiguiente()">
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Modal de Sanción -->
+<div
+  *ngIf="mostrarModalSancion"
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  (click)="cerrarModalSancion()"
+>
+  <div
+    class="modal-dialog modal-dialog-centered"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+          Aplicar Sanción
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="cerrarModalSancion()"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Información del usuario -->
+        <div *ngIf="usuarioSeleccionado" class="alert alert-info">
+          <div class="row">
+            <div class="col-12 mb-2">
+              <strong><i class="bi bi-person"></i> Usuario:</strong>
+              {{ usuarioSeleccionado.nombreCompleto }}
+            </div>
+            <div class="col-12">
+              <strong><i class="bi bi-envelope"></i> Email:</strong>
+              {{ usuarioSeleccionado.email }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de sanción -->
+        <div class="mb-3">
+          <label for="motivo" class="form-label">
+            <i class="bi bi-file-text"></i> Motivo de la sanción *
+          </label>
+          <!-- selecionar estado nuevo -->
+          <div class="mb-3">
+            <label for="estadoUsuario" class="form-label"
+              >Cambiar estado del usuario</label
+            >
+            <select
+              id="estadoUsuario"
+              class="form-select"
+              [(ngModel)]="nuevoEstadoUsuario"
+              name="estadoUsuario"
+            >
+              <option
+                *ngFor="let estado of estadosUsuario; let i = index"
+                [value]="(i + 1).toString()"
+              >
+                {{ estado }}
+              </option>
+            </select>
+          </div>
+          <textarea
+            id="motivo"
+            class="form-control"
+            [(ngModel)]="motivoSancion"
+            rows="4"
+            placeholder="Describa el motivo de la sanción..."
+            required
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="aplicarSancion()"
+          [disabled]="!motivoSancion.trim()"
+        >
+          <i class="bi bi-check-circle"></i> Aplicar Sanción
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cerrarModalSancion()"
+        >
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

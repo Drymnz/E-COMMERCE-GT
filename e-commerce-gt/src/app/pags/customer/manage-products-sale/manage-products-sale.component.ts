@@ -20,6 +20,7 @@ export class ManageProductsSaleComponent implements OnInit {
   articulos: Articulo[] = [];
   categorias: string[] = [];
   estadosArticulo: string[] = [];
+  estadosModeracion: string[] = []; 
 
   filtroSeleccionado: string = 'todos';
   cargando: boolean = false;
@@ -49,6 +50,10 @@ export class ManageProductsSaleComponent implements OnInit {
 
     this.constantService.estadosArticulo$.subscribe(estados => {
       this.estadosArticulo = estados;
+    });
+
+    this.constantService.estadosModeracion$.subscribe(estados => {
+      this.estadosModeracion = estados;
     });
   }
 
@@ -104,6 +109,15 @@ export class ManageProductsSaleComponent implements OnInit {
     }
     return 'Sin estado';
   }
+
+  obtenerEstadoModeracion(idAccion: number): string {
+    const indice = idAccion - 1;
+    if (indice >= 0 && indice < this.estadosModeracion.length) {
+      return this.estadosModeracion[indice];
+    }
+    return 'Pendiente';
+  }
+
 
   irAPublicar(): void {
     this.router.navigate(['/register-article']);

@@ -8,16 +8,22 @@
       (error)="onImagenError()"
     />
 
-    <!-- mostar si esta en la vesnta  -->
+    <!-- Mostrar si está en venta -->
     <div class="position-absolute top-0 end-0 m-2">
       <span class="badge me-1" [ngClass]="estadoVentaClass">
         <i class="bi bi-circle-fill me-1"></i>{{ estadoVenta }}
       </span>
     </div>
 
+    <!-- Badges de estados -->
     <div class="position-absolute top-0 start-0 m-2">
-      <span class="badge bg-info">
+      <!-- Estado del artículo (activo/inactivo) -->
+      <span class="badge bg-info mb-1 d-block">
         {{ estadoNombre }}
+      </span>
+      <!-- NUEVO: Estado de moderación -->
+      <span class="badge" [ngClass]="estadoModeracionClass">
+        <i class="bi bi-shield-check me-1"></i>{{ estadoModeracion }}
       </span>
     </div>
   </div>
@@ -54,7 +60,7 @@
       </div>
     </div>
 
-    <!-- botones de edicion, cambiar estado y eliminacion de productos -->
+    <!-- Botones de edición, cambiar estado y eliminación de productos -->
     <div class="d-grid gap-2">
       <div class="btn-group" role="group">
         <button

@@ -7,10 +7,83 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioDAO extends BaseDAO {
 
     private final EncryptionService encryptionService = new EncryptionService();
+
+    // Contar total de usuarios
+    public int countAll() {
+        String sql = "SELECT COUNT(*) FROM Usuario";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al contar usuarios: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+
+        return 0;
+    }
+
+    public List<Usuario> findAllPaginated(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        
+        String sql = """
+                SELECT *
+                FROM Usuario
+                ORDER BY id_usuario
+                LIMIT ? OFFSET ?
+                """;
+
+        List<Usuario> usuarios = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, pageSize);
+            stmt.setInt(2, offset);
+
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario(
+                        rs.getInt("id_usuario"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("email"),
+                        rs.getInt("id_estado"),
+                        rs.getInt("id_rol"));
+                usuarios.add(usuario);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuarios paginados: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+
+        return usuarios;
+    }
 
     //@param search email o id del usuario
     public Usuario findByEmailOrId(String search) {

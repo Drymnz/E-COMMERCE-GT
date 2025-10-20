@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConstantDAO extends BaseDAO {
+    
+    public List<String> getEstadosModeracion() {
+        return getConstantes("SELECT nombre FROM Moderador_Articulo ORDER BY id_estado");
+    }
 
     public List<String> getEstadosPedido() {
         return getConstantes("SELECT nombre FROM Estado_Pedido");
@@ -29,6 +33,7 @@ public class ConstantDAO extends BaseDAO {
     public List<String> getEstadosArticulo() {
         return getConstantes("SELECT nombre FROM Estado_Articulo");
     }
+    
 
     private List<String> getConstantes(String sql) {
         List<String> constantes = new ArrayList<>();

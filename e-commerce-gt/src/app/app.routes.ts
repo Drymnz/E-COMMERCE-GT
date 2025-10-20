@@ -10,6 +10,8 @@ import { RegisterArticleComponent } from './pags/customer/manage-products-sale/r
 import { SeeProductComponent } from './pags/general/see-product/see-product.component';
 import { ManageShoppingCartComponent } from './pags/customer/manage-shopping-cart/manage-shopping-cart.component';
 import { PagoComponent } from './pags/general/pago/pago.component';
+import { PanelModeracionComponent } from './pags/moderator/panel-moderacion/panel-moderacion.component';
+import { UsuariosListComponent } from './pags/moderator/usuarios-list/usuarios-list.component';
 
 export const routes: Routes = [
   // RUTAS PROTEGIDAS
@@ -42,6 +44,16 @@ export const routes: Routes = [
     path: 'payment-manager',
     canActivate: [roleGuard(['1'])],
     component: PagoComponent
+  },
+  {
+    path: 'panel-moderator',
+    canActivate: [roleGuard(['2'])],
+    component: PanelModeracionComponent
+  },
+  {
+    path: 'lits-usuario',
+    canActivate: [roleGuard(['2'])],
+    component: UsuariosListComponent
   },
   // RUTAS PÚBLICAS 
   {

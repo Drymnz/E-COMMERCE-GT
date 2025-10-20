@@ -54,9 +54,15 @@ CREATE TABLE Tipo_Categoria (
     nombre VARCHAR(20) NOT NULL
 );
 
--- Estados específicos de artículos
+-- Estados del artículo
 CREATE TABLE Estado_Articulo (
     id_estado_articulo SERIAL PRIMARY KEY,
+    nombre VARCHAR(20) NOT NULL
+);
+
+-- Estados del artículo
+CREATE TABLE Moderador_Articulo (
+    id_estado SERIAL PRIMARY KEY,
     nombre VARCHAR(20) NOT NULL
 );
 
@@ -69,7 +75,9 @@ CREATE TABLE Articulo (
     imagen TEXT, --sera base64
     stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
     id_estado_articulo INT NOT NULL,
-    CONSTRAINT fk_articulo_estado FOREIGN KEY (id_estado_articulo) REFERENCES Estado_Articulo(id_estado_articulo)
+    id_accion INT NOT NULL DEFAULT 1,
+    CONSTRAINT fk_articulo_estado FOREIGN KEY (id_estado_articulo) REFERENCES Estado_Articulo(id_estado_articulo),
+    CONSTRAINT fk_id_accion FOREIGN KEY (id_accion) REFERENCES Moderador_Articulo(id_estado)
 );
 
 -- Estados específicos de artículos

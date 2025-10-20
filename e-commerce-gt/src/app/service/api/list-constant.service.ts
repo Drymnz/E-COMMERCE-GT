@@ -14,6 +14,7 @@ export class ListConstantService {
   private estadosPedidoSubject = new BehaviorSubject<string[]>([]);
   private tiposCategoriasSubject = new BehaviorSubject<string[]>([]);
   private estadosArticuloSubject = new BehaviorSubject<string[]>([]);
+  private estadosModeracionSubject = new BehaviorSubject<string[]>([]);
 
   // observables para usar en los componentes
   public estadosUsuario$ = this.estadosUsuarioSubject.asObservable();
@@ -21,6 +22,7 @@ export class ListConstantService {
   public estadosPedido$ = this.estadosPedidoSubject.asObservable();
   public tiposCategorias$ = this.tiposCategoriasSubject.asObservable();
   public estadosArticulo$ = this.estadosArticuloSubject.asObservable();
+  public estadosModeracion$ = this.estadosModeracionSubject.asObservable();
 
   constructor(private http: HttpClient) {
     // carga inicial de todas las constantes al crear el servicio
@@ -71,7 +73,18 @@ export class ListConstantService {
     );
   }
 
+  cargarEstadosModeracion(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/estados-moderacion`).pipe(
+      tap(estados => this.estadosModeracionSubject.next(estados))
+    );
+  }
+
   // métodos para obtener los valores actuales sincrónicamente
+
+  getEstadosModeracion(): string[] {
+    return this.estadosModeracionSubject.value;
+  }
+
   getEstadosUsuario(): string[] {
     return this.estadosUsuarioSubject.value;
   }
