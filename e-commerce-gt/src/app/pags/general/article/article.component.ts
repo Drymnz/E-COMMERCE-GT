@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Articulo } from '../../../entities/Customer';
+import { ListConstantService } from '../../../service/api/list-constant.service';
 
 @Component({
   selector: 'app-article',
@@ -19,6 +20,20 @@ export class ArticleComponent {
   @Output() verDetalles = new EventEmitter<Articulo>();
 
   imagenError: boolean = false;
+
+  tiposCategorias: string[] = [];
+
+  constructor(
+    private constantService: ListConstantService
+  ) { }
+
+  ngOnInit(): void {
+    // Cargar las constantes
+    this.constantService.tiposCategorias$.subscribe(estados => {
+      this.tiposCategorias = estados;
+    });
+  }
+
 
   get imagenUrl(): string {
     if (!this.articulo || !this.articulo.imagen || this.imagenError) {
@@ -44,7 +59,19 @@ export class ArticleComponent {
   }
 
   get categoriasArticulo(): string[] {
-    return this.articulo?.categorias || [];
+    if (!this.articulo?.categorias) {
+      return [];
+    }
+    return this.articulo.categorias
+      .map(item => {
+        // Verifica si es un número 
+        const posicion = Number(item);
+        if (!isNaN(posicion) && posicion > 0) {
+          return this.tiposCategorias[posicion - 1];
+        }
+        return item;
+      })
+      .filter(categoria => categoria !== undefined && categoria !== '');
   }
 
   //Verde si disponible, Rojo si no disponible

@@ -35,7 +35,7 @@ export class ProductCardManageComponent {
     return this.articulo.stock > 0 ? 'bg-success' : 'bg-secondary';
   }
 
-  // NUEVO - Clase CSS según el estado de moderación
+  // NUEVO 
   get estadoModeracionClass(): string {
     const idAccion = this.articulo.id_accion;
     if (idAccion === 1) return 'bg-warning text-dark'; // Pendiente

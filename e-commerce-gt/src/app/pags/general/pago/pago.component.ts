@@ -7,8 +7,10 @@ import { Usuario } from '../../../entities/Usuario';
 import { Card } from '../../../entities/Card';
 import { CarritoService } from '../../../service/local/carrito.service';
 import { CardService } from '../../../service/api/card.service';
+import { CompraService } from '../../../service/api/compra.service';
 import { ItemCarrito } from '../../../entities/ItemCarrito';
 import { NotifyConfirmComponent } from "../notify-confirm/notify-confirm.component";
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-pago',
@@ -35,13 +37,8 @@ export class PagoComponent implements OnInit {
   
   pasoActual = signal(1);
 
-  // confirmación de cancelación
   mostrarConfirmacionCancelacion = signal(false);
-  
-  // confirmación de pago
   mostrarConfirmacionPago = signal(false);
-
-  // confirmación de eliminación de tarjeta
   mostrarConfirmacionEliminar = signal(false);
   tarjetaAEliminar = signal<Card | null>(null);
   eliminandoTarjeta = signal(false);
@@ -49,6 +46,7 @@ export class PagoComponent implements OnInit {
   constructor(
     public carritoService: CarritoService,
     private cardService: CardService,
+    private compraService: CompraService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -176,6 +174,26 @@ export class PagoComponent implements OnInit {
     this.mostrarConfirmacionPago.set(true);
   }
 
+  private agruparPorVendedor(): Map<number, ItemCarrito[]> {
+    const grupos = new Map<number, ItemCarrito[]>();
+    
+    this.itemsCarrito().forEach(item => {
+      const idVendedor = item.articulo.id_vendedor || 0;
+      
+      if (!grupos.has(idVendedor)) {
+        grupos.set(idVendedor, []);
+      }
+      
+      grupos.get(idVendedor)!.push(item);
+    });
+    
+    return grupos;
+  }
+
+  private calcularTotalGrupo(items: ItemCarrito[]): number {
+    return items.reduce((total, item) => total + (item.articulo.precio * item.cantidad), 0);
+  }
+
   procesarPago(): void {
     const tarjeta = this.tarjetaSeleccionada();
     if (!tarjeta) return;
@@ -183,28 +201,93 @@ export class PagoComponent implements OnInit {
     this.loading.set(true);
     this.mostrarConfirmacionPago.set(false);
 
-    this.cardService.reducirSaldo(tarjeta.numero, this.totalCompra()).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.mostrarMensaje('¡Pago realizado exitosamente! Redirigiendo...', 'success');
-          this.carritoService.vaciarCarrito();
-          
-          setTimeout(() => {
-            this.router.navigate(['/']);
-          }, 2500);
+    const gruposPorVendedor = this.agruparPorVendedor();
+
+    const compras$ = Array.from(gruposPorVendedor.entries()).map(([idVendedor, items]) => {
+      const carritoCompra = {
+        id_usuario: this.idUsuario(),
+        id_vendedor: idVendedor,
+        items: items.map(item => ({
+          articulo: {
+            id_articulo: item.articulo.id_articulo,
+            nombre: item.articulo.nombre,
+            precio: item.articulo.precio,
+            stock: item.articulo.stock
+          },
+          cantidad: item.cantidad
+        }))
+      };
+      
+      return this.compraService.procesarCompra(carritoCompra);
+    });
+
+    forkJoin(compras$).subscribe({
+      next: (respuestas) => {
+        const todasExitosas = respuestas.every(r => r.exitoso);
+        
+        if (todasExitosas) {
+          this.cardService.reducirSaldo(tarjeta.numero, this.totalCompra()).subscribe({
+            next: (respuestaPago) => {
+              if (respuestaPago.success) {
+                const pedidos = respuestas
+                  .map((r, i) => `Pedido #${r.id_pedido}`)
+                  .join(', ');
+                
+                this.mostrarMensaje(
+                  `¡Compra realizada exitosamente! ${pedidos}. Total cobrado: Q ${this.totalCompra().toFixed(2)}`, 
+                  'success'
+                );
+                
+                this.carritoService.vaciarCarrito();
+                
+                setTimeout(() => {
+                  this.router.navigate(['/']);
+                }, 4000);
+              } else {
+                this.mostrarMensaje(
+                  `Error en el pago: ${respuestaPago.message}. Las compras fueron registradas pero no se pudo cobrar.`, 
+                  'error'
+                );
+                this.loading.set(false);
+              }
+            },
+            error: (errorPago) => {
+              console.error('Error al procesar pago:', errorPago);
+              this.loading.set(false);
+              
+              const mensajeError = errorPago?.error?.message || errorPago?.message || 'Error desconocido';
+              const pedidos = respuestas.map(r => `#${r.id_pedido}`).join(', ');
+              
+              this.mostrarMensaje(
+                `Las compras fueron registradas (${pedidos}) pero hubo un error al cobrar: ${mensajeError}. Por favor contacte con soporte.`,
+                'error'
+              );
+            }
+          });
         } else {
-          const mensaje = response.message || 'No se pudo procesar el pago';
-          this.mostrarMensaje(mensaje, 'error');
           this.loading.set(false);
+          
+          const fallidas = respuestas
+            .filter(r => !r.exitoso)
+            .map(r => r.mensaje)
+            .join('; ');
+          
+          this.mostrarMensaje(
+            `No se pudieron procesar todas las compras: ${fallidas}`,
+            'error'
+          );
         }
       },
-      error: (error) => {
-        console.error('Error al procesar el pago:', error);
+      error: (errorCompra) => {
+        console.error('Error al procesar compras:', errorCompra);
         this.loading.set(false);
         
-        const mensajeError = error?.error?.message || error?.message || 'Error desconocido';
+        const mensajeError = errorCompra?.error?.mensaje || 
+                            errorCompra?.error?.message || 
+                            errorCompra?.message || 
+                            'Error desconocido';
         this.mostrarMensaje(
-          `Error al procesar el pago: ${mensajeError}. Por favor, intente nuevamente o contacte con soporte.`,
+          `Error al procesar las compras: ${mensajeError}. Por favor, intente nuevamente.`,
           'error'
         );
       }
@@ -244,12 +327,10 @@ export class PagoComponent implements OnInit {
 
     this.cardService.eliminarTarjeta(tarjeta.numero).subscribe({
       next: () => {
-        // Remover la tarjeta de la lista
         this.tarjetasUsuario.update(tarjetas => 
           tarjetas.filter(t => t.numero !== tarjeta.numero)
         );
 
-        // tarjeta seleccionada
         if (this.tarjetaSeleccionada()?.numero === tarjeta.numero) {
           this.tarjetaSeleccionada.set(null);
         }
@@ -258,7 +339,6 @@ export class PagoComponent implements OnInit {
         this.cerrarConfirmacionEliminar();
         this.eliminandoTarjeta.set(false);
 
-        // mostrar el formulario de registro
         if (this.tarjetasUsuario().length === 0) {
           this.mostrarRegistroTarjeta.set(true);
         }
@@ -285,7 +365,7 @@ export class PagoComponent implements OnInit {
   mostrarMensaje(mensaje: string, tipo: 'success' | 'error' | 'warning'): void {
     this.mensaje.set(mensaje);
     this.tipoMensaje.set(tipo);
-    setTimeout(() => this.mensaje.set(''), 5000);
+    setTimeout(() => this.mensaje.set(''), 6000);
   }
 
   get nombreUsuario(): string {
