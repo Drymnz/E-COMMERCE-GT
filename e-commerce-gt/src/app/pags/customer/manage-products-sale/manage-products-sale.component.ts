@@ -104,8 +104,9 @@ export class ManageProductsSaleComponent implements OnInit {
   }
 
   obtenerEstadoNombre(idEstado: number): string {
-    if (idEstado >= 0 && idEstado < this.estadosArticulo.length) {
-      return this.estadosArticulo[idEstado];
+    const indice = idEstado - 1 ;
+    if (indice >= 0 && indice < this.estadosArticulo.length) {
+      return this.estadosArticulo[indice];
     }
     return 'Sin estado';
   }

@@ -15,27 +15,18 @@ public class UsuarioDAO extends BaseDAO {
     private final EncryptionService encryptionService = new EncryptionService();
 
     // Contar total de usuarios
-    public int countAll() {
-        String sql = "SELECT COUNT(*) FROM Usuario";
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) as total FROM usuario";
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-            rs = stmt.executeQuery();
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
-                return rs.getInt(1);
+                return rs.getInt("total");
             }
-
         } catch (SQLException e) {
-            System.err.println("Error al contar usuarios: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
         }
 
         return 0;
@@ -43,7 +34,7 @@ public class UsuarioDAO extends BaseDAO {
 
     public List<Usuario> findAllPaginated(int page, int pageSize) {
         int offset = (page - 1) * pageSize;
-        
+
         String sql = """
                 SELECT *
                 FROM Usuario
@@ -85,7 +76,7 @@ public class UsuarioDAO extends BaseDAO {
         return usuarios;
     }
 
-    //@param search email o id del usuario
+    // @param search email o id del usuario
     public Usuario findByEmailOrId(String search) {
         if (search == null || search.trim().isEmpty()) {
             return null;

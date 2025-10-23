@@ -69,6 +69,13 @@
             Gestionar sanciones
           </button>
 
+          <button
+            *appHasRole="'2'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irListadoSnaciones()"
+          >
+            Ver sanciones
+          </button>
           <!-- Botones de Cliente (1) -->
           <button
             *appHasRole="'1'"

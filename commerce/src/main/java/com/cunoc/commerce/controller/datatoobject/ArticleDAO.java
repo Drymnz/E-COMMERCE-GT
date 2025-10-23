@@ -11,16 +11,15 @@ import java.util.List;
 
 public class ArticleDAO extends BaseDAO {
 
-    // Lista todos los artículos disponibles (con stock > 0 Y aprobados por
-    // moderador)
+    // Lista todos los artículos disponibles (con stock > 0 Y aprobados por moderador)
     public List<Article> findAllAvailable() {
         List<Article> articles = new ArrayList<>();
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "WHERE a.stock > 0 " +
-                "AND a.id_accion = 2 " + // <-- NUEVA LÍNEA: 2 = aprobado
+                "AND a.id_accion = 2 " + 
                 "ORDER BY a.id_articulo DESC";
 
         Connection conn = null;
@@ -55,7 +54,7 @@ public class ArticleDAO extends BaseDAO {
     public List<Article> findByUserId(int idUsuario) {
         List<Article> articles = new ArrayList<>();
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "INNER JOIN Publicacion p ON a.id_articulo = p.id_articulo " +
@@ -93,7 +92,7 @@ public class ArticleDAO extends BaseDAO {
     // Busca un artículo por ID
     public Article findById(int idArticulo) {
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "WHERE a.id_articulo = ?";
@@ -151,7 +150,7 @@ public class ArticleDAO extends BaseDAO {
 
     public Article findByIdAndUserId(int idArticulo, int idUsuario) {
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "INNER JOIN Publicacion p ON a.id_articulo = p.id_articulo " +
@@ -187,8 +186,8 @@ public class ArticleDAO extends BaseDAO {
 
     // Crea un artículo y su publicación en una transacción
     public int create(Publicacion publicacion) {
-        String sqlArticulo = "INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlArticulo = "INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo, id_accion) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sqlPublicacion = "INSERT INTO Publicacion (id_articulo, id_usuario, fecha_hora_entrega) " +
                 "VALUES (?, ?, ?)";
         String sqlCategoria = "INSERT INTO Categoria (id_articulo, id_categoria_tipo) VALUES (?, ?)";
@@ -213,6 +212,7 @@ public class ArticleDAO extends BaseDAO {
             stmtArticulo.setString(4, articulo.getImagen());
             stmtArticulo.setInt(5, articulo.getStock());
             stmtArticulo.setInt(6, articulo.getIdEstadoArticulo());
+            stmtArticulo.setInt(7, articulo.getIdAccion() != null ? articulo.getIdAccion() : 1);
 
             int affectedRows = stmtArticulo.executeUpdate();
 
@@ -238,7 +238,7 @@ public class ArticleDAO extends BaseDAO {
                             rsPublicacion.close();
                         }
 
-                        // 3. NUEVO: Insertar las categorías
+                        // 3. Insertar las categorías
                         if (articulo.getCategorias() != null && !articulo.getCategorias().isEmpty()) {
                             stmtCategoria = conn.prepareStatement(sqlCategoria);
                             for (String idCategoria : articulo.getCategorias()) {
@@ -303,7 +303,7 @@ public class ArticleDAO extends BaseDAO {
     // Actualiza un artículo existente
     public boolean update(Article article) {
         String sql = "UPDATE Articulo SET nombre = ?, descripcion = ?, precio = ?, " +
-                "imagen = ?, stock = ?, id_estado_articulo = ? " +
+                "imagen = ?, stock = ?, id_estado_articulo = ?, id_accion = ? " +
                 "WHERE id_articulo = ?";
 
         int rowsAffected = executeUpdate(sql,
@@ -313,6 +313,7 @@ public class ArticleDAO extends BaseDAO {
                 article.getImagen(),
                 article.getStock(),
                 article.getIdEstadoArticulo(),
+                article.getIdAccion(),
                 article.getIdArticulo());
 
         return rowsAffected > 0;
@@ -328,7 +329,7 @@ public class ArticleDAO extends BaseDAO {
     public List<Article> searchByNameOrDescription(String searchTerm) {
         List<Article> articles = new ArrayList<>();
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "WHERE (LOWER(a.nombre) LIKE LOWER(?) OR LOWER(a.descripcion) LIKE LOWER(?)) " +
@@ -346,7 +347,10 @@ public class ArticleDAO extends BaseDAO {
             stmt = (PreparedStatement) rs.getStatement();
 
             while (rs.next()) {
-                articles.add(mapResultSetToArticle(rs));
+                Article article = mapResultSetToArticle(rs);
+                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
+                article.setCategorias(categorias);
+                articles.add(article);
             }
         } catch (SQLException e) {
             System.err.println("Error al buscar por nombre o descripción: " + e.getMessage());
@@ -362,7 +366,7 @@ public class ArticleDAO extends BaseDAO {
     public List<Article> filterByCategory(String categoryName) {
         List<Article> articles = new ArrayList<>();
         String sql = "SELECT DISTINCT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado " +
+                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "INNER JOIN Categoria c ON a.id_articulo = c.id_articulo " +
@@ -381,7 +385,10 @@ public class ArticleDAO extends BaseDAO {
             stmt = (PreparedStatement) rs.getStatement();
 
             while (rs.next()) {
-                articles.add(mapResultSetToArticle(rs));
+                Article article = mapResultSetToArticle(rs);
+                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
+                article.setCategorias(categorias);
+                articles.add(article);
             }
         } catch (SQLException e) {
             System.err.println("Error al filtrar por categoría: " + e.getMessage());
@@ -401,7 +408,7 @@ public class ArticleDAO extends BaseDAO {
         List<Object> params = new ArrayList<>();
 
         sql.append("SELECT DISTINCT a.id_articulo, a.nombre, a.descripcion, a.precio, ")
-                .append("a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado ")
+                .append("a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion ")
                 .append("FROM Articulo a ")
                 .append("INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo ");
 
@@ -444,7 +451,10 @@ public class ArticleDAO extends BaseDAO {
             stmt = (PreparedStatement) rs.getStatement();
 
             while (rs.next()) {
-                articles.add(mapResultSetToArticle(rs));
+                Article article = mapResultSetToArticle(rs);
+                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
+                article.setCategorias(categorias);
+                articles.add(article);
             }
         } catch (SQLException e) {
             System.err.println("Error al filtrar por múltiples criterios: " + e.getMessage());
@@ -510,6 +520,7 @@ public class ArticleDAO extends BaseDAO {
         article.setStock(rs.getInt("stock"));
         article.setIdEstadoArticulo(rs.getInt("id_estado_articulo"));
         article.setNombreEstado(rs.getString("nombre_estado"));
+        article.setIdAccion(rs.getInt("id_accion"));
         return article;
     }
 }

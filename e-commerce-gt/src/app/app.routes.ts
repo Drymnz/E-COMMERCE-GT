@@ -12,6 +12,7 @@ import { ManageShoppingCartComponent } from './pags/customer/manage-shopping-car
 import { PagoComponent } from './pags/general/pago/pago.component';
 import { PanelModeracionComponent } from './pags/moderator/panel-moderacion/panel-moderacion.component';
 import { UsuariosListComponent } from './pags/moderator/usuarios-list/usuarios-list.component';
+import { ListSanctionsComponent } from './pags/moderator/list-sanctions/list-sanctions.component';
 
 export const routes: Routes = [
   // RUTAS PROTEGIDAS
@@ -54,6 +55,11 @@ export const routes: Routes = [
     path: 'lits-usuario',
     canActivate: [roleGuard(['2'])],
     component: UsuariosListComponent
+  },
+  {
+    path: 'lits-sanctions',
+    canActivate: [roleGuard(['2'])],
+    component: ListSanctionsComponent
   },
   // RUTAS PÚBLICAS 
   {

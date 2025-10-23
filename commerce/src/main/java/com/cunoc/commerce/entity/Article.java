@@ -44,6 +44,10 @@ public class Article {
         return idArticulo;
     }
 
+    public Integer getIdAccion(){
+        return idAccion;
+    }
+
     public void setIdArticulo(Integer idArticulo) {
         this.idArticulo = idArticulo;
     }

@@ -137,8 +137,8 @@
     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <app-product-card-manage
         [articulo]="articulo"
-        [estadoNombre]="obtenerEstadoNombre(articulo.id_estado_articulo-1)"
-        [estadoModeracion]="obtenerEstadoModeracion(articulo.id_accion+1)"
+        [estadoNombre]="obtenerEstadoNombre(articulo.id_estado_articulo)"
+        [estadoModeracion]="obtenerEstadoModeracion(articulo.id_accion)"
         (editar)="editarProducto($event)"
         (eliminar)="eliminarProducto($event)"
         (cambiarEstado)="cambiarEstadoProducto($event)"

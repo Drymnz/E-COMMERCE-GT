@@ -36,6 +36,7 @@ export class ListConstantService {
     this.cargarEstadosPedido().subscribe();
     this.cargarTiposCategorias().subscribe();
     this.cargarEstadosArticulo().subscribe();
+    this.cargarEstadosModeracion().subscribe();
   }
 
   // obtiene lista de estados de usuario

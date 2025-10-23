@@ -13,6 +13,7 @@ import { HasRoleDirective } from '../../../directives/has-role.directive';
 })
 export class NavbarComponent {
 
+
   nombreEmpresa: string = 'E-Commerce GT';
 
   constructor(
@@ -59,6 +60,11 @@ export class NavbarComponent {
 
   irListadoUsuarios() {
     this.router.navigate(['/lits-usuario']);
+  }
+
+  irListadoSnaciones() {
+    this.router.navigate(['/lits-sanctions']);
+
   }
 
   logout(): void {

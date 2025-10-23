@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/article")
 @CrossOrigin(origins = "*")
-public class ItemController {
+public class ArticleController {
 
     private final ArticleDAO articleDAO = new ArticleDAO();
 
