@@ -1,0 +1,105 @@
+<div class="container mt-4">
+  <h2 class="mb-4">
+    <i class="bi bi-box-seam"></i> Gestión de Pedidos en Curso
+  </h2>
+  
+  <!-- Mensaje de alerta -->
+  @if (mensaje) {
+    <div class="alert alert-dismissible fade show" 
+         [ngClass]="{'alert-success': tipoMensaje === 'success', 'alert-danger': tipoMensaje === 'error'}"
+         role="alert">
+      {{ mensaje }}
+      <button type="button" class="btn-close" (click)="mensaje = ''" aria-label="Close"></button>
+    </div>
+  }
+  
+  <!-- Loading -->
+  @if (cargando) {
+    <div class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  }
+  
+  <!-- Tabla de pedidos -->
+  @if (!cargando) {
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered">
+        <thead class="table-primary">
+          <tr>
+            <th>ID Pedido</th>
+            <th>ID Comprador</th>
+            <th>Fecha de Entrega</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pedido of pedidosEnCurso; track pedido.id_pedido) {
+            <tr>
+              <td>{{ pedido.id_pedido }}</td>
+              <td>{{ pedido.id_comprador }}</td>
+              <td>
+                @if (pedidoEditando !== pedido.id_pedido) {
+                  <div>
+                    <i class="bi bi-calendar-event"></i> {{ formatearFecha(pedido.fecha_hora_entrega) }}
+                  </div>
+                }
+                @if (pedidoEditando === pedido.id_pedido) {
+                  <div class="d-flex gap-2">
+                    <input type="datetime-local" 
+                           class="form-control form-control-sm" 
+                           [(ngModel)]="nuevaFecha">
+                    <button class="btn btn-sm btn-success" (click)="guardarFecha(pedido.id_pedido)">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary" (click)="cancelarEdicion()">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                }
+              </td>
+              <td>
+                <span class="badge" [ngClass]="obtenerClaseBadge(pedido.id_estado_pedido)">
+                  {{ obtenerNombreEstado(pedido.id_estado_pedido) }}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-outline-primary" 
+                          (click)="iniciarEdicionFecha(pedido.id_pedido, pedido.fecha_hora_entrega)"
+                          [disabled]="pedidoEditando !== null"
+                          title="Modificar fecha">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-info" 
+                          (click)="abrirModalEstado(pedido.id_pedido)"
+                          title="Cambiar estado">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-muted">
+                <i class="bi bi-inbox"></i> No hay pedidos en curso
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Modal para seleccionar estado -->
+<app-modal-select-option
+  [titulo]="'Cambiar Estado del Pedido'"
+  [descripcion]="'Seleccione el nuevo estado para el pedido #' + pedidoSeleccionado"
+  [opciones]="estadosPedido"
+  [mostrar]="mostrarModalEstado"
+  (seleccionar)="cambiarEstado($event)"
+  (cancelar)="cerrarModalEstado()"
+></app-modal-select-option>

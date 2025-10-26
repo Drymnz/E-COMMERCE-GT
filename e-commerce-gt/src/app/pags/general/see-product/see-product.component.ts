@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ArticleService } from '../../../service/api/article.service';
 import { CommentService } from '../../../service/api/comment.service';
-import { Articulo } from '../../../entities/Customer';
+import { Articulo } from '../../../entities/Article';
 import { ArticleViewComponent } from '../article-view/article-view.component';
 import { Comentario } from '../../../entities/Comentario';
 import { ComentariosComponent } from '../comentarios/comentarios.component';

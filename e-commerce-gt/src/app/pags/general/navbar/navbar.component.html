@@ -43,11 +43,35 @@
             Reportes
           </button>
 
+          <button
+            *appHasRole="'4'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irListadoSnaciones()"
+          >
+            Ver sanciones
+          </button>
+
+          <button
+            *appHasRole="'4'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irHistorialNotificaciones()"
+          >
+            Historia de notificaciones
+          </button>
+
+          <button
+            *appHasRole="'4'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irHistorialEmpleados()"
+          >
+            Historia de empleados
+          </button>
+
           <!-- Botones de Logística (3) -->
           <button
             *appHasRole="'3'"
             class="btn btn-outline-warning btn-header"
-            (click)="irReportes()"
+            (click)="irGestionPedidos()"
           >
             Gestionar pedidos en curso
           </button>
@@ -83,6 +107,14 @@
             (click)="irGestionarProductos()"
           >
             Gestionar productos en venta
+          </button>
+
+          <button
+            *appHasRole="'1'"
+            class="btn btn-outline-warning btn-header"
+            (click)="irGestionarTrajetas()"
+          >
+            Gestionar trajetas
           </button>
 
           <button

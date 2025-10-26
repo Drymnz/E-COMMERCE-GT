@@ -13,6 +13,12 @@ import { PagoComponent } from './pags/general/pago/pago.component';
 import { PanelModeracionComponent } from './pags/moderator/panel-moderacion/panel-moderacion.component';
 import { UsuariosListComponent } from './pags/moderator/usuarios-list/usuarios-list.component';
 import { ListSanctionsComponent } from './pags/moderator/list-sanctions/list-sanctions.component';
+import { OrderTrackingComponent } from './pags/customer/order-tracking/order-tracking.component';
+import { OrderManagementComponent } from './pags/logistics/order-management/order-management.component';
+import { ReportComponent } from './pags/admin/report/report.component';
+import { NotificacionesComponent } from './pags/admin/notificacion/notificacion.component';
+import { HistorialEmpleadosComponent } from './pags/admin/historial-empleados/historial-empleados.component';
+import { GestionTarjetasComponent } from './pags/customer/manage-shopping-cart/gestion-tarjetas/gestion-tarjetas.component';
 
 export const routes: Routes = [
   // RUTAS PROTEGIDAS
@@ -20,6 +26,27 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [roleGuard(['4'])],
     component: AdminComponent
+  },
+  {
+    path: 'report',
+    canActivate: [roleGuard(['4'])],
+    component: ReportComponent
+  },
+  {
+    path: 'notificacion',
+    canActivate: [roleGuard(['4'])],
+    component: NotificacionesComponent
+  },
+  {
+    path: 'historial-empleados',
+    canActivate: [roleGuard(['4'])],
+    component: HistorialEmpleadosComponent
+  },
+  // Cliente 
+  {
+    path: 'gestion-tarjetas',
+    canActivate: [roleGuard(['1'])],
+    component: GestionTarjetasComponent
   },
   {
     path: 'manage-products-sale',
@@ -47,10 +74,16 @@ export const routes: Routes = [
     component: PagoComponent
   },
   {
+    path: 'order-tracking',
+    canActivate: [roleGuard(['1'])],
+    component: OrderTrackingComponent
+  },
+  {
     path: 'panel-moderator',
     canActivate: [roleGuard(['2'])],
     component: PanelModeracionComponent
   },
+  //Moderador 
   {
     path: 'lits-usuario',
     canActivate: [roleGuard(['2'])],
@@ -58,8 +91,13 @@ export const routes: Routes = [
   },
   {
     path: 'lits-sanctions',
-    canActivate: [roleGuard(['2'])],
+    canActivate: [roleGuard(['2','4'])],
     component: ListSanctionsComponent
+  },
+  {
+    path: 'order-management',
+    canActivate: [roleGuard(['3'])],
+    component: OrderManagementComponent
   },
   // RUTAS PÚBLICAS 
   {

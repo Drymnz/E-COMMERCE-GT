@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ListConstantService } from '../../../service/api/list-constant.service';
-import { Articulo } from '../../../entities/Customer';
+import { Articulo } from '../../../entities/Article';
 import { ArticleComponent } from '../article/article.component';
 import { ArticleService } from '../../../service/api/article.service';
 import { Router } from '@angular/router';

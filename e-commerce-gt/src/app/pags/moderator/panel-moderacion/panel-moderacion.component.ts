@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArticleComponent } from '../../general/article/article.component';
 import { NotifyConfirmComponent } from '../../general/notify-confirm/notify-confirm.component';
-import { Articulo } from '../../../entities/Customer';
+import { Articulo } from '../../../entities/Article';
 import { ModeratorService, PaginacionResponse } from '../../../service/api/moderacion.service';
 import { ListConstantService } from '../../../service/api/list-constant.service';
 

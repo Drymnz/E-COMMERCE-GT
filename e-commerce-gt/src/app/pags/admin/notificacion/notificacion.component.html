@@ -1,0 +1,128 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="display-6 fw-bold">
+        <i class="bi bi-bell-fill me-2 text-primary"></i>Historial de Notificaciones
+      </h1>
+    </div>
+  </div>
+
+  <!-- Información de paginación -->
+  @if (!cargando() && totalNotificaciones() > 0) {
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="alert alert-info d-flex align-items-center mb-0">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          <span>Mostrando {{ rangoNotificaciones }} de {{ totalNotificaciones() }} notificaciones</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Estado de carga -->
+  @if (cargando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3 text-muted">Cargando notificaciones...</p>
+    </div>
+  }
+
+  <!-- Lista de notificaciones -->
+  @if (!cargando()) {
+    <div class="row">
+      <div class="col-12">
+        <!-- Sin notificaciones -->
+        @if (notificaciones().length === 0) {
+          <div class="card">
+            <div class="card-body text-center py-5">
+              <i class="bi bi-bell-slash display-1 text-muted"></i>
+              <h3 class="mt-3 text-muted">No tienes notificaciones</h3>
+              <p class="text-muted">Cuando recibas notificaciones, aparecerán aquí</p>
+            </div>
+          </div>
+        } @else {
+          <!-- Con notificaciones -->
+          <div>
+            <div class="list-group">
+              @for (notificacion of notificaciones(); track notificacion; let i = $index) {
+                <div 
+                  class="list-group-item list-group-item-action"
+                  [class.list-group-item-primary]="notificacion.esReciente">
+                  <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-start mb-2">
+                        <i class="bi bi-bell me-2 mt-1" 
+                          [class.text-primary]="notificacion.esReciente"
+                          [class.text-muted]="!notificacion.esReciente"></i>
+                        <div class="flex-grow-1">
+                          <p class="mb-1">{{ notificacion.mensaje }}</p>
+                          <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>
+                            {{ notificacion.fechaRelativa }}
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                    @if (notificacion.esReciente) {
+                      <span class="badge bg-primary rounded-pill ms-3">
+                        Nueva
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Paginación -->
+            @if (totalPages() > 1) {
+              <nav aria-label="Paginación de notificaciones" class="mt-4">
+                <ul class="pagination justify-content-center">
+                  <!-- Anterior -->
+                  <li class="page-item" [class.disabled]="paginaAnteriorDisabled">
+                    <button 
+                      class="page-link" 
+                      (click)="cambiarPagina(currentPage() - 1)"
+                      [disabled]="paginaAnteriorDisabled">
+                      <i class="bi bi-chevron-left"></i>
+                      Anterior
+                    </button>
+                  </li>
+
+                  <!-- Páginas -->
+                  @for (pagina of paginas; track pagina) {
+                    <li class="page-item"
+                        [class.active]="pagina === currentPage()"
+                        [class.disabled]="pagina === -1">
+                      @if (pagina !== -1) {
+                        <button 
+                          class="page-link" 
+                          (click)="cambiarPagina(pagina)">
+                          {{ pagina }}
+                        </button>
+                      } @else {
+                        <span class="page-link">...</span>
+                      }
+                    </li>
+                  }
+
+                  <!-- Siguiente -->
+                  <li class="page-item" [class.disabled]="paginaSiguienteDisabled">
+                    <button 
+                      class="page-link" 
+                      (click)="cambiarPagina(currentPage() + 1)"
+                      [disabled]="paginaSiguienteDisabled">
+                      Siguiente
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

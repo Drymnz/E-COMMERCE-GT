@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 import { ItemCarrito } from '../../entities/ItemCarrito';
-import { Articulo } from '../../entities/Customer';
+import { Articulo } from '../../entities/Article';
 
 @Injectable({
   providedIn: 'root'

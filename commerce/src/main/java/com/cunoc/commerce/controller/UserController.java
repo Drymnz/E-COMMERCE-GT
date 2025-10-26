@@ -16,24 +16,35 @@ public class UserController {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    //Obtener usuarios paginados
+    // Hisotirial de empleados
+    @GetMapping("/empleados")
+    public ResponseEntity<List<Usuario>> obtenerEmpleados() {
+        try {
+            List<Usuario> empleados = usuarioDAO.findEmpleados();
+            return ResponseEntity.ok(empleados);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    // Obtener usuarios paginados
     @GetMapping
     public ResponseEntity<Map<String, Object>> obtenerUsuariosPaginados(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize) {
-        
+
         try {
             List<Usuario> usuarios = usuarioDAO.findAllPaginated(page, pageSize);
             int totalUsuarios = usuarioDAO.countTotal();
             int totalPages = (int) Math.ceil((double) totalUsuarios / pageSize);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("usuarios", usuarios);
             response.put("currentPage", page);
             response.put("pageSize", pageSize);
             response.put("totalUsuarios", totalUsuarios);
             response.put("totalPages", totalPages);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
@@ -55,7 +66,7 @@ public class UserController {
         return ResponseEntity.status(401).build();
     }
 
-    /* Crear nuevo usuario */
+    // Crear nuevo usuario
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
         boolean insertado = usuarioDAO.insert(usuario);
@@ -65,7 +76,7 @@ public class UserController {
         return ResponseEntity.badRequest().build();
     }
 
-    //@param email del usuario a buscar
+    // @param email del usuario a buscar
     @GetMapping("/buscar")
     public ResponseEntity<Usuario> buscarUsuario(@RequestParam String email) {
         Usuario usuario = usuarioDAO.findByEmailOrId(email);
@@ -75,7 +86,7 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    //modificar usuario existente
+    // modificar usuario existente
     @PutMapping
     public ResponseEntity<Usuario> modificarUsuario(@RequestBody Usuario usuario) {
         boolean actualizado = usuarioDAO.update(usuario);

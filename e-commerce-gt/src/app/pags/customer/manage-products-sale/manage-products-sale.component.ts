@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Articulo } from '../../../entities/Customer';
+import { Articulo } from '../../../entities/Article';
 import { ModalSelectOptionComponent } from '../../general/modal-select-option/modal-select-option.component';
 import { NotifyConfirmComponent } from '../../general/notify-confirm/notify-confirm.component';
 import { ListConstantService } from '../../../service/api/list-constant.service';

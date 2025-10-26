@@ -1,24 +1,18 @@
 <div class="card shadow-lg border-0">
   <div class="card-body p-4">
     <div class="row g-4">
-      <!-- Imagen del Artículo -->
+      <!-- Usar el componente article para la visualización básica -->
       <div class="col-md-6">
-        <div class="position-relative">
-          <img
-            [src]="articulo.imagen"
-            [alt]="articulo.nombre"
-            class="img-fluid rounded-3"
-          />
-          
-          
-        </div>
+        <app-article 
+          [articulo]="articulo"
+          [estadoNombre]="getNombreEstado()"
+          [disponible]="articulo.disponible"
+          [mostrarAcciones]="false">
+        </app-article>
       </div>
 
-      <!-- Información del Artículo -->
+      <!-- Información detallada y acciones -->
       <div class="col-md-6">
-        <!-- Categorías con nombres reales -->
-        
-
         <!-- Nombre -->
         <h1 class="h2 fw-bold mb-3">{{ articulo.nombre }}</h1>
 
@@ -49,12 +43,13 @@
           </div>
         </div>
 
-          @for (categoria of this.articulo.categorias; track categoria) {
-            <span class="badge bg-primary me-2 mb-2">
-              <i class="bi bi-tag-fill me-1"></i>
-              {{ categoria }}
-            </span>
-          }
+        <!-- Categorías -->
+        @for (categoria of this.articulo.categorias; track categoria) {
+          <span class="badge bg-primary me-2 mb-2">
+            <i class="bi bi-tag-fill me-1"></i>
+            {{ categoria }}
+          </span>
+        }
 
         <!-- Indicador de Stock -->
         <div class="mb-4">
@@ -98,7 +93,7 @@
                   >
                     <i class="bi bi-dash-lg">-</i>
                   </button>
-                 <input
+                  <input
                     type="number"
                     [(ngModel)]="cantidadInput"
                     (ngModelChange)="onCantidadChange($event)"

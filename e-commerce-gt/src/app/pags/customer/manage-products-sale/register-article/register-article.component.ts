@@ -6,7 +6,7 @@ import { ArticleComponent } from '../../../general/article/article.component';
 import { ListConstantService } from '../../../../service/api/list-constant.service';
 import { AuthService } from '../../../../service/local/auth.service';
 import { ArticleService } from '../../../../service/api/article.service';
-import { Articulo } from '../../../../entities/Customer';
+import { Articulo } from '../../../../entities/Article';
 import { Publicacion } from '../../../../entities/Publication';
 
 @Component({

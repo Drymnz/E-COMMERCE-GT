@@ -13,7 +13,6 @@ import { HasRoleDirective } from '../../../directives/has-role.directive';
 })
 export class NavbarComponent {
 
-
   nombreEmpresa: string = 'E-Commerce GT';
 
   constructor(
@@ -37,11 +36,23 @@ export class NavbarComponent {
     this.router.navigate(['/admin']);
   }
 
-  irReportes(): void {
+  irReportes() {
     this.router.navigate(['/report']);
   }
 
+  irHistorialNotificaciones() {
+    this.router.navigate(['/notificacion']);
+  }
+
+  irHistorialEmpleados() {
+    this.router.navigate(['/historial-empleados']);
+}
+
   //Cliente
+  //gestion-tarjetas
+  irGestionarTrajetas() {
+    this.router.navigate(['/gestion-tarjetas']);
+  }
   irGestionarProductos() {
     this.router.navigate(['/manage-products-sale']);
   }
@@ -50,7 +61,7 @@ export class NavbarComponent {
   }
 
   irSeguimientoPedidos() {
-    this.router.navigate(['/report']);
+    this.router.navigate(['/order-tracking']);
   }
 
   //Modedador 
@@ -65,6 +76,10 @@ export class NavbarComponent {
   irListadoSnaciones() {
     this.router.navigate(['/lits-sanctions']);
 
+  }
+  //logistica
+  irGestionPedidos(): void {
+    this.router.navigate(['/order-management']);
   }
 
   logout(): void {

@@ -14,6 +14,46 @@ public class UsuarioDAO extends BaseDAO {
 
     private final EncryptionService encryptionService = new EncryptionService();
 
+    // HIstorial de empleados
+    public List<Usuario> findEmpleados() {
+        String sql = """
+                SELECT *
+                FROM Usuario
+                WHERE id_rol != 1
+                ORDER BY id_usuario
+                """;
+
+        List<Usuario> empleados = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario(
+                        rs.getInt("id_usuario"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("email"),
+                        rs.getInt("id_estado"),
+                        rs.getInt("id_rol"));
+                empleados.add(usuario);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener empleados: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+
+        return empleados;
+    }
+
     // Contar total de usuarios
     public int countTotal() {
         String sql = "SELECT COUNT(*) as total FROM usuario";

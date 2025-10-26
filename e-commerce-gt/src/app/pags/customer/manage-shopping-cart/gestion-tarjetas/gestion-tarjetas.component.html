@@ -1,0 +1,307 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+          <i class="bi bi-credit-card-2-front-fill me-2"></i>
+          Mis Tarjetas
+        </h2>
+        <div>
+          <button class="btn btn-success me-2" (click)="toggleFormulario()">
+            <i [class]="mostrarFormulario ? 'bi bi-x-lg' : 'bi bi-plus-lg'" class="me-2"></i>
+            {{ mostrarFormulario ? 'Cancelar' : 'Nueva Tarjeta' }}
+          </button>
+          <button class="btn btn-primary" (click)="cargarTarjetas()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Actualizar
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario para agregar tarjeta -->
+      @if (mostrarFormulario) {
+        <div class="card mb-4 border-success">
+          <div class="card-header bg-success text-white">
+            <i class="bi bi-credit-card-fill me-2"></i>
+            Agregar Nueva Tarjeta
+          </div>
+          <div class="card-body">
+            <form [formGroup]="nuevaTarjetaForm" (ngSubmit)="agregarTarjeta()">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi bi-hash me-1"></i>
+                    Número de Tarjeta
+                  </label>
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    formControlName="numero"
+                    [class.is-invalid]="nuevaTarjetaForm.get('numero')?.invalid && nuevaTarjetaForm.get('numero')?.touched"
+                    placeholder="1234567890123456"
+                    maxlength="16">
+                  @if (nuevaTarjetaForm.get('numero')?.invalid && nuevaTarjetaForm.get('numero')?.touched) {
+                    <div class="invalid-feedback">
+                      @if (nuevaTarjetaForm.get('numero')?.errors?.['required']) {
+                        El número de tarjeta es requerido
+                      } @else if (nuevaTarjetaForm.get('numero')?.errors?.['minlength'] || nuevaTarjetaForm.get('numero')?.errors?.['maxlength']) {
+                        Debe tener exactamente 16 dígitos
+                      } @else if (nuevaTarjetaForm.get('numero')?.errors?.['pattern']) {
+                        Solo se permiten números
+                      }
+                    </div>
+                  }
+                  <small class="text-muted">16 dígitos numéricos</small>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">
+                    <i class="bi bi-lock-fill me-1"></i>
+                    CVV
+                  </label>
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    formControlName="cvv"
+                    [class.is-invalid]="nuevaTarjetaForm.get('cvv')?.invalid && nuevaTarjetaForm.get('cvv')?.touched"
+                    placeholder="123"
+                    maxlength="3">
+                  @if (nuevaTarjetaForm.get('cvv')?.invalid && nuevaTarjetaForm.get('cvv')?.touched) {
+                    <div class="invalid-feedback">
+                      @if (nuevaTarjetaForm.get('cvv')?.errors?.['required']) {
+                        El CVV es requerido
+                      } @else if (nuevaTarjetaForm.get('cvv')?.errors?.['minlength'] || nuevaTarjetaForm.get('cvv')?.errors?.['maxlength']) {
+                        Debe tener exactamente 3 dígitos
+                      } @else if (nuevaTarjetaForm.get('cvv')?.errors?.['pattern']) {
+                        Solo se permiten números
+                      }
+                    </div>
+                  }
+                  <small class="text-muted">3 dígitos</small>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">
+                    <i class="bi bi-calendar-event me-1"></i>
+                    Vencimiento
+                  </label>
+                  <input 
+                    type="date" 
+                    class="form-control"
+                    formControlName="fecha_vencimiento"
+                    [class.is-invalid]="nuevaTarjetaForm.get('fecha_vencimiento')?.invalid && nuevaTarjetaForm.get('fecha_vencimiento')?.touched">
+                  @if (nuevaTarjetaForm.get('fecha_vencimiento')?.invalid && nuevaTarjetaForm.get('fecha_vencimiento')?.touched) {
+                    <div class="invalid-feedback">
+                      La fecha de vencimiento es requerida
+                    </div>
+                  }
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">
+                    <i class="bi bi-cash-stack me-1"></i>
+                    Saldo Inicial
+                  </label>
+                  <input 
+                    type="number" 
+                    class="form-control"
+                    formControlName="saldo"
+                    [class.is-invalid]="nuevaTarjetaForm.get('saldo')?.invalid && nuevaTarjetaForm.get('saldo')?.touched"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00">
+                  @if (nuevaTarjetaForm.get('saldo')?.invalid && nuevaTarjetaForm.get('saldo')?.touched) {
+                    <div class="invalid-feedback">
+                      @if (nuevaTarjetaForm.get('saldo')?.errors?.['required']) {
+                        El saldo es requerido
+                      } @else if (nuevaTarjetaForm.get('saldo')?.errors?.['min']) {
+                        El saldo no puede ser negativo
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2" (click)="toggleFormulario()">
+                  <i class="bi bi-x-lg me-2"></i>
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-check-lg me-2"></i>
+                  Guardar Tarjeta
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- Estados de carga y error -->
+      @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3">Cargando tarjetas...</p>
+        </div>
+      }
+
+      @if (error && !cargando) {
+        <div class="alert alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ mensajeError }}
+        </div>
+      }
+
+      @if (!cargando && !error && tarjetas.length === 0) {
+        <div class="alert alert-info" role="alert">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          No tiene tarjetas registradas. Agregue una nueva tarjeta para comenzar.
+        </div>
+      }
+
+      <!-- Lista de tarjetas -->
+      @if (!cargando && !error && tarjetas.length > 0) {
+        <div class="row">
+          @for (tarjeta of tarjetas; track tarjeta.numero) {
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="card h-100" [ngClass]="getClaseTarjeta(tarjeta)">
+                <div class="card-body">
+                  <!-- Vista normal -->
+                  @if (tarjetaEditando !== tarjeta) {
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h5 class="card-title mb-0">
+                        <i class="bi bi-credit-card me-2"></i>
+                        Tarjeta
+                      </h5>
+                      <div>
+                        <button 
+                          class="btn btn-sm btn-outline-primary me-1" 
+                          (click)="iniciarEdicion(tarjeta)"
+                          title="Editar">
+                          <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button 
+                          class="btn btn-sm btn-outline-danger" 
+                          (click)="eliminarTarjeta(tarjeta.numero)"
+                          title="Eliminar">
+                          <i class="bi bi-trash-fill"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="mb-2">
+                      <small class="text-muted">Número</small>
+                      <p class="mb-0 font-monospace">{{ tarjeta.numeroEnmascarado }}</p>
+                    </div>
+
+                    <div class="mb-2">
+                      <small class="text-muted">CVV</small>
+                      <p class="mb-0">***</p>
+                    </div>
+
+                    <div class="mb-2">
+                      <small class="text-muted">Vencimiento</small>
+                      <p class="mb-0">
+                        {{ tarjeta.fecha_vencimiento | date:'MM/yyyy' }}
+                        @if (tarjeta.estaVencida) {
+                          <span class="badge bg-danger ms-2">Vencida</span>
+                        }
+                      </p>
+                    </div>
+
+                    <div class="mb-2">
+                      <small class="text-muted">Saldo</small>
+                      <h4 class="mb-0" [class.text-danger]="tarjeta.saldo === 0">
+                        Q {{ tarjeta.saldo | number:'1.2-2' }}
+                      </h4>
+                    </div>
+                  }
+
+                  <!-- Vista de edición -->
+                  @if (tarjetaEditando === tarjeta) {
+                    <form [formGroup]="editarTarjetaForm" (ngSubmit)="guardarEdicion()">
+                      <h5 class="card-title mb-3">
+                        <i class="bi bi-pencil-fill me-2"></i>
+                        Editar Tarjeta
+                      </h5>
+
+                      <div class="mb-3">
+                        <label class="form-label">CVV</label>
+                        <input 
+                          type="text" 
+                          class="form-control form-control-sm"
+                          formControlName="cvv"
+                          [class.is-invalid]="editarTarjetaForm.get('cvv')?.invalid && editarTarjetaForm.get('cvv')?.touched"
+                          maxlength="3">
+                        @if (editarTarjetaForm.get('cvv')?.invalid && editarTarjetaForm.get('cvv')?.touched) {
+                          <div class="invalid-feedback">
+                            @if (editarTarjetaForm.get('cvv')?.errors?.['required']) {
+                              El CVV es requerido
+                            } @else if (editarTarjetaForm.get('cvv')?.errors?.['minlength'] || editarTarjetaForm.get('cvv')?.errors?.['maxlength']) {
+                              Debe tener exactamente 3 dígitos
+                            } @else if (editarTarjetaForm.get('cvv')?.errors?.['pattern']) {
+                              Solo se permiten números
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Vencimiento</label>
+                        <input 
+                          type="date" 
+                          class="form-control form-control-sm"
+                          formControlName="fecha_vencimiento"
+                          [class.is-invalid]="editarTarjetaForm.get('fecha_vencimiento')?.invalid && editarTarjetaForm.get('fecha_vencimiento')?.touched">
+                        @if (editarTarjetaForm.get('fecha_vencimiento')?.invalid && editarTarjetaForm.get('fecha_vencimiento')?.touched) {
+                          <div class="invalid-feedback">
+                            La fecha de vencimiento es requerida
+                          </div>
+                        }
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Saldo</label>
+                        <input 
+                          type="number" 
+                          class="form-control form-control-sm"
+                          formControlName="saldo"
+                          [class.is-invalid]="editarTarjetaForm.get('saldo')?.invalid && editarTarjetaForm.get('saldo')?.touched"
+                          step="0.01">
+                        @if (editarTarjetaForm.get('saldo')?.invalid && editarTarjetaForm.get('saldo')?.touched) {
+                          <div class="invalid-feedback">
+                            @if (editarTarjetaForm.get('saldo')?.errors?.['required']) {
+                              El saldo es requerido
+                            } @else if (editarTarjetaForm.get('saldo')?.errors?.['min']) {
+                              El saldo no puede ser negativo
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <div class="d-flex justify-content-end">
+                        <button 
+                          type="button" 
+                          class="btn btn-sm btn-secondary me-2" 
+                          (click)="cancelarEdicion()">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                        <button 
+                          type="submit" 
+                          class="btn btn-sm btn-primary">
+                          <i class="bi bi-check-lg"></i>
+                        </button>
+                      </div>
+                    </form>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

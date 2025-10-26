@@ -1,0 +1,470 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="display-5 fw-bold text-center">
+        <i class="bi bi-graph-up-arrow me-2"></i>Reportes del Sistema
+      </h1>
+    </div>
+  </div>
+
+  <!-- Pestañas de navegación -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button 
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'productos'"
+        (click)="cambiarPestana('productos')"
+        type="button">
+        <i class="bi bi-trophy me-2"></i>Top Productos Vendidos
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button 
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'compradores'"
+        (click)="cambiarPestana('compradores')"
+        type="button">
+        <i class="bi bi-cash-coin me-2"></i>Mejores Compradores
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button 
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'vendedores'"
+        (click)="cambiarPestana('vendedores')"
+        type="button">
+        <i class="bi bi-graph-up me-2"></i>Mejores Vendedores
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button 
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'pedidos'"
+        (click)="cambiarPestana('pedidos')"
+        type="button">
+        <i class="bi bi-box-seam me-2"></i>Más Pedidos
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button 
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'productos-venta'"
+        (click)="cambiarPestana('productos-venta')"
+        type="button">
+        <i class="bi bi-shop me-2"></i>Más Productos en Venta
+      </button>
+    </li>
+  </ul>
+
+  <!-- Contenido de las pestañas -->
+  <div class="tab-content">
+    
+    <!-- Tab: Top 10 Productos Más Vendidos -->
+    <div *ngIf="pestanaActiva() === 'productos'" class="tab-pane fade show active">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-3">
+            <i class="bi bi-trophy-fill text-warning me-2"></i>Top 10 Productos Más Vendidos
+          </h2>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Inicio</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroProductos.fechaInicio"
+                class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Fin</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroProductos.fechaFin"
+                class="form-control">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <button (click)="aplicarRangoRapido('semana', filtroProductos)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-week me-1"></i>Última semana
+            </button>
+            <button (click)="aplicarRangoRapido('mes', filtroProductos)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-month me-1"></i>Último mes
+            </button>
+            <button (click)="aplicarRangoRapido('anio', filtroProductos)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-range me-1"></i>Último año
+            </button>
+          </div>
+
+          <button (click)="cargarReporteProductos()" class="btn btn-primary" [disabled]="cargandoProductos()">
+            <span *ngIf="cargandoProductos()" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!cargandoProductos()" class="bi bi-search me-2"></i>
+            {{ cargandoProductos() ? 'Cargando...' : 'Consultar' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoProductos()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!cargandoProductos()" class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-center">#</th>
+                  <th scope="col">Imagen</th>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Descripción</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col" class="text-center">Stock</th>
+                  <th scope="col" class="text-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let producto of productosVendidos(); let i = index">
+                  <td class="text-center fw-bold">{{ i + 1 }}</td>
+                  <td>
+                    <img [src]="producto.imagen" [alt]="producto.nombre" 
+                         class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                  </td>
+                  <td class="fw-semibold">{{ producto.nombre }}</td>
+                  <td>{{ producto.descripcion }}</td>
+                  <td class="text-success fw-bold">{{ producto.precioFormateado }}</td>
+                  <td class="text-center">{{ producto.stock }}</td>
+                  <td class="text-center">
+                    <span class="badge" 
+                          [class.bg-success]="producto.disponible" 
+                          [class.bg-danger]="!producto.disponible">
+                      {{ producto.estadoStock }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="productosVendidos().length === 0" class="alert alert-info text-center">
+              <i class="bi bi-info-circle me-2"></i>No hay datos disponibles para el período seleccionado
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Top 5 Mejores Compradores -->
+    <div *ngIf="pestanaActiva() === 'compradores'" class="tab-pane fade show active">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-3">
+            <i class="bi bi-cash-coin text-success me-2"></i>Top 5 Clientes que Más Ganancias Generan
+          </h2>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Inicio</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroCompradores.fechaInicio"
+                class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Fin</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroCompradores.fechaFin"
+                class="form-control">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <button (click)="aplicarRangoRapido('semana', filtroCompradores)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-week me-1"></i>Última semana
+            </button>
+            <button (click)="aplicarRangoRapido('mes', filtroCompradores)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-month me-1"></i>Último mes
+            </button>
+            <button (click)="aplicarRangoRapido('anio', filtroCompradores)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-range me-1"></i>Último año
+            </button>
+          </div>
+
+          <button (click)="cargarReporteCompradores()" class="btn btn-primary" [disabled]="cargandoCompradores()">
+            <span *ngIf="cargandoCompradores()" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!cargandoCompradores()" class="bi bi-search me-2"></i>
+            {{ cargandoCompradores() ? 'Cargando...' : 'Consultar' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoCompradores()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!cargandoCompradores()" class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-center">#</th>
+                  <th scope="col">ID Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Apellido</th>
+                  <th scope="col">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cliente of clientesCompradores(); let i = index">
+                  <td class="text-center">
+                    <span *ngIf="i === 0" class="fs-4">🥇</span>
+                    <span *ngIf="i === 1" class="fs-4">🥈</span>
+                    <span *ngIf="i === 2" class="fs-4">🥉</span>
+                    <span *ngIf="i > 2" class="fw-bold">{{ i + 1 }}</span>
+                  </td>
+                  <td>{{ cliente.id_usuario }}</td>
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.apellido }}</td>
+                  <td>{{ cliente.email }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="clientesCompradores().length === 0" class="alert alert-info text-center">
+              <i class="bi bi-info-circle me-2"></i>No hay datos disponibles para el período seleccionado
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Top 5 Mejores Vendedores -->
+    <div *ngIf="pestanaActiva() === 'vendedores'" class="tab-pane fade show active">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-3">
+            <i class="bi bi-graph-up text-primary me-2"></i>Top 5 Clientes que Más Productos Han Vendido
+          </h2>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Inicio</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroVendedores.fechaInicio"
+                class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Fin</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroVendedores.fechaFin"
+                class="form-control">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <button (click)="aplicarRangoRapido('semana', filtroVendedores)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-week me-1"></i>Última semana
+            </button>
+            <button (click)="aplicarRangoRapido('mes', filtroVendedores)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-month me-1"></i>Último mes
+            </button>
+            <button (click)="aplicarRangoRapido('anio', filtroVendedores)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-range me-1"></i>Último año
+            </button>
+          </div>
+
+          <button (click)="cargarReporteVendedores()" class="btn btn-primary" [disabled]="cargandoVendedores()">
+            <span *ngIf="cargandoVendedores()" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!cargandoVendedores()" class="bi bi-search me-2"></i>
+            {{ cargandoVendedores() ? 'Cargando...' : 'Consultar' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoVendedores()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!cargandoVendedores()" class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-center">#</th>
+                  <th scope="col">ID Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Apellido</th>
+                  <th scope="col">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cliente of clientesVendedores(); let i = index">
+                  <td class="text-center">
+                    <span *ngIf="i === 0" class="fs-4">🥇</span>
+                    <span *ngIf="i === 1" class="fs-4">🥈</span>
+                    <span *ngIf="i === 2" class="fs-4">🥉</span>
+                    <span *ngIf="i > 2" class="fw-bold">{{ i + 1 }}</span>
+                  </td>
+                  <td>{{ cliente.id_usuario }}</td>
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.apellido }}</td>
+                  <td>{{ cliente.email }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="clientesVendedores().length === 0" class="alert alert-info text-center">
+              <i class="bi bi-info-circle me-2"></i>No hay datos disponibles para el período seleccionado
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Top 10 Clientes con Más Pedidos -->
+    <div *ngIf="pestanaActiva() === 'pedidos'" class="tab-pane fade show active">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-3">
+            <i class="bi bi-box-seam text-info me-2"></i>Top 10 Clientes que Más Pedidos Han Realizado
+          </h2>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Inicio</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroPedidos.fechaInicio"
+                class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fecha Fin</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="filtroPedidos.fechaFin"
+                class="form-control">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <button (click)="aplicarRangoRapido('semana', filtroPedidos)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-week me-1"></i>Última semana
+            </button>
+            <button (click)="aplicarRangoRapido('mes', filtroPedidos)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-month me-1"></i>Último mes
+            </button>
+            <button (click)="aplicarRangoRapido('anio', filtroPedidos)" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-calendar-range me-1"></i>Último año
+            </button>
+          </div>
+
+          <button (click)="cargarReportePedidos()" class="btn btn-primary" [disabled]="cargandoPedidos()">
+            <span *ngIf="cargandoPedidos()" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!cargandoPedidos()" class="bi bi-search me-2"></i>
+            {{ cargandoPedidos() ? 'Cargando...' : 'Consultar' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoPedidos()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!cargandoPedidos()" class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-center">#</th>
+                  <th scope="col">ID Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Apellido</th>
+                  <th scope="col">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cliente of clientesPedidos(); let i = index">
+                  <td class="text-center fw-bold">{{ i + 1 }}</td>
+                  <td>{{ cliente.id_usuario }}</td>
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.apellido }}</td>
+                  <td>{{ cliente.email }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="clientesPedidos().length === 0" class="alert alert-info text-center">
+              <i class="bi bi-info-circle me-2"></i>No hay datos disponibles para el período seleccionado
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Top 10 Clientes con Más Productos en Venta -->
+    <div *ngIf="pestanaActiva() === 'productos-venta'" class="tab-pane fade show active">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-3">
+            <i class="bi bi-shop text-warning me-2"></i>Top 10 Clientes con Más Productos a la Venta
+          </h2>
+          <p class="text-muted">
+            <i class="bi bi-info-circle-fill me-1"></i>
+            Este reporte muestra el estado actual del inventario (no requiere fechas)
+          </p>
+          <button (click)="cargarReporteProductosVenta()" class="btn btn-primary" [disabled]="cargandoProductosVenta()">
+            <span *ngIf="cargandoProductosVenta()" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!cargandoProductosVenta()" class="bi bi-arrow-clockwise me-2"></i>
+            {{ cargandoProductosVenta() ? 'Cargando...' : 'Actualizar' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoProductosVenta()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!cargandoProductosVenta()" class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-center">#</th>
+                  <th scope="col">ID Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Apellido</th>
+                  <th scope="col">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cliente of clientesProductosVenta(); let i = index">
+                  <td class="text-center fw-bold">{{ i + 1 }}</td>
+                  <td>{{ cliente.id_usuario }}</td>
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.apellido }}</td>
+                  <td>{{ cliente.email }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="clientesProductosVenta().length === 0" class="alert alert-info text-center">
+              <i class="bi bi-info-circle me-2"></i>No hay datos disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

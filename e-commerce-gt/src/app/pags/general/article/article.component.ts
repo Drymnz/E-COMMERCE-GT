@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Articulo } from '../../../entities/Customer';
+import { Articulo } from '../../../entities/Article';
 import { ListConstantService } from '../../../service/api/list-constant.service';
 
 @Component({

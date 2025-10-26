@@ -34,7 +34,7 @@ export class UserService {
           u.id_estado.toString(),
           u.id_rol.toString()
         ));
-        
+
         return PaginatedResponse.crearDesdeDatos(
           usuarios,
           response.currentPage,
@@ -83,28 +83,28 @@ export class UserService {
 
   // Crear usuario (versión completa con id_estado)
   crearUsuario(
-    nombre: string, 
-    apellido: string, 
-    email: string, 
-    password: string, 
+    nombre: string,
+    apellido: string,
+    email: string,
+    password: string,
     id_rol: number,
     id_estado: number
   ): Observable<Usuario>;
 
   // Crear usuario cliente id_rol=1, id_estado=2
   crearUsuario(
-    nombre: string, 
-    apellido: string, 
-    email: string, 
+    nombre: string,
+    apellido: string,
+    email: string,
     password: string
   ): Observable<Usuario>;
 
   // Implementación
   crearUsuario(
-    nombre: string, 
-    apellido: string, 
-    email: string, 
-    password: string, 
+    nombre: string,
+    apellido: string,
+    email: string,
+    password: string,
     id_rol: number = 1,
     id_estado: number = 2
   ): Observable<Usuario> {
@@ -112,7 +112,7 @@ export class UserService {
       nombre,
       apellido,
       email,
-      password, 
+      password,
       id_estado,
       id_rol
     };
@@ -165,6 +165,20 @@ export class UserService {
         response.id_estado.toString(),
         response.id_rol.toString()
       ))
+    );
+  }
+
+  // Historial de empleados
+  obtenerEmpleados(): Observable<Usuario[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/empleados`).pipe(
+      map(response => response.map(u => Usuario.crearDesdeDatos(
+        u.id_usuario,
+        u.nombre,
+        u.apellido,
+        u.email,
+        u.id_estado.toString(),
+        u.id_rol.toString()
+      )))
     );
   }
 }

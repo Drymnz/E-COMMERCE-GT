@@ -1,0 +1,134 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Usuario } from '../../entities/Usuario';
+import { Articulo } from '../../entities/Article';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ReportService {
+  private apiUrl = 'http://localhost:8080/reports';
+
+  constructor(private http: HttpClient) { }
+
+  /**
+   * Top 10 productos más vendidos en un intervalo de tiempo
+   * @param fechaInicio formato: YYYY-MM-DDTHH:mm:ss
+   * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
+   */
+  obtenerTopProductosVendidos(fechaInicio: string, fechaFin: string): Observable<Articulo[]> {
+    const params = new HttpParams()
+      .set('fechaInicio', fechaInicio)
+      .set('fechaFin', fechaFin);
+
+    return this.http.get<any[]>(`${this.apiUrl}/productos-mas-vendidos`, { params }).pipe(
+      map(response => response.map((a: any) => Articulo.fromJSON(a)))
+    );
+  }
+
+  /**
+   * Top 5 clientes que más ganancias por compras han generado
+   * @param fechaInicio formato: YYYY-MM-DDTHH:mm:ss
+   * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
+   */
+  obtenerTopClientesCompradores(fechaInicio: string, fechaFin: string): Observable<Usuario[]> {
+    const params = new HttpParams()
+      .set('fechaInicio', fechaInicio)
+      .set('fechaFin', fechaFin);
+
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mejores-compradores`, { params }).pipe(
+      map(response => response.map((u: any) => this.mapearUsuario(u)))
+    );
+  }
+
+  /**
+   * Top 5 clientes que más productos han vendido
+   * @param fechaInicio formato: YYYY-MM-DDTHH:mm:ss
+   * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
+   */
+  obtenerTopClientesVendedores(fechaInicio: string, fechaFin: string): Observable<Usuario[]> {
+    const params = new HttpParams()
+      .set('fechaInicio', fechaInicio)
+      .set('fechaFin', fechaFin);
+
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mejores-vendedores`, { params }).pipe(
+      map(response => response.map((u: any) => this.mapearUsuario(u)))
+    );
+  }
+
+  /**
+   * Top 10 clientes que más pedidos han realizado
+   * @param fechaInicio formato: YYYY-MM-DDTHH:mm:ss
+   * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
+   */
+  obtenerTopClientesPedidos(fechaInicio: string, fechaFin: string): Observable<Usuario[]> {
+    const params = new HttpParams()
+      .set('fechaInicio', fechaInicio)
+      .set('fechaFin', fechaFin);
+
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mas-pedidos`, { params }).pipe(
+      map(response => response.map((u: any) => this.mapearUsuario(u)))
+    );
+  }
+
+  /**
+   * Top 10 clientes que más productos tienen a la venta
+   * No requiere fechas, muestra estado actual
+   */
+  obtenerTopClientesProductosVenta(): Observable<Usuario[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mas-productos-venta`).pipe(
+      map(response => response.map((u: any) => this.mapearUsuario(u)))
+    );
+  }
+
+  /**
+   * Método auxiliar: convierte fechas Date a string ISO formato requerido
+   */
+  formatearFecha(fecha: Date): string {
+    return fecha.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
+  }
+
+  /**
+   * Método auxiliar: obtiene rango de fechas común (último mes)
+   */
+  obtenerRangoUltimoMes(): { fechaInicio: string, fechaFin: string } {
+    const fechaFin = new Date();
+    const fechaInicio = new Date();
+    fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+
+    return {
+      fechaInicio: this.formatearFecha(fechaInicio),
+      fechaFin: this.formatearFecha(fechaFin)
+    };
+  }
+
+  /**
+   * Método auxiliar: obtiene rango de fechas común (último año)
+   */
+  obtenerRangoUltimoAnio(): { fechaInicio: string, fechaFin: string } {
+    const fechaFin = new Date();
+    const fechaInicio = new Date();
+    fechaInicio.setFullYear(fechaInicio.getFullYear() - 1);
+
+    return {
+      fechaInicio: this.formatearFecha(fechaInicio),
+      fechaFin: this.formatearFecha(fechaFin)
+    };
+  }
+
+  /**
+   * Mapeo de Usuario desde JSON
+   */
+  private mapearUsuario(data: any): Usuario {
+    return Usuario.crearDesdeDatos(
+      data.id_usuario,
+      data.nombre,
+      data.apellido,
+      data.email,
+      data.id_estado.toString(),
+      data.id_rol.toString()
+    );
+  }
+}

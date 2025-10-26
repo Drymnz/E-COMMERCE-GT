@@ -1,4 +1,4 @@
-import { Articulo } from "./Customer";
+import { Articulo } from "./Article";
 
 export class Publicacion {
   constructor(
