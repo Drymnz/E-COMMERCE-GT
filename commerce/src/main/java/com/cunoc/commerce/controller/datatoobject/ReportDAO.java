@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class ReportDAO extends BaseDAO {
 
     // Top 10 productos más vendidos en un intervalo de tiempo

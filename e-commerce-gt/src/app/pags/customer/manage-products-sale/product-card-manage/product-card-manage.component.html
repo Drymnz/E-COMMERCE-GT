@@ -10,7 +10,7 @@
 
     <!-- Mostrar si está en venta -->
     <div class="position-absolute top-0 end-0 m-2">
-      <span class="badge me-1" [ngClass]="estadoVentaClass">
+      <span class="badge me-1" [class]="estadoVentaClass">
         <i class="bi bi-circle-fill me-1"></i>{{ estadoVenta }}
       </span>
     </div>
@@ -22,7 +22,7 @@
         {{ estadoNombre }}
       </span>
       <!-- NUEVO: Estado de moderación -->
-      <span class="badge" [ngClass]="estadoModeracionClass">
+      <span class="badge" [class]="estadoModeracionClass">
         <i class="bi bi-shield-check me-1"></i>{{ estadoModeracion }}
       </span>
     </div>
@@ -35,11 +35,12 @@
 
     <div class="mb-2">
       @for (categoria of articulo.categorias; track categoria) {
-      <span class="badge bg-primary me-1 mb-1 small">
-        {{ categoria }}
-      </span>
-      } @if (articulo.categorias.length === 0) {
-      <span class="badge bg-secondary small">Sin categoría</span>
+        <span class="badge bg-primary me-1 mb-1 small">
+          {{ categoria }}
+        </span>
+      } 
+      @if (articulo.categorias.length === 0) {
+        <span class="badge bg-secondary small">Sin categoría</span>
       }
     </div>
 
@@ -53,7 +54,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
         <h5 class="mb-0 text-primary">{{ articulo.precioFormateado }}</h5>
-        <small [ngClass]="stockClass">
+        <small [class]="stockClass">
           <i class="bi bi-box me-1"></i>
           Stock: {{ articulo.stock }}
         </small>

@@ -213,42 +213,6 @@ public class ArticleController {
         }
     }
 
-    // Filtra artículos por categoría
-    @GetMapping("/filter/category")
-    public ResponseEntity<?> filterByCategory(@RequestParam String name) {
-        try {
-            if (name == null || name.trim().isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(createErrorResponse("Parámetro inválido", "El nombre de categoría no puede estar vacío"));
-            }
-
-            List<Article> articles = articleDAO.filterByCategory(name);
-            return ResponseEntity.ok(createSuccessResponse("Artículos filtrados por categoría", articles));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Error al filtrar por categoría", e.getMessage()));
-        }
-    }
-
-    /**
-     * Filtra artículos por múltiples criterios
-     * Parámetros opcionales: category, minPrice, maxPrice, stateId
-     */
-    @GetMapping("/filter/advanced")
-    public ResponseEntity<?> filterByMultipleCriteria(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) Integer stateId) {
-        try {
-            List<Article> articles = articleDAO.filterByMultipleCriteria(category, minPrice, maxPrice, stateId);
-            return ResponseEntity.ok(createSuccessResponse("Artículos filtrados", articles));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Error al filtrar artículos", e.getMessage()));
-        }
-    }
-
     // Actualiza solo el stock de un artículo
     @PatchMapping("/{id}/stock")
     public ResponseEntity<?> updateStock(@PathVariable int id, @RequestBody Map<String, Integer> body) {

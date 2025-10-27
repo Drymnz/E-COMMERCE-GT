@@ -20,9 +20,7 @@ export class NotificacionService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Obtener todas las notificaciones del sistema paginadas
-   */
+  //Obtener todas las notificaciones del sistema paginadas
   obtenerNotificacionesPaginadas(
     page: number = 1, 
     pageSize: number = 10
@@ -41,4 +39,5 @@ export class NotificacionService {
       }))
     );
   }
+  
 }

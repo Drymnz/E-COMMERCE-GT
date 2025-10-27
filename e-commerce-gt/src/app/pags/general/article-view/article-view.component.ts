@@ -63,7 +63,10 @@ export class ArticleViewComponent implements OnInit {
     }
   }
 
-  onCantidadChange(valor: number): void {
+  onCantidadChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valor = parseInt(input.value, 10);
+    
     if (!isNaN(valor) && valor > 0) {
       const nuevaCantidad = Math.min(valor, this.articulo.stock);
       this.cantidad.set(nuevaCantidad);
@@ -94,6 +97,11 @@ export class ArticleViewComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  // Método para cerrar el mensaje de alerta
+  cerrarMensaje(): void {
+    this.mensajeAgregado.set(false);
   }
 
   // Método helper para obtener la clase del badge de stock

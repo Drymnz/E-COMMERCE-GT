@@ -1,4 +1,4 @@
-<div class="card h-100 shadow-sm hover-card">
+<div class="card h-100 shadow-sm">
   <!-- Imagen del artículo -->
   <div class="position-relative">
     @if (articulo) {
@@ -12,7 +12,7 @@
       <!-- DISPONIBILIDAD  Verde/Rojo según stock -->
       <span 
         class="position-absolute top-0 end-0 m-2 badge"
-        [ngClass]="disponibilidadClass">
+        [class]="disponibilidadClass">
         <i class="bi bi-box-seam me-1"></i>
         {{ disponibilidadTexto }}
       </span>
@@ -24,7 +24,7 @@
       </span>
     } @else {
       <!-- Placeholder cuando no hay artículo -->
-      <div class="placeholder-image d-flex align-items-center justify-content-center bg-secondary text-white" 
+      <div class="card-img-top d-flex align-items-center justify-content-center bg-secondary text-white" 
            style="height: 200px;">
         <div class="text-center">
           <i class="bi bi-image" style="font-size: 3rem;"></i>

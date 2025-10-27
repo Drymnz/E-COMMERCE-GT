@@ -11,9 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class ModeratorDAO extends BaseDAO {
 
-    // Agregar este método en la clase ModeratorDAO
+    // obtenemos saciones por pagina
     public Map<String, Object> getSancionesPaginadas(int pagina, int tamanoPagina) {
         Map<String, Object> resultado = new HashMap<>();
         List<Map<String, Object>> sanciones = new ArrayList<>();

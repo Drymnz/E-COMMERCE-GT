@@ -10,9 +10,100 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class UsuarioDAO extends BaseDAO {
 
     private final EncryptionService encryptionService = new EncryptionService();
+
+    /**
+     * Obtiene el comprador/usuario que realizó un pedido
+     */
+    public Usuario findByPedidoId(int idPedido) {
+        String sql = """
+                SELECT u.*
+                FROM Usuario u
+                INNER JOIN Pedido p ON u.id_usuario = p.id_comprador
+                WHERE p.id_pedido = ?
+                LIMIT 1
+                """;
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idPedido);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setIdUsuario(rs.getInt("id_usuario"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setEmail(rs.getString("email"));
+                usuario.setPassword(rs.getString("password"));
+                usuario.setIdEstado(rs.getInt("id_estado"));
+                usuario.setIdRol(rs.getInt("id_rol"));
+                return usuario;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuario por pedido: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+
+        return null;
+    }
+
+    /**
+     * Obtiene el vendedor/usuario que publicó un artículo
+     */
+    public Usuario findByArticuloId(int idArticulo) {
+        String sql = """
+                SELECT u.*
+                FROM Usuario u
+                INNER JOIN Publicacion p ON u.id_usuario = p.id_usuario
+                WHERE p.id_articulo = ?
+                LIMIT 1
+                """;
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idArticulo);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setIdUsuario(rs.getInt("id_usuario"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setEmail(rs.getString("email"));
+                usuario.setPassword(rs.getString("password"));
+                usuario.setIdEstado(rs.getInt("id_estado"));
+                usuario.setIdRol(rs.getInt("id_rol"));
+                return usuario;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuario por artículo: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+
+        return null;
+    }
 
     // HIstorial de empleados
     public List<Usuario> findEmpleados() {
@@ -187,6 +278,14 @@ public class UsuarioDAO extends BaseDAO {
             rs = stmt.executeQuery();
 
             if (rs.next()) {
+                int idEstado = rs.getInt("id_estado");
+
+                // Verificar que el usuario esté activo (estado = 2)
+                if (idEstado != 2) {
+                    System.out.println("Acceso denegado: Cuenta sancionada  " + email);
+                    return null;
+                }
+
                 String hashedPassword = rs.getString("password");
 
                 if (encryptionService.verify(password, hashedPassword)) {
@@ -195,7 +294,7 @@ public class UsuarioDAO extends BaseDAO {
                             rs.getString("nombre"),
                             rs.getString("apellido"),
                             rs.getString("email"),
-                            rs.getInt("id_estado"),
+                            idEstado,
                             rs.getInt("id_rol"));
 
                     System.out.println("Login exitoso para: " + usuario.getEmail());

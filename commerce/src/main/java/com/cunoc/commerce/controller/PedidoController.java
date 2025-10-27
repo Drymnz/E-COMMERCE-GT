@@ -2,6 +2,9 @@ package com.cunoc.commerce.controller;
 
 import com.cunoc.commerce.controller.datatoobject.PedidoDAO;
 import com.cunoc.commerce.entity.Pedido;
+import com.cunoc.commerce.service.NotificacionPedidoService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +17,8 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class PedidoController {
 
+    @Autowired
+    private NotificacionPedidoService notificacionPedidoService;
     private final PedidoDAO pedidoDAO = new PedidoDAO();
 
     // Obtener pedidos de un usuario
@@ -59,6 +64,7 @@ public class PedidoController {
 
             boolean actualizado = pedidoDAO.updateFechaEntrega(idPedido, nuevaFecha);
             if (actualizado) {
+                notificacionPedidoService.notificarCambioFechaEntrega(idPedido, nuevaFecha);
                 return ResponseEntity.ok().build();
             }
             return ResponseEntity.notFound().build();
@@ -77,6 +83,7 @@ public class PedidoController {
             }
             boolean actualizado = pedidoDAO.actualizarEstado(idPedido, idEstado);
             if (actualizado) {
+                notificacionPedidoService.notificarCambioEstado(idPedido, idEstado);
                 return ResponseEntity.ok().build();
             }
             return ResponseEntity.notFound().build();

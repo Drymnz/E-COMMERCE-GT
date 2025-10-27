@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class PedidoDAO extends BaseDAO {
 
     // Obtener pedidos por usuario
@@ -38,7 +41,7 @@ public class PedidoDAO extends BaseDAO {
         return pedidos;
     }
 
-    // Obtener todos los pedidos en curso
+    // Obtener todos los pedidos
     public List<Pedido> findPedidosEnCurso() {
         String sql = "SELECT id_pedido, fecha_hora_entrega, id_comprador, id_estado_pedido " +
                 "FROM Pedido";

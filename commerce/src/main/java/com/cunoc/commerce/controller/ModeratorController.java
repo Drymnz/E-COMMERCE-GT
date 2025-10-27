@@ -1,6 +1,9 @@
 package com.cunoc.commerce.controller;
 
 import com.cunoc.commerce.controller.datatoobject.ModeratorDAO;
+import com.cunoc.commerce.entity.NotificacionArticuloService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -10,9 +13,12 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ModeratorController {
 
+    @Autowired
+    private NotificacionArticuloService notificacionArticuloService;
+
     private final ModeratorDAO moderatorDAO = new ModeratorDAO();
 
-    // Agregar este método en la clase ModeratorController
+    // Obtener listado de sanciones
     @GetMapping("/sanciones")
     public ResponseEntity<Map<String, Object>> getSancionesPaginadas(
             @RequestParam(defaultValue = "1") int pagina,
@@ -44,10 +50,15 @@ public class ModeratorController {
 
     // Aprueba un artículo
     @PutMapping("/aprobar/{idArticulo}")
-    public ResponseEntity<Map<String, Object>> aprobarArticulo(@PathVariable int idArticulo) {
+    public ResponseEntity<Map<String, Object>> aprobarArticulo(
+            @PathVariable int idArticulo,
+            @RequestParam(required = false, defaultValue = "0") int idModerador) {
+
         boolean exito = moderatorDAO.aprobarArticulo(idArticulo);
 
         if (exito) {
+            notificacionArticuloService.notificarAprobacion(idArticulo, idModerador);
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Artículo aprobado exitosamente"));
@@ -60,10 +71,17 @@ public class ModeratorController {
 
     // Rechaza un artículo
     @PutMapping("/rechazar/{idArticulo}")
-    public ResponseEntity<Map<String, Object>> rechazarArticulo(@PathVariable int idArticulo) {
+    public ResponseEntity<Map<String, Object>> rechazarArticulo(
+            @PathVariable int idArticulo,
+            @RequestParam(required = false, defaultValue = "0") int idModerador,
+            @RequestBody(required = false) Map<String, String> body) {
+
         boolean exito = moderatorDAO.rechazarArticulo(idArticulo);
 
         if (exito) {
+            String motivoRechazo = body != null ? body.get("motivo") : null;
+            notificacionArticuloService.notificarRechazo(idArticulo, idModerador, motivoRechazo);
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Artículo rechazado exitosamente"));

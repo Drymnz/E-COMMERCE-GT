@@ -7,9 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class NotificacionDAO extends BaseDAO {
 
     //Obtener todas las notificaciones del sistema paginadas
@@ -79,4 +83,31 @@ public class NotificacionDAO extends BaseDAO {
 
         return 0;
     }
+
+    public boolean insert(Notificacion notificacion) {
+        if (notificacion == null || notificacion.getMensaje() == null) {
+            return false;
+        }
+        
+        String sql = """
+                INSERT INTO Notificacion (mensaje, fecha_hora, id_usuario)
+                VALUES (?, ?, ?)
+                """;
+        
+        try {
+            int rowsAffected = executeUpdate(sql,
+                    notificacion.getMensaje(),
+                    Timestamp.valueOf(notificacion.getFechaHora()),
+                    notificacion.getIdUsuario());
+            
+            return rowsAffected > 0;
+            
+        } catch (Exception e) {
+            System.err.println("Error al insertar notificacion: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
 }

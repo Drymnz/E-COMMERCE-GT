@@ -26,9 +26,9 @@
                 [class.is-invalid]="isFieldInvalid('nombre')"
               />
               @if (isFieldInvalid('nombre')) {
-              <div class="invalid-feedback">
-                {{ getErrorMessage("nombre") }}
-              </div>
+                <div class="invalid-feedback">
+                  {{ getErrorMessage("nombre") }}
+                </div>
               }
             </div>
 
@@ -47,9 +47,9 @@
                 [class.is-invalid]="isFieldInvalid('descripcion')"
               ></textarea>
               @if (isFieldInvalid('descripcion')) {
-              <div class="invalid-feedback">
-                {{ getErrorMessage("descripcion") }}
-              </div>
+                <div class="invalid-feedback">
+                  {{ getErrorMessage("descripcion") }}
+                </div>
               }
             </div>
 
@@ -59,6 +59,10 @@
                 <label for="precio" class="form-label">
                   <i class="bi bi-currency-dollar me-1"></i>
                   Precio (Q) <span class="text-danger">*</span>
+                  <span class="d-block text-muted small mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Nota: se aplicará 5% de comisión por la página
+                  </span>
                 </label>
                 <input
                   type="number"
@@ -71,9 +75,9 @@
                   [class.is-invalid]="isFieldInvalid('precio')"
                 />
                 @if (isFieldInvalid('precio')) {
-                <div class="invalid-feedback">
-                  {{ getErrorMessage("precio") }}
-                </div>
+                  <div class="invalid-feedback">
+                    {{ getErrorMessage("precio") }}
+                  </div>
                 }
               </div>
 
@@ -92,9 +96,9 @@
                   [class.is-invalid]="isFieldInvalid('stock')"
                 />
                 @if (isFieldInvalid('stock')) {
-                <div class="invalid-feedback">
-                  {{ getErrorMessage("stock") }}
-                </div>
+                  <div class="invalid-feedback">
+                    {{ getErrorMessage("stock") }}
+                  </div>
                 }
               </div>
             </div>
@@ -111,7 +115,7 @@
                 formControlName="id_estado_articulo"
               >
                 @for (estado of estadoArticulo; track $index) {
-                <option [value]="$index + 1">{{ estado }}</option>
+                  <option [value]="$index + 1">{{ estado }}</option>
                 }
               </select>
             </div>
@@ -123,35 +127,33 @@
                 Categorías <span class="text-danger">*</span>
               </label>
               <div class="row" formArrayName="categorias">
-                @for (categoria of categorias; track categoria; let i = $index)
-                {
-                <div class="col-md-6 mb-2">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      [id]="'categoria-' + i"
-                      [formControlName]="i"
-                    />
-                    <label class="form-check-label" [for]="'categoria-' + i">
-                      {{ categoria }}
-                    </label>
+                @for (categoria of categorias; track categoria; let i = $index) {
+                  <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="'categoria-' + i"
+                        [formControlName]="i"
+                      />
+                      <label class="form-check-label" [for]="'categoria-' + i">
+                        {{ categoria }}
+                      </label>
+                    </div>
                   </div>
-                </div>
                 } @empty {
-                <div class="col-12">
-                  <p class="text-muted small mb-0">
-                    No hay categorías disponibles
-                  </p>
-                </div>
+                  <div class="col-12">
+                    <p class="text-muted small mb-0">
+                      No hay categorías disponibles
+                    </p>
+                  </div>
                 }
               </div>
-              @if (getCategoriasSeleccionadas().length === 0 &&
-              articuloForm.touched) {
-              <small class="text-danger">
-                <i class="bi bi-exclamation-circle me-1"></i>
-                Selecciona al menos una categoría
-              </small>
+              @if (getCategoriasSeleccionadas().length === 0 && articuloForm.touched) {
+                <small class="text-danger">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Selecciona al menos una categoría
+                </small>
               }
             </div>
 
@@ -174,21 +176,21 @@
 
               <!-- Preview pequeño de la imagen cargada -->
               @if (imagenPreviewUrl) {
-              <div class="mt-2">
-                <img
-                  [src]="imagenPreviewUrl"
-                  alt="Preview"
-                  class="img-thumbnail"
-                  style="max-height: 100px"
-                />
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger ms-2"
-                  (click)="eliminarImagen()"
-                >
-                  <i class="bi bi-trash"></i> Eliminar
-                </button>
-              </div>
+                <div class="mt-2">
+                  <img
+                    [src]="imagenPreviewUrl"
+                    alt="Preview"
+                    class="img-thumbnail"
+                    style="max-height: 100px"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger ms-2"
+                    (click)="eliminarImagen()"
+                  >
+                    <i class="bi bi-trash"></i> Eliminar
+                  </button>
+                </div>
               }
             </div>
 
@@ -213,47 +215,34 @@
               <strong>Estado del formulario:</strong>
               <ul class="mb-0 mt-2 small">
                 <li>
-                  Válido: @if (articuloForm.valid &&
-                  getCategoriasSeleccionadas().length > 0) {
-                  <span class="badge bg-success">Sí</span>
+                  Válido: 
+                  @if (articuloForm.valid && getCategoriasSeleccionadas().length > 0) {
+                    <span class="badge bg-success">Sí</span>
                   } @else {
-                  <span class="badge bg-danger">No</span>
+                    <span class="badge bg-danger">No</span>
                   }
                 </li>
                 <li>
-                  Categorías seleccionadas:
-                  {{ getCategoriasSeleccionadas().length }}
+                  Categorías seleccionadas: {{ getCategoriasSeleccionadas().length }}
                 </li>
               </ul>
             </div>
 
             <!-- Zona de mensajes de error -->
             @if (mensajeError) {
-            <div
-              class="alert alert-danger alert-dismissible fade show"
-              role="alert"
-            >
-              <i class="bi bi-exclamation-circle-fill me-2"></i>
-              <strong>Error:</strong> {{ mensajeError }}
-              <button
-                type="button"
-                class="btn-close"
-                (click)="limpiarMensajes()"
-              ></button>
-            </div>
-            } @if (mensajeExito) {
-            <div
-              class="alert alert-success alert-dismissible fade show"
-              role="alert"
-            >
-              <i class="bi bi-check-circle-fill me-2"></i>
-              <strong>Éxito:</strong> {{ mensajeExito }}
-              <button
-                type="button"
-                class="btn-close"
-                (click)="limpiarMensajes()"
-              ></button>
-            </div>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                <strong>Error:</strong> {{ mensajeError }}
+                <button type="button" class="btn-close" (click)="limpiarMensajes()"></button>
+              </div>
+            } 
+            
+            @if (mensajeExito) {
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Éxito:</strong> {{ mensajeExito }}
+                <button type="button" class="btn-close" (click)="limpiarMensajes()"></button>
+              </div>
             }
 
             <!-- Botones -->
@@ -261,10 +250,7 @@
               <button
                 type="submit"
                 class="btn btn-primary"
-                [disabled]="
-                  articuloForm.invalid ||
-                  getCategoriasSeleccionadas().length === 0
-                "
+                [disabled]="articuloForm.invalid || getCategoriasSeleccionadas().length === 0"
               >
                 <i class="bi bi-save me-2"></i>
                 Guardar Artículo
@@ -303,11 +289,7 @@
             <app-article
               [articulo]="articuloPreview"
               [mostrarAcciones]="false"
-              [estadoNombre]="
-                getEstadoNombre(
-                  articuloForm.get('id_estado_articulo')?.value || 1
-                )
-              "
+              [estadoNombre]="getEstadoNombre(articuloForm.get('id_estado_articulo')?.value || 1)"
               [disponible]="isArticuloDisponible()"
             >
             </app-article>
@@ -318,15 +300,14 @@
                 <strong>Información:</strong>
                 <ul class="mb-0 mt-2 ps-3">
                   <li>
-                    Los campos marcados con
-                    <span class="text-danger">*</span> son obligatorios
+                    Los campos marcados con <span class="text-danger">*</span> son obligatorios
                   </li>
                   <li>El precio se muestra en Quetzales (Q)</li>
                   <li>
                     @if (articuloForm.get('stock')?.value > 0) {
-                    <span class="badge bg-success">Disponible</span>
+                      <span class="badge bg-success">Disponible</span>
                     } @else {
-                    <span class="badge bg-danger">No disponible</span>
+                      <span class="badge bg-danger">No disponible</span>
                     } según el stock
                   </li>
                 </ul>

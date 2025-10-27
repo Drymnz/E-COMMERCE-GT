@@ -5,13 +5,18 @@ import com.cunoc.commerce.entity.Article;
 import com.cunoc.commerce.entity.Publicacion;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class ArticleDAO extends BaseDAO {
 
-    // Lista todos los artículos disponibles (con stock > 0 Y aprobados por moderador)
+    // Lista todos los artículos disponibles (con stock > 0 Y aprobados por
+    // moderador)
     public List<Article> findAllAvailable() {
         List<Article> articles = new ArrayList<>();
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
@@ -19,7 +24,7 @@ public class ArticleDAO extends BaseDAO {
                 "FROM Articulo a " +
                 "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
                 "WHERE a.stock > 0 " +
-                "AND a.id_accion = 2 " + 
+                "AND a.id_accion = 2 " +
                 "ORDER BY a.id_articulo DESC";
 
         Connection conn = null;
@@ -186,7 +191,8 @@ public class ArticleDAO extends BaseDAO {
 
     // Crea un artículo y su publicación en una transacción
     public int create(Publicacion publicacion) {
-        String sqlArticulo = "INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo, id_accion) " +
+        String sqlArticulo = "INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo, id_accion) "
+                +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sqlPublicacion = "INSERT INTO Publicacion (id_articulo, id_usuario, fecha_hora_entrega) " +
                 "VALUES (?, ?, ?)";
@@ -208,7 +214,7 @@ public class ArticleDAO extends BaseDAO {
             stmtArticulo = conn.prepareStatement(sqlArticulo, Statement.RETURN_GENERATED_KEYS);
             stmtArticulo.setString(1, articulo.getNombre());
             stmtArticulo.setString(2, articulo.getDescripcion());
-            stmtArticulo.setBigDecimal(3, articulo.getPrecio());
+            stmtArticulo.setBigDecimal(3, this.calculateCommission(articulo.getPrecio()));
             stmtArticulo.setString(4, articulo.getImagen());
             stmtArticulo.setInt(5, articulo.getStock());
             stmtArticulo.setInt(6, articulo.getIdEstadoArticulo());
@@ -300,6 +306,12 @@ public class ArticleDAO extends BaseDAO {
         }
     }
 
+    // Caluclar commison
+    private BigDecimal calculateCommission(BigDecimal p) {
+        // Precio final = p / 0.95
+        return p.divide(new BigDecimal("0.95"), 2, RoundingMode.HALF_UP);
+    }
+
     // Actualiza un artículo existente
     public boolean update(Article article) {
         String sql = "UPDATE Articulo SET nombre = ?, descripcion = ?, precio = ?, " +
@@ -354,110 +366,6 @@ public class ArticleDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             System.err.println("Error al buscar por nombre o descripción: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
-        }
-
-        return articles;
-    }
-
-    // Filtra artículos por categoría
-    public List<Article> filterByCategory(String categoryName) {
-        List<Article> articles = new ArrayList<>();
-        String sql = "SELECT DISTINCT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion " +
-                "FROM Articulo a " +
-                "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
-                "INNER JOIN Categoria c ON a.id_articulo = c.id_articulo " +
-                "INNER JOIN Tipo_Categoria tc ON c.id_categoria_tipo = tc.id_categoria " +
-                "WHERE LOWER(tc.nombre) = LOWER(?) " +
-                "AND a.stock > 0 " +
-                "ORDER BY a.id_articulo DESC";
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            rs = executeQuery(sql, categoryName);
-            conn = rs.getStatement().getConnection();
-            stmt = (PreparedStatement) rs.getStatement();
-
-            while (rs.next()) {
-                Article article = mapResultSetToArticle(rs);
-                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
-                article.setCategorias(categorias);
-                articles.add(article);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al filtrar por categoría: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
-        }
-
-        return articles;
-    }
-
-    // Filtra artículos por múltiples criterios
-    public List<Article> filterByMultipleCriteria(String categoryName, BigDecimal minPrice,
-            BigDecimal maxPrice, Integer stateId) {
-        List<Article> articles = new ArrayList<>();
-        StringBuilder sql = new StringBuilder();
-        List<Object> params = new ArrayList<>();
-
-        sql.append("SELECT DISTINCT a.id_articulo, a.nombre, a.descripcion, a.precio, ")
-                .append("a.imagen, a.stock, a.id_estado_articulo, ea.nombre as nombre_estado, a.id_accion ")
-                .append("FROM Articulo a ")
-                .append("INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo ");
-
-        if (categoryName != null && !categoryName.isEmpty()) {
-            sql.append("INNER JOIN Categoria c ON a.id_articulo = c.id_articulo ")
-                    .append("INNER JOIN Tipo_Categoria tc ON c.id_categoria_tipo = tc.id_categoria ");
-        }
-
-        sql.append("WHERE a.stock > 0 ");
-
-        if (categoryName != null && !categoryName.isEmpty()) {
-            sql.append("AND LOWER(tc.nombre) = LOWER(?) ");
-            params.add(categoryName);
-        }
-
-        if (minPrice != null) {
-            sql.append("AND a.precio >= ? ");
-            params.add(minPrice);
-        }
-
-        if (maxPrice != null) {
-            sql.append("AND a.precio <= ? ");
-            params.add(maxPrice);
-        }
-
-        if (stateId != null) {
-            sql.append("AND a.id_estado_articulo = ? ");
-            params.add(stateId);
-        }
-
-        sql.append("ORDER BY a.id_articulo DESC");
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            rs = executeQuery(sql.toString(), params.toArray());
-            conn = rs.getStatement().getConnection();
-            stmt = (PreparedStatement) rs.getStatement();
-
-            while (rs.next()) {
-                Article article = mapResultSetToArticle(rs);
-                List<String> categorias = getCategoriesByArticleId(article.getIdArticulo());
-                article.setCategorias(categorias);
-                articles.add(article);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al filtrar por múltiples criterios: " + e.getMessage());
             e.printStackTrace();
         } finally {
             closeResources(conn, stmt, rs);

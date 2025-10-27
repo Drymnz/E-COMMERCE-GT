@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class CompraDAO extends BaseDAO {
 
     /**
@@ -247,7 +250,7 @@ public class CompraDAO extends BaseDAO {
         }
     }
 
-    //Crea un registro de Pedido (fecha de entrega a 10 días)
+    //Crea un registro de Pedido (fecha de entrega a 5 días)
     private int crearPedido(Connection conn, int idComprador) throws SQLException {
         String sql = """
             INSERT INTO Pedido (fecha_hora_entrega, id_comprador, id_estado_pedido)
@@ -256,8 +259,8 @@ public class CompraDAO extends BaseDAO {
             """;
         
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            // Fecha de entrega: 10 días desde ahora
-            LocalDateTime fechaEntrega = LocalDateTime.now().plusDays(10);
+            // Fecha de entrega: 5 días desde ahora
+            LocalDateTime fechaEntrega = LocalDateTime.now().plusDays(5);
             stmt.setTimestamp(1, Timestamp.valueOf(fechaEntrega));
             stmt.setInt(2, idComprador);
             stmt.setInt(3, 1); // Estado "En Curso" (id = 1)

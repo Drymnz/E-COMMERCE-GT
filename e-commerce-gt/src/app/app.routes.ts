@@ -19,9 +19,15 @@ import { ReportComponent } from './pags/admin/report/report.component';
 import { NotificacionesComponent } from './pags/admin/notificacion/notificacion.component';
 import { HistorialEmpleadosComponent } from './pags/admin/historial-empleados/historial-empleados.component';
 import { GestionTarjetasComponent } from './pags/customer/manage-shopping-cart/gestion-tarjetas/gestion-tarjetas.component';
+import { VentasComponent } from './pags/admin/ventas/ventas.component';
 
 export const routes: Routes = [
   // RUTAS PROTEGIDAS
+  {
+    path: 'ventas',
+    canActivate: [roleGuard(['4'])],
+    component: VentasComponent
+  },
   {
     path: 'admin',
     canActivate: [roleGuard(['4'])],

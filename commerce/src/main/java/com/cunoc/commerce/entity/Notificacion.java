@@ -23,14 +23,14 @@ public class Notificacion {
         this.idUsuario = idUsuario;
     }
 
-    // Constructor para crear notificación sin ID (para insertar)
+    // Constructor para crear notificaciÃ³n sin ID (para insertar)
     public Notificacion(String mensaje, Integer idUsuario) {
         this.mensaje = mensaje;
         this.fechaHora = LocalDateTime.now();
         this.idUsuario = idUsuario;
     }
 
-    // Constructor vacío
+    // Constructor vacÃ­o
     public Notificacion() {
     }
 

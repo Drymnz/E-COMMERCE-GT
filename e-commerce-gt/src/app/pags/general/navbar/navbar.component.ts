@@ -36,6 +36,10 @@ export class NavbarComponent {
     this.router.navigate(['/admin']);
   }
 
+  irVentas(): void {
+    this.router.navigate(['/ventas']);
+  }
+
   irReportes() {
     this.router.navigate(['/report']);
   }

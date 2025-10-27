@@ -73,6 +73,7 @@ export class PanelModeracionComponent implements OnInit {
   abrirModalAprobar(articulo: Articulo): void {
     this.articuloSeleccionado = articulo;
     this.mostrarModalAprobar = true;
+    
   }
 
   // Confirmar aprobación

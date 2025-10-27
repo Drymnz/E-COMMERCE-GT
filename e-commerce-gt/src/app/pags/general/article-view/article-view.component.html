@@ -44,7 +44,7 @@
         </div>
 
         <!-- Categorías -->
-        @for (categoria of this.articulo.categorias; track categoria) {
+        @for (categoria of articulo.categorias; track categoria) {
           <span class="badge bg-primary me-2 mb-2">
             <i class="bi bi-tag-fill me-1"></i>
             {{ categoria }}
@@ -70,7 +70,7 @@
           <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>
             <strong>¡Producto agregado!</strong> Se añadió al carrito exitosamente.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" (click)="cerrarMensaje()"></button>
           </div>
         }
 
@@ -91,12 +91,12 @@
                     [disabled]="cantidad() <= 1"
                     type="button"
                   >
-                    <i class="bi bi-dash-lg">-</i>
+                    <i class="bi bi-dash-lg me-1"></i>
                   </button>
                   <input
                     type="number"
-                    [(ngModel)]="cantidadInput"
-                    (ngModelChange)="onCantidadChange($event)"
+                    [value]="cantidad()"
+                    (input)="onCantidadChange($event)"
                     class="form-control text-center"
                     [min]="1"
                     [max]="articulo.stock"
@@ -107,7 +107,7 @@
                     [disabled]="cantidad() >= articulo.stock"
                     type="button"
                   >
-                    <i class="bi bi-plus-lg">+</i>
+                    <i class="bi bi-plus-lg me-1"></i>
                   </button>
                 </div>
               </div>

@@ -7,6 +7,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository 
 public class CommentDAO extends BaseDAO {
     
     //Obtiene todos los comentarios de un artículo 
@@ -43,41 +46,6 @@ public class CommentDAO extends BaseDAO {
         }
         
         return comentarios;
-    }
-    
-   ///Obtiene el comentario de un usuario y un artículo
-    public Comentario getComentarioByUsuarioYArticulo(int idUsuario, int idArticulo) {
-        String sql = "SELECT id_comentario, descripcion, puntuacion, id_usuario, id_articulo " +
-                     "FROM Comentario WHERE id_usuario = ? AND id_articulo = ?";
-        
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, idUsuario);
-            stmt.setInt(2, idArticulo);
-            rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                return new Comentario(
-                    rs.getInt("id_comentario"),
-                    rs.getString("descripcion"),
-                    rs.getInt("puntuacion"),
-                    rs.getInt("id_usuario"),
-                    rs.getInt("id_articulo")
-                );
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener comentario por usuario y artículo: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
-        }
-        
-        return null;
     }
     
     //Inserta un nuevo comentario y retorna el comentario con su ID
