@@ -1,0 +1,14 @@
+[build]
+  base = "e-commerce-gt"
+  command = "npm install && ng build --configuration production"
+  publish = "e-commerce-gt/dist/e-commerce-gt/browser"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
