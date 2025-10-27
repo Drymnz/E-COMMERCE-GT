@@ -73,26 +73,19 @@ export class ReportService {
     );
   }
 
-  /**
-   * Top 10 clientes que más productos tienen a la venta
-   * No requiere fechas, muestra estado actual
-   */
+  //Top 10 clientes que más productos tienen a la venta
   obtenerTopClientesProductosVenta(): Observable<Usuario[]> {
     return this.http.get<any[]>(`${this.apiUrl}/clientes-mas-productos-venta`).pipe(
       map(response => response.map((u: any) => this.mapearUsuario(u)))
     );
   }
 
-  /**
-   * Método auxiliar: convierte fechas Date a string ISO formato requerido
-   */
+ //convierte fechas Date 
   formatearFecha(fecha: Date): string {
     return fecha.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
   }
 
-  /**
-   * Método auxiliar: obtiene rango de fechas común (último mes)
-   */
+  // obtiene rango de fechas común (último mes)
   obtenerRangoUltimoMes(): { fechaInicio: string, fechaFin: string } {
     const fechaFin = new Date();
     const fechaInicio = new Date();
@@ -104,9 +97,7 @@ export class ReportService {
     };
   }
 
-  /**
-   * Método auxiliar: obtiene rango de fechas común (último año)
-   */
+  // obtiene rango de fechas común (último año)
   obtenerRangoUltimoAnio(): { fechaInicio: string, fechaFin: string } {
     const fechaFin = new Date();
     const fechaInicio = new Date();
@@ -118,9 +109,7 @@ export class ReportService {
     };
   }
 
-  /**
-   * Mapeo de Usuario desde JSON
-   */
+  // Mapeo de Usuario desde JSON
   private mapearUsuario(data: any): Usuario {
     return Usuario.crearDesdeDatos(
       data.id_usuario,

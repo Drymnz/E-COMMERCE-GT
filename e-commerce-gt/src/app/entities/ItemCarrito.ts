@@ -12,7 +12,7 @@ export class ItemCarrito {
   set articulo(valor: any) { this._articulo = valor; }
   set cantidad(valor: number) { this._cantidad = valor; }
 
-  // Métodos estáticos
+  //  estáticos
   static crearDesdeDatos(articulo: any, cantidad: number): ItemCarrito {
     return new ItemCarrito(articulo, cantidad);
   }
@@ -24,7 +24,7 @@ export class ItemCarrito {
     );
   }
 
-  // Métodos de instancia
+  //  instancia
   actualizarCantidad(cantidad: number): void {
     this.cantidad = cantidad;
   }

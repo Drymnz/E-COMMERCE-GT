@@ -22,16 +22,12 @@ export class VentaService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Obtiene el listado de ventas por artículo
-   */
+ //Obtiene el listado de ventas por artículo
   obtenerTotalVentas(): Observable<VentaTotal[]> {
     return this.http.get<VentaTotal[]>(`${this.apiUrl}/total`);
   }
 
-  /**
-   * Obtiene el total general de todas las ventas
-   */
+  //Obtiene el total general de todas las ventas
   obtenerTotalGeneral(): Observable<number> {
     return this.http.get<TotalGeneral>(`${this.apiUrl}/total-general`).pipe(
       map(response => response.total_general)

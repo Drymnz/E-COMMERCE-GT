@@ -46,7 +46,7 @@ export class Card {
     return this._numero.slice(-4);
   }
 
-  /** Retorna el número enmascarado */
+  //Retorna el número enmascarado
   get numeroEnmascarado(): string {
     const grupos = this._numero.match(/.{1,4}/g) || [];
     return grupos.map((grupo, index) => 

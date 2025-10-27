@@ -211,7 +211,7 @@ public class NotificacionService {
         }
     }
 
-    // ============= MÉTODOS AUXILIARES =============
+    // ============= mensajes =============
 
     private String obtenerNombreCompleto(Usuario usuario) {
         return obtenerNombreCompleto(usuario, "Usuario");

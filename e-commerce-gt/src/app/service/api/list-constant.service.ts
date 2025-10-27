@@ -80,7 +80,7 @@ export class ListConstantService {
     );
   }
 
-  // métodos para obtener los valores actuales sincrónicamente
+  //  obtener los valores actuales sincrónicamente
 
   getEstadosModeracion(): string[] {
     return this.estadosModeracionSubject.value;

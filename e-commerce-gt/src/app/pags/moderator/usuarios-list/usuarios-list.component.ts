@@ -235,7 +235,7 @@ export class UsuariosListComponent implements OnInit {
     });
   }
 
-  // Métodos para mostrar mensajes
+  //  mostrar mensajes
   mostrarMensajeExitoTemporal(mensaje: string): void {
     this.mensajeExito = mensaje;
     this.mostrarMensajeExito = true;

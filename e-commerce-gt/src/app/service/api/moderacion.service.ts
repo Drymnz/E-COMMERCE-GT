@@ -19,7 +19,7 @@ export class ModeratorService {
   constructor(private http: HttpClient) { }
 
 
-  // Agregar este método en la clase ModeratorService
+  // la clase ModeratorService
   obtenerSancionesPaginadas(pagina: number = 1, tamanoPagina: number = 10): Observable<SancionResponse> {
     const params = new HttpParams()
       .set('pagina', pagina.toString())

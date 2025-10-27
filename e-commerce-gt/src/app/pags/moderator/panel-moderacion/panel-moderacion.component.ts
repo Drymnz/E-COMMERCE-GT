@@ -130,7 +130,7 @@ export class PanelModeracionComponent implements OnInit {
     this.articuloSeleccionado = null;
   }
 
-  // Métodos de paginación
+  //  paginación
   cambiarPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;

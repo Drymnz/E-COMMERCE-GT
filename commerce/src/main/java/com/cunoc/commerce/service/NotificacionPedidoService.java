@@ -98,7 +98,7 @@ public class NotificacionPedidoService {
         }
     }
 
-    // ============= MÉTODOS  =============
+    // ============= mensajes  =============
 
     private String construirMensajeCambioFecha(Usuario usuario, int idPedido, LocalDateTime nuevaFecha) {
         return "Hola " + usuario.getNombre() + " " + usuario.getApellido() + ",\n\n" +

@@ -43,7 +43,7 @@ export class Publicacion {
     this._fecha_hora_entrega = fecha;
   }
 
-  // Método para convertir a JSON
+  // convertir a JSON
   toJSON(): any {
     return {
       id_publicacion: this._id_publicacion, 

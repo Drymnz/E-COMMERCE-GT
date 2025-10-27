@@ -105,7 +105,7 @@ export class CarritoService {
           id_categoria: item.articulo.id_categoria,
           id_estado: item.articulo.id_estado
         },
-        cantidad: item.cantidad/**  */
+        cantidad: item.cantidad
       }));
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(datosGuardar));
     } catch (error) {

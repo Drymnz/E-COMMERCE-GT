@@ -83,9 +83,7 @@ export class Usuario {
     );
   }
 
-  /**
-   * Actualiza los datos básicos del usuario
-   */
+ //Actualiza los datos básicos del usuario
   actualizarDatos(nombre: string, apellido: string, email: string): void {
     this._nombre = nombre;
     this._apellido = apellido;

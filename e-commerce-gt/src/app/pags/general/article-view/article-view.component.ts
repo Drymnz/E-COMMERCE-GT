@@ -99,12 +99,12 @@ export class ArticleViewComponent implements OnInit {
     }
   }
 
-  // Método para cerrar el mensaje de alerta
+  // cerrar el mensaje de alerta
   cerrarMensaje(): void {
     this.mensajeAgregado.set(false);
   }
 
-  // Método helper para obtener la clase del badge de stock
+  //  obtener la clase del badge de stock
   getStockBadgeClass(): string {
     if (this.articulo.stock === 0) return 'bg-danger';
     if (this.articulo.stock < 10) return 'bg-warning text-dark';

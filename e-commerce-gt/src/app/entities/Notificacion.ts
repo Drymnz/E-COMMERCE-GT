@@ -41,7 +41,7 @@ export class Notificacion {
     this._fecha_hora = fecha;
   }
 
-  // Métodos útiles
+  // útiles
   get fechaFormateada(): string {
     return this._fecha_hora.toLocaleDateString('es-GT', {
       year: 'numeric',
@@ -80,7 +80,7 @@ export class Notificacion {
     return horas < 24;
   }
 
-  // Método para clonar
+  //  clonar
   clone(): Notificacion {
     return new Notificacion(
       this._id_notificacion,
@@ -90,7 +90,7 @@ export class Notificacion {
     );
   }
 
-  // Método para convertir a JSON
+  //  convertir a JSON
   toJSON(): any {
     return {
       id_notificacion: this._id_notificacion,

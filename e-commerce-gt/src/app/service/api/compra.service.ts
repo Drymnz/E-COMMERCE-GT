@@ -20,9 +20,7 @@ export class CompraService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Procesa una compra completa desde el carrito
-   */
+  //Procesa una compra completa desde el carrito
   procesarCompra(carrito: any): Observable<RespuestaCompra> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
@@ -35,9 +33,7 @@ export class CompraService {
     );
   }
 
-  /**
-   * Test del servicio
-   */
+  //Test del servicio verificar
   test(): Observable<string> {
     return this.http.get(`${this.apiUrl}/test`, { responseType: 'text' });
   }

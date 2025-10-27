@@ -333,11 +333,8 @@ export class RegisterArticleComponent implements OnInit {
     return this.articuloForm.get('stock')?.value > 0;
   }
 
-  // ============ MÉTODOS PARA MANEJO DE MENSAJES ============
 
-  /**
-   * Muestra un mensaje de error al usuario
-   */
+  //Muestra un mensaje de error al usuario
   mostrarError(mensaje: string): void {
     this.mensajeError = mensaje;
     this.mensajeExito = '';
@@ -349,9 +346,7 @@ export class RegisterArticleComponent implements OnInit {
     }, 5000);
   }
 
-  /**
-   * Muestra un mensaje de éxito al usuario
-   */
+ //Muestra un mensaje de éxito al usuario
   mostrarExito(mensaje: string): void {
     this.mensajeExito = mensaje;
     this.mensajeError = '';

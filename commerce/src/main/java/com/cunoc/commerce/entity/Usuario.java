@@ -100,7 +100,7 @@ public class Usuario {
         this.password = password;
     }
 
-    // Método estático
+    //  estático
     public static Usuario crearDesdeDatos(int id, String nombre, String apellido, String email, int idEstado, int idRol) {
         return new Usuario(id, nombre, apellido, email, idEstado, idRol);
     }

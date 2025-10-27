@@ -62,7 +62,7 @@ export class Articulo {
     return [...this._categorias]; 
   }
 
-  // Métodos para modificar propiedades 
+  // modificar propiedades 
   set nombre(nombre: string) {
     this._nombre = nombre;
   }
@@ -87,7 +87,7 @@ export class Articulo {
     this._id_estado_articulo = id_estado_articulo;
   }
 
-  // Métodos para manejar categorías
+  // manejar categorías
   agregarCategoria(categoria: string): void {
     if (!this._categorias.includes(categoria)) {
       this._categorias.push(categoria);
@@ -113,7 +113,7 @@ export class Articulo {
     return 'Disponible';
   }
 
-  // Método para obtener una copia del objeto
+  // copia del objeto
   clone(): Articulo {
     return new Articulo(
       this._id_articulo,
@@ -128,7 +128,7 @@ export class Articulo {
     );
   }
 
-  // Método para convertir a JSON
+  // convertir a JSON
   toJSON(): any {
     return {
       id_articulo: this._id_articulo,

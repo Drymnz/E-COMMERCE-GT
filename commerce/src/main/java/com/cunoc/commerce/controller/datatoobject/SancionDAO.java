@@ -81,7 +81,7 @@ public class SancionDAO extends BaseDAO {
     }
 
 
-    // Método auxiliar para mapear ResultSet a Sancion
+    // mapear ResultSet a Sancion
     private Sancion mapResultSetToSancion(ResultSet rs) throws SQLException {
         Sancion sancion = new Sancion(
                 rs.getInt("id_sancion"),

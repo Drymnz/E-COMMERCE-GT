@@ -74,7 +74,7 @@ public class ModeratorDAO extends BaseDAO {
         return resultado;
     }
 
-    // Método auxiliar para contar total de sanciones
+    // Mcontar total de sanciones
     private int contarSanciones() {
         String sql = "SELECT COUNT(*) as total FROM Sancion";
 
