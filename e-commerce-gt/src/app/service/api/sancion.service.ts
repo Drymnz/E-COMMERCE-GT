@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Sancion } from '../../entities/Sancion';
+import { environment } from './article.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SancionService {
-  private apiUrl = 'http://localhost:8080/sancion';
+  private apiUrl = `${environment.apiUrl}/sancion`;
 
   constructor(private http: HttpClient) { }
 

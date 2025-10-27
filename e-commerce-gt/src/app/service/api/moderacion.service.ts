@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SancionResponse } from '../../entities/SancionResponse';
+import { environment } from './article.service';
 
 export interface PaginacionResponse {
   articulos: any[];
@@ -14,7 +15,7 @@ export interface PaginacionResponse {
   providedIn: 'root'
 })
 export class ModeratorService {
-  private apiUrl = 'http://localhost:8080/moderator';
+  private apiUrl = `${environment.apiUrl}/moderator`;
 
   constructor(private http: HttpClient) { }
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from './article.service';
 
 export interface RespuestaCompra {
   exitoso: boolean;
@@ -16,7 +17,7 @@ export interface RespuestaCompra {
 })
 export class CompraService {
   // URL directa sin environment
-  private apiUrl = 'http://localhost:8080/compra';
+  private apiUrl = `${environment.apiUrl}/compra`;
 
   constructor(private http: HttpClient) { }
 

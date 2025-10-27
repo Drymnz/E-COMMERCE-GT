@@ -5,11 +5,17 @@ import { map } from 'rxjs/operators';
 import { Publicacion } from '../../entities/Publication';
 import { Articulo } from '../../entities/Article';
 
+
+export const environment = {
+  production: false,
+  apiUrl: 'https://12d306a207fe.ngrok-free.app'
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class ArticleService {
-  private apiUrl = 'http://localhost:8080/article';
+ private apiUrl = `${environment.apiUrl}/article`; 
 
   constructor(private http: HttpClient) { }
 

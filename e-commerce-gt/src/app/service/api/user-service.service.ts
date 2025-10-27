@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Usuario } from '../../entities/Usuario';
 import { PaginatedResponse } from '../../entities/PaginatedResponse';
+import { environment } from './article.service';
+
 
 export interface UsuarioDetalle {
   usuario: Usuario;
@@ -14,7 +16,7 @@ export interface UsuarioDetalle {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/user';
+  private apiUrl = `${environment.apiUrl}/user`;
 
   constructor(private http: HttpClient) { }
 

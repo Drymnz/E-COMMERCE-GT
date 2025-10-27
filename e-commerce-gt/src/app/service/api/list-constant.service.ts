@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { environment } from './article.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ListConstantService {
-  private apiUrl = 'http://localhost:8080/constant';
+  private apiUrl = `${environment.apiUrl}/constant`;
 
   // listas reactivas para guardar los datos cargados
   private estadosUsuarioSubject = new BehaviorSubject<string[]>([]);

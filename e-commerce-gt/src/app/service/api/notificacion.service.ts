@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Notificacion } from '../../entities/Notificacion';
+import { environment } from './article.service';
 
 export interface NotificacionesPaginadas {
   notificaciones: Notificacion[];
@@ -16,7 +17,7 @@ export interface NotificacionesPaginadas {
   providedIn: 'root'
 })
 export class NotificacionService {
-  private apiUrl = 'http://localhost:8080/notificaciones';
+  private apiUrl = `${environment.apiUrl}/notificaciones`;
 
   constructor(private http: HttpClient) { }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from './article.service';
 
 export interface VentaTotal {
   id_articulo: number;
@@ -18,7 +19,7 @@ export interface TotalGeneral {
   providedIn: 'root'
 })
 export class VentaService {
-  private apiUrl = 'http://localhost:8080/ventas';
+  private apiUrl = `${environment.apiUrl}/ventas`;
 
   constructor(private http: HttpClient) { }
 
