@@ -219,16 +219,24 @@ INSERT INTO Usuario (nombre, apellido, email, password, id_estado, id_rol) VALUE
 ('Luis Fernando', 'Campos Delgado', 'logistica2@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 3),
 ('Carmen Rosa', 'Navarro Peña', 'logistica3@commerce.com', '$2a$12$MGXSpXuY2OWJlFwWZp8zdOhjGoz7YuHcF.Cy3rhUTCXbzVsCTHAYe', 2, 3);
 
--- Script mejorado para insertar 10 artículos por usuario (usuarios 2-11)
--- Todos los artículos están APROBADOS (id_accion = 2)
+-- Script para insertar 10 artículos por usuario (usuarios 2-11)
 DO $$
 DECLARE
     imagen_base64 TEXT := 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCABkAGQDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlbaWmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD/AD/6ACgAoAKACgAoAKACgAoAKACgD/9k=';
     v_id_usuario INT;
     v_id_articulo INT;
     v_articulos_data TEXT[][];
+    idx INT;
+    titulo TEXT;
+    descripcion TEXT;
+    precio DECIMAL;
+    stock_qty INT;
+    estado INT;
+    categorias TEXT;
+    precio_con_comision DECIMAL;
+    categoria_id INT;
 BEGIN
-    -- Definir artículos para cada usuario (titulo, descripcion, precio, stock, estado, categorias[])
+    -- Definir artículos para cada usuario
     v_articulos_data := ARRAY[
         -- Usuario 2 
         ARRAY['Laptop HP Core i5', 'Laptop para trabajo y estudio, 8GB RAM', '4500', '3', '1', '{1,4}'],
@@ -351,42 +359,45 @@ BEGIN
         ARRAY['Limpiador Pantallas', 'Kit spray + paño microfibra', '85', '25', '1', '{1}']
     ];
 
-    -- Loop por cada usuario 
+    -- Loop por cada usuario (2-11)
     FOR v_id_usuario IN 2..11 LOOP
         -- Loop por cada artículo (10 por usuario)
         FOR i IN 1..10 LOOP
-            DECLARE
-                idx INT := (v_id_usuario - 2) * 10 + i;
-                titulo TEXT := v_articulos_data[idx][1];
-                descripcion TEXT := v_articulos_data[idx][2];
-                precio DECIMAL := v_articulos_data[idx][3]::DECIMAL;
-                stock INT := v_articulos_data[idx][4]::INT;
-                estado INT := v_articulos_data[idx][5]::INT;
-                categorias TEXT := v_articulos_data[idx][6];
-                precio_con_comision DECIMAL;
-                categoria_id INT;
-            BEGIN
-                -- Calcular precio con comisión del 5%
-                precio_con_comision := precio / 0.95;
-                
-                -- Insertar artículo APROBADO (id_accion = 2)
-                INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo, id_accion)
-                VALUES (titulo, descripcion, precio_con_comision, imagen_base64, stock, estado, 2)
-                RETURNING id_articulo INTO v_id_articulo;
-                
-                -- Insertar publicación
-                INSERT INTO Publicacion (id_articulo, id_usuario, fecha_hora_entrega)
-                VALUES (v_id_articulo, v_id_usuario, CURRENT_TIMESTAMP);
-                
-                -- Insertar categorías (eliminar llaves y parsear)
-                categorias := REPLACE(REPLACE(categorias, '{', ''), '}', '');
-                FOR categoria_id IN 
-                    SELECT unnest(string_to_array(categorias, ',')::INT[])
-                LOOP
-                    INSERT INTO Categoria (id_articulo, id_categoria_tipo)
-                    VALUES (v_id_articulo, categoria_id);
-                END LOOP;
-            END;
+            -- Calcular índice en el array
+            idx := (v_id_usuario - 2) * 10 + i;
+            
+            -- Extraer datos del artículo
+            titulo := v_articulos_data[idx][1];
+            descripcion := v_articulos_data[idx][2];
+            precio := v_articulos_data[idx][3]::DECIMAL;
+            stock_qty := v_articulos_data[idx][4]::INT;
+            estado := v_articulos_data[idx][5]::INT;
+            categorias := v_articulos_data[idx][6];
+            
+            -- Calcular precio con comisión del 5%
+            precio_con_comision := precio / 0.95;
+            
+            -- Insertar artículo con estado aprobado (id_accion = 2)
+            INSERT INTO Articulo (nombre, descripcion, precio, imagen, stock, id_estado_articulo, id_accion)
+            VALUES (titulo, descripcion, precio_con_comision, imagen_base64, stock_qty, estado, 2)
+            RETURNING id_articulo INTO v_id_articulo;
+            
+            -- Insertar publicación
+            INSERT INTO Publicacion (id_articulo, id_usuario, fecha_hora_entrega)
+            VALUES (v_id_articulo, v_id_usuario, CURRENT_TIMESTAMP);
+            
+            -- Insertar categorías
+            categorias := REPLACE(REPLACE(categorias, '{', ''), '}', '');
+            
+            -- Iterar sobre cada categoría
+            FOREACH categoria_id IN ARRAY string_to_array(categorias, ',')::INT[]
+            LOOP
+                INSERT INTO Categoria (id_articulo, id_categoria_tipo)
+                VALUES (v_id_articulo, categoria_id);
+            END LOOP;
         END LOOP;
     END LOOP;
+    
+    RAISE NOTICE 'Se insertaron 100 artículos exitosamente (10 por cada usuario del 2 al 11)';
+    
 END $$;

@@ -26,3 +26,6 @@ git checkout main
 
 ## que puerto se va abrier
 ##ngrok http 8080
+
+##screen
+
