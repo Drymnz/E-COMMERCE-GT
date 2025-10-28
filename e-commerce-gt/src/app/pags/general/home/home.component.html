@@ -10,12 +10,20 @@
           </h5>
         </div>
         <ul class="list-group list-group-flush">
+          <!-- Opción para mostrar todos -->
+          <li class="list-group-item list-group-item-action" 
+              [class.active]="categoriaSeleccionada === null"
+              (click)="seleccionarCategoria(null)">
+            <i class="bi bi-list-ul me-2"></i>
+            Todas las categorías
+          </li>
+          
           @for (categoria of categorias; track categoria) {
-            <li class="list-group-item">
-              <a href="#" class="text-decoration-none">
-                <i class="bi bi-tag-fill me-2 text-primary"></i>
-                {{ categoria }}
-              </a>
+            <li class="list-group-item list-group-item-action" 
+                [class.active]="categoriaSeleccionada === categoria"
+                (click)="seleccionarCategoria(categoria)">
+              <i class="bi bi-tag-fill me-2"></i>
+              {{ categoria }}
             </li>
           }
           @empty {
@@ -26,22 +34,84 @@
           }
         </ul>
       </div>
+
+      <!-- Resumen de filtros -->
+      @if (categoriaSeleccionada || terminoBusqueda) {
+        <div class="card mt-3">
+          <div class="card-body">
+            <h6 class="card-title mb-3">Filtros activos</h6>
+            @if (categoriaSeleccionada) {
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge bg-primary">
+                  <i class="bi bi-tag-fill me-1"></i>
+                  {{ categoriaSeleccionada }}
+                </span>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="seleccionarCategoria(null)">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            }
+            @if (terminoBusqueda) {
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="badge bg-info">
+                  <i class="bi bi-search me-1"></i>
+                  "{{ terminoBusqueda }}"
+                </span>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="limpiarBusqueda()">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </aside>
 
     <!-- Productos -->
     <section class="col-md-9">
+      <!-- Barra de búsqueda -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="input-group">
+            <span class="input-group-text bg-white">
+              <i class="bi bi-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Buscar productos por nombre o descripción..."
+              [(ngModel)]="terminoBusqueda"
+              (input)="buscar(terminoBusqueda)">
+            @if (terminoBusqueda) {
+              <button class="btn btn-outline-secondary" 
+                      type="button"
+                      (click)="limpiarBusqueda()">
+                <i class="bi bi-x-circle"></i>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">
           <i class="bi bi-shop me-2"></i>
-          Productos Destacados
+          @if (categoriaSeleccionada) {
+            {{ categoriaSeleccionada }}
+          } @else {
+            Productos Destacados
+          }
         </h2>
         <span class="badge bg-secondary">
-          {{ articulos.length }} productos
+          {{ articulosFiltrados.length }} producto{{ articulosFiltrados.length !== 1 ? 's' : '' }}
         </span>
       </div>
 
+      <!-- Grid de productos -->
       <div class="row g-3">
-        @for (articulo of articulos; track articulo.id_articulo) {
+        @for (articulo of articulosPaginados; track articulo.id_articulo) {
           <div class="col-md-4">
             <app-article
               [articulo]="articulo"
@@ -57,11 +127,91 @@
           <div class="col-12">
             <div class="alert alert-info text-center">
               <i class="bi bi-info-circle me-2"></i>
-              No hay productos disponibles en este momento
+              @if (terminoBusqueda && categoriaSeleccionada) {
+                No hay productos que coincidan con "{{ terminoBusqueda }}" en la categoría "{{ categoriaSeleccionada }}"
+              } @else if (terminoBusqueda) {
+                No hay productos que coincidan con "{{ terminoBusqueda }}"
+              } @else if (categoriaSeleccionada) {
+                No hay productos disponibles en la categoría "{{ categoriaSeleccionada }}"
+              } @else {
+                No hay productos disponibles en este momento
+              }
             </div>
           </div>
         }
       </div>
+
+      <!-- Paginación -->
+      @if (totalPaginas > 1) {
+        <nav aria-label="Navegación de páginas" class="mt-4">
+          <ul class="pagination justify-content-center">
+            <!-- Botón anterior -->
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link" 
+                 (click)="cambiarPagina(paginaActual - 1)" 
+                 [disabled]="paginaActual === 1"
+                 aria-label="Anterior">
+                <i class="bi bi-chevron-left"></i>
+                <span class="d-none d-sm-inline ms-1">Anterior</span>
+              </button>
+            </li>
+
+            <!-- Primera página -->
+            @if (getPaginasVisibles()[0] > 1) {
+              <li class="page-item">
+                <button class="page-link" 
+                   (click)="cambiarPagina(1)">1</button>
+              </li>
+              @if (getPaginasVisibles()[0] > 2) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+              }
+            }
+
+            <!-- Páginas visibles -->
+            @for (pagina of getPaginasVisibles(); track pagina) {
+              <li class="page-item" [class.active]="pagina === paginaActual">
+                <button class="page-link" 
+                   (click)="cambiarPagina(pagina)">
+                  {{ pagina }}
+                </button>
+              </li>
+            }
+
+            <!-- Última página -->
+            @if (getPaginasVisibles()[getPaginasVisibles().length - 1] < totalPaginas) {
+              @if (getPaginasVisibles()[getPaginasVisibles().length - 1] < totalPaginas - 1) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+              }
+              <li class="page-item">
+                <button class="page-link" 
+                   (click)="cambiarPagina(totalPaginas)">{{ totalPaginas }}</button>
+              </li>
+            }
+
+            <!-- Botón siguiente -->
+            <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+              <button class="page-link" 
+                 (click)="cambiarPagina(paginaActual + 1)" 
+                 [disabled]="paginaActual === totalPaginas"
+                 aria-label="Siguiente">
+                <span class="d-none d-sm-inline me-1">Siguiente</span>
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Información de paginación -->
+        <div class="text-center text-muted small">
+          Mostrando {{ (paginaActual - 1) * articulosPorPagina + 1 }} - 
+          {{ Math.min(paginaActual * articulosPorPagina, articulosFiltrados.length) }} 
+          de {{ articulosFiltrados.length }} productos
+        </div>
+      }
     </section>
   </div>
 </main>
