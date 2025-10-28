@@ -11,43 +11,26 @@ export class CarritoService {
   // Signal con datos cargados desde localStorage
   private carritoItems = signal<ItemCarrito[]>(this.cargarCarritoLocal());
 
-  // Computed signals
   items = this.carritoItems.asReadonly();
-
-  totalItems = computed(() =>
-    this.carritoItems().reduce((sum, item) => sum + item.cantidad, 0)
-  );
-
-  totalPrecio = computed(() =>
-    this.carritoItems().reduce((sum, item) => sum + (item.articulo.precio * item.cantidad), 0)
-  );
+  totalItems = computed(() => this.carritoItems().reduce((sum, item) => sum + item.cantidad, 0));
+  totalPrecio = computed(() => this.carritoItems().reduce((sum, item) => sum + (item.articulo.precio * item.cantidad), 0));
 
   constructor() {
     // Guarda automáticamente cuando cambia el carrito
-    effect(() => {
-      this.guardarCarritoLocal(this.carritoItems());
-    });
+    effect(() => this.guardarCarritoLocal(this.carritoItems()));
   }
 
   agregarArticulo(articulo: Articulo, cantidad: number = 1): void {
     const itemsActuales = this.carritoItems();
-    const itemExistente = itemsActuales.find(
-      item => item.articulo.id_articulo === articulo.id_articulo
-    );
+    const itemExistente = itemsActuales.find(i => i.articulo.id_articulo === articulo.id_articulo);
 
     if (itemExistente) {
-      const nuevaCantidad = Math.min(
-        itemExistente.cantidad + cantidad,
-        articulo.stock
-      );
-
-      this.carritoItems.update(items =>
-        items.map(item =>
-          item.articulo.id_articulo === articulo.id_articulo
-            ? ItemCarrito.crearDesdeDatos(item.articulo, nuevaCantidad)
-            : item
-        )
-      );
+      const nuevaCantidad = Math.min(itemExistente.cantidad + cantidad, articulo.stock);
+      this.carritoItems.update(items => items.map(i =>
+        i.articulo.id_articulo === articulo.id_articulo
+          ? ItemCarrito.crearDesdeDatos(i.articulo, nuevaCantidad)
+          : i
+      ));
     } else {
       this.carritoItems.update(items => [
         ...items,
@@ -62,23 +45,15 @@ export class CarritoService {
       return;
     }
 
-    this.carritoItems.update(items =>
-      items.map(item => {
-        if (item.articulo.id_articulo === idArticulo) {
-          return ItemCarrito.crearDesdeDatos(
-            item.articulo,
-            Math.min(cantidad, item.articulo.stock)
-          );
-        }
-        return item;
-      })
-    );
+    this.carritoItems.update(items => items.map(i => 
+      i.articulo.id_articulo === idArticulo
+        ? ItemCarrito.crearDesdeDatos(i.articulo, Math.min(cantidad, i.articulo.stock))
+        : i
+    ));
   }
 
   eliminarArticulo(idArticulo: number): void {
-    this.carritoItems.update(items =>
-      items.filter(item => item.articulo.id_articulo !== idArticulo)
-    );
+    this.carritoItems.update(items => items.filter(i => i.articulo.id_articulo !== idArticulo));
   }
 
   vaciarCarrito(): void {
@@ -86,26 +61,24 @@ export class CarritoService {
   }
 
   obtenerItem(idArticulo: number): ItemCarrito | undefined {
-    return this.carritoItems().find(
-      item => item.articulo.id_articulo === idArticulo
-    );
+    return this.carritoItems().find(i => i.articulo.id_articulo === idArticulo);
   }
 
   // Guarda el carrito en localStorage
   private guardarCarritoLocal(items: ItemCarrito[]): void {
     try {
-      const datosGuardar = items.map(item => ({
+      const datosGuardar = items.map(i => ({
         articulo: {
-          id_articulo: item.articulo.id_articulo,
-          nombre: item.articulo.nombre,
-          precio: item.articulo.precio,
-          stock: item.articulo.stock,
-          descripcion: item.articulo.descripcion,
-          imagen: item.articulo.imagen,
-          id_categoria: item.articulo.id_categoria,
-          id_estado: item.articulo.id_estado
+          id_articulo: i.articulo.id_articulo,
+          nombre: i.articulo.nombre,
+          precio: i.articulo.precio,
+          stock: i.articulo.stock,
+          descripcion: i.articulo.descripcion,
+          imagen: i.articulo.imagen,
+          id_categoria: i.articulo.id_categoria,
+          id_estado: i.articulo.id_estado
         },
-        cantidad: item.cantidad
+        cantidad: i.cantidad
       }));
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(datosGuardar));
     } catch (error) {
@@ -119,12 +92,8 @@ export class CarritoService {
       const datos = localStorage.getItem(this.STORAGE_KEY);
       if (!datos) return [];
 
-      const items = JSON.parse(datos);
-      return items.map((item: any) => 
-        ItemCarrito.crearDesdeDatos(
-          Articulo.fromJSON(item.articulo),
-          item.cantidad
-        )
+      return JSON.parse(datos).map((i: any) => 
+        ItemCarrito.crearDesdeDatos(Articulo.fromJSON(i.articulo), i.cantidad)
       );
     } catch (error) {
       console.error('Error al cargar carrito:', error);

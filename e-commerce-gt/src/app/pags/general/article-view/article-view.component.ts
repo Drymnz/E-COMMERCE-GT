@@ -17,31 +17,17 @@ import { ArticleComponent } from '../article/article.component';
 })
 export class ArticleViewComponent implements OnInit {
   @Input() articulo!: Articulo;
-  
   cantidad = signal(1);
-  cantidadInput = 1; 
-  
-  // Listas de constantes
+  cantidadInput = 1;
   estadosArticulo: string[] = [];
-  
-  // Estado para mostrar mensaje de confirmación
   mensajeAgregado = signal(false);
 
-  constructor(
-    private carritoService: CarritoService,
-    private constantService: ListConstantService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private carritoService: CarritoService, private constantService: ListConstantService, private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    // Cargar las constantes
-    this.constantService.estadosArticulo$.subscribe(estados => {
-      this.estadosArticulo = estados;
-    });
+    this.constantService.estadosArticulo$.subscribe(estados => this.estadosArticulo = estados);
   }
 
-  // Obtiene el nombre del estado del artículo
   getNombreEstado(): string {
     if (this.articulo.id_estado_articulo > 0 && this.articulo.id_estado_articulo <= this.estadosArticulo.length) {
       return this.estadosArticulo[this.articulo.id_estado_articulo - 1];
@@ -66,7 +52,6 @@ export class ArticleViewComponent implements OnInit {
   onCantidadChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const valor = parseInt(input.value, 10);
-    
     if (!isNaN(valor) && valor > 0) {
       const nuevaCantidad = Math.min(valor, this.articulo.stock);
       this.cantidad.set(nuevaCantidad);
@@ -81,15 +66,9 @@ export class ArticleViewComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       if (this.articulo.disponible && this.cantidad() > 0) {
         this.carritoService.agregarArticulo(this.articulo, this.cantidad());
-        
-        // Mostrar mensaje de confirmación
         this.mensajeAgregado.set(true);
-        
-        // Resetear cantidad
         this.cantidad.set(1);
         this.cantidadInput = 1;
-        
-        // Ocultar mensaje después de 3 segundos
         setTimeout(() => {
           this.mensajeAgregado.set(false);
         }, 3000);
@@ -99,12 +78,10 @@ export class ArticleViewComponent implements OnInit {
     }
   }
 
-  // cerrar el mensaje de alerta
   cerrarMensaje(): void {
     this.mensajeAgregado.set(false);
   }
 
-  //  obtener la clase del badge de stock
   getStockBadgeClass(): string {
     if (this.articulo.stock === 0) return 'bg-danger';
     if (this.articulo.stock < 10) return 'bg-warning text-dark';

@@ -40,70 +40,41 @@ export class ListConstantService {
     this.cargarEstadosModeracion().subscribe();
   }
 
-  // obtiene lista de estados de usuario
+  private cargarLista(endpoint: string, subject: BehaviorSubject<string[]>): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/${endpoint}`).pipe(
+      tap(data => subject.next(data))
+    );
+  }
+
   cargarEstadosUsuario(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/estados-usuario`).pipe(
-      tap(estados => this.estadosUsuarioSubject.next(estados))
-    );
+    return this.cargarLista('estados-usuario', this.estadosUsuarioSubject);
   }
 
-  // obtiene lista de roles
   cargarRoles(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/roles`).pipe(
-      tap(roles => this.rolesSubject.next(roles))
-    );
+    return this.cargarLista('roles', this.rolesSubject);
   }
 
-  // obtiene lista de estados de pedido
   cargarEstadosPedido(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/estados-pedido`).pipe(
-      tap(estados => this.estadosPedidoSubject.next(estados))
-    );
+    return this.cargarLista('estados-pedido', this.estadosPedidoSubject);
   }
 
-  // obtiene lista de tipos de categorías
   cargarTiposCategorias(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/tipos-categorias`).pipe(
-      tap(tipos => this.tiposCategoriasSubject.next(tipos))
-    );
+    return this.cargarLista('tipos-categorias', this.tiposCategoriasSubject);
   }
 
-  // obtiene lista de estados de artículo
   cargarEstadosArticulo(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/estados-articulo`).pipe(
-      tap(estados => this.estadosArticuloSubject.next(estados))
-    );
+    return this.cargarLista('estados-articulo', this.estadosArticuloSubject);
   }
 
   cargarEstadosModeracion(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/estados-moderacion`).pipe(
-      tap(estados => this.estadosModeracionSubject.next(estados))
-    );
+    return this.cargarLista('estados-moderacion', this.estadosModeracionSubject);
   }
 
-  //  obtener los valores actuales sincrónicamente
-
-  getEstadosModeracion(): string[] {
-    return this.estadosModeracionSubject.value;
-  }
-
-  getEstadosUsuario(): string[] {
-    return this.estadosUsuarioSubject.value;
-  }
-
-  getRoles(): string[] {
-    return this.rolesSubject.value;
-  }
-
-  getEstadosPedido(): string[] {
-    return this.estadosPedidoSubject.value;
-  }
-
-  getTiposCategorias(): string[] {
-    return this.tiposCategoriasSubject.value;
-  }
-
-  getEstadosArticulo(): string[] {
-    return this.estadosArticuloSubject.value;
-  }
+  // obtener los valores actuales sincrónicamente
+  getEstadosModeracion(): string[] { return this.estadosModeracionSubject.value; }
+  getEstadosUsuario(): string[] { return this.estadosUsuarioSubject.value; }
+  getRoles(): string[] { return this.rolesSubject.value; }
+  getEstadosPedido(): string[] { return this.estadosPedidoSubject.value; }
+  getTiposCategorias(): string[] { return this.tiposCategoriasSubject.value; }
+  getEstadosArticulo(): string[] { return this.estadosArticuloSubject.value; }
 }

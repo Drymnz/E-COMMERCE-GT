@@ -22,25 +22,21 @@ export class AuthService {
       const userString = localStorage.getItem('currentUser');
       if (userString) {
         try {
-          const parsedData = JSON.parse(userString);
-          storedUser = Usuario.fromJSON(parsedData);
+          storedUser = Usuario.fromJSON(JSON.parse(userString));
         } catch (error) {
           localStorage.removeItem('currentUser');
         }
       }
     }
 
-    // inicializa el usuario actual
     this.currentUserSubject = new BehaviorSubject<Usuario | null>(storedUser);
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  // devuelve el usuario actual
   public get currentUserValue(): Usuario | null {
     return this.currentUserSubject.value;
   }
 
-  // guarda el usuario al iniciar sesión
   login(usuario: Usuario): void {
     if (this.isBrowser) {
       localStorage.setItem('currentUser', JSON.stringify(usuario));
@@ -48,7 +44,6 @@ export class AuthService {
     this.currentUserSubject.next(usuario);
   }
 
-  // elimina el usuario al cerrar sesión
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem('currentUser');
@@ -56,7 +51,6 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
-  // verifica si hay un usuario autenticado
   isAuthenticated(): boolean {
     return this.currentUserValue !== null;
   }
@@ -64,8 +58,6 @@ export class AuthService {
   // verifica si el usuario tiene alguno de los roles permitidos
   hasAnyRole(roles: string[]): boolean {
     const user = this.currentUserValue;
-    const userRoleStr = String(user?.id_rol); // Convertir a string
-    return user ? roles.includes(userRoleStr) : false;
+    return user ? roles.includes(String(user.id_rol)) : false;
   }
-
 }

@@ -23,17 +23,9 @@ export class RegistrarTarjetaComponent implements OnInit {
   tipoMensaje: 'success' | 'error' = 'success';
   mostrarCVV = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private cardService: CardService,
-    private authService: AuthService
-  ) {}
+  constructor(private fb: FormBuilder, private cardService: CardService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.inicializarFormulario();
-  }
-
-  inicializarFormulario(): void {
     this.tarjetaForm = this.fb.group({
       numero: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]],
       cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
@@ -45,14 +37,13 @@ export class RegistrarTarjetaComponent implements OnInit {
   validarFechaVencimiento(control: any) {
     if (!control.value) return null;
     const fecha = new Date(control.value);
-    const hoy = new Date();
-    return fecha < hoy ? { fechaVencida: true } : null;
+    return fecha < new Date() ? { fechaVencida: true } : null;
   }
 
   registrarTarjeta(): void {
     if (this.tarjetaForm.invalid) {
       this.mostrarMensaje('Complete todos los campos correctamente', 'error');
-      this.marcarCamposComoTocados();
+      Object.keys(this.tarjetaForm.controls).forEach(key => this.tarjetaForm.get(key)?.markAsTouched());
       return;
     }
 
@@ -66,15 +57,13 @@ export class RegistrarTarjetaComponent implements OnInit {
     this.loading = true;
     const formValue = this.tarjetaForm.value;
 
-    const nuevaTarjeta = Card.crearDesdeDatos(
+    this.cardService.registrarTarjeta(Card.crearDesdeDatos(
       formValue.numero,
       formValue.cvv,
       new Date(formValue.fechaVencimiento),
       parseFloat(formValue.saldo),
       userId
-    );
-
-    this.cardService.registrarTarjeta(nuevaTarjeta).subscribe({
+    )).subscribe({
       next: (card) => {
         this.mostrarMensaje('Tarjeta registrada exitosamente', 'success');
         this.tarjetaForm.reset({ saldo: 0 });
@@ -96,50 +85,27 @@ export class RegistrarTarjetaComponent implements OnInit {
   }
 
   formatearNumero(event: any): void {
-    let valor = event.target.value.replace(/\D/g, '');
-    if (valor.length > 16) valor = valor.substring(0, 16);
+    let valor = event.target.value.replace(/\D/g, '').substring(0, 16);
     event.target.value = valor;
     this.tarjetaForm.patchValue({ numero: valor });
   }
 
   formatearCVV(event: any): void {
-    let valor = event.target.value.replace(/\D/g, '');
-    if (valor.length > 4) valor = valor.substring(0, 4);
+    let valor = event.target.value.replace(/\D/g, '').substring(0, 4);
     event.target.value = valor;
     this.tarjetaForm.patchValue({ cvv: valor });
   }
 
-  toggleMostrarCVV(): void {
-    this.mostrarCVV = !this.mostrarCVV;
+  toggleMostrarCVV(): void { this.mostrarCVV = !this.mostrarCVV; }
+  onCancelar(): void { this.cancelar.emit(); }
+
+  private esInvalido(campo: string): boolean {
+    const control = this.tarjetaForm.get(campo);
+    return !!(control?.invalid && control.touched);
   }
 
-  onCancelar(): void {
-    this.cancelar.emit();
-  }
-
-  marcarCamposComoTocados(): void {
-    Object.keys(this.tarjetaForm.controls).forEach(key => {
-      this.tarjetaForm.get(key)?.markAsTouched();
-    });
-  }
-
-  get numeroInvalido(): boolean {
-    const control = this.tarjetaForm.get('numero');
-    return !!(control && control.invalid && control.touched);
-  }
-
-  get cvvInvalido(): boolean {
-    const control = this.tarjetaForm.get('cvv');
-    return !!(control && control.invalid && control.touched);
-  }
-
-  get fechaInvalida(): boolean {
-    const control = this.tarjetaForm.get('fechaVencimiento');
-    return !!(control && control.invalid && control.touched);
-  }
-
-  get saldoInvalido(): boolean {
-    const control = this.tarjetaForm.get('saldo');
-    return !!(control && control.invalid && control.touched);
-  }
+  get numeroInvalido(): boolean { return this.esInvalido('numero'); }
+  get cvvInvalido(): boolean { return this.esInvalido('cvv'); }
+  get fechaInvalida(): boolean { return this.esInvalido('fechaVencimiento'); }
+  get saldoInvalido(): boolean { return this.esInvalido('saldo'); }
 }

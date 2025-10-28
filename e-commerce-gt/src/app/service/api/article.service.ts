@@ -5,97 +5,61 @@ import { map } from 'rxjs/operators';
 import { Publicacion } from '../../entities/Publication';
 import { Articulo } from '../../entities/Article';
 
-
 export const environment = {
   production: false,
-  apiUrl: 'https://12d306a207fe.ngrok-free.app'
+  apiUrl: 'https://scapose-annmarie-heterozygous.ngrok-free.dev'
 };
 
 @Injectable({
   providedIn: 'root'
 })
 export class ArticleService {
- private apiUrl = `${environment.apiUrl}/article`; 
+  private apiUrl = `${environment.apiUrl}/article`;
+  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  // Crear una nueva publicación, es decir un nuevo articulo 
   createPublicacion(publicacion: Publicacion): Observable<any> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-    return this.http.post(`${this.apiUrl}`, publicacion.toJSON(), {
-      headers: headers
-    });
+    return this.http.post(this.apiUrl, publicacion.toJSON(), { headers: this.headers });
   }
 
-  // Obtener listado de todos los articulos disponibles
   getAvailableArticles(): Observable<Articulo[]> {
     return this.http.get<any>(`${this.apiUrl}/available`).pipe(
-      map(response => {
-        if (response.data && Array.isArray(response.data)) {
-          return response.data.map((item: any) => Articulo.fromJSON(item));
-        }
-        return [];
-      })
+      map(response => response.data && Array.isArray(response.data) 
+        ? response.data.map((item: any) => Articulo.fromJSON(item)) 
+        : [])
     );
   }
 
-  // Obtener artículos de un usuario específico
   getArticlesByUserId(idUsuario: number): Observable<Articulo[]> {
     return this.http.get<any>(`${this.apiUrl}/user/${idUsuario}`).pipe(
-      map(response => {
-        if (response.data && Array.isArray(response.data)) {
-          return response.data.map((item: any) => Articulo.fromJSON(item));
-        }
-        return [];
-      })
+      map(response => response.data && Array.isArray(response.data)
+        ? response.data.map((item: any) => Articulo.fromJSON(item))
+        : [])
     );
   }
 
-  // Eliminar un artículo
   deleteArticle(idArticulo: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${idArticulo}`);
   }
 
-  // Actualizar estado de un artículo
   updateArticleStatus(idArticulo: number, idEstadoArticulo: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${idArticulo}/status`, {
-      id_estado_articulo: idEstadoArticulo
-    });
+    return this.http.patch(`${this.apiUrl}/${idArticulo}/status`, { id_estado_articulo: idEstadoArticulo });
   }
 
-  // Obtener un artículo específico de un usuario
   getArticleByUserAndId(idUsuario: number, idArticulo: number): Observable<Articulo | null> {
     return this.http.get<any>(`${this.apiUrl}/user/${idUsuario}/article/${idArticulo}`).pipe(
-      map(response => {
-        if (response.data) {
-          return Articulo.fromJSON(response.data);
-        }
-        return null;
-      })
+      map(response => response.data ? Articulo.fromJSON(response.data) : null)
     );
   }
 
-  // Actualizar un artículo completo
   updateArticle(idArticulo: number, articulo: Articulo): Observable<any> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-    return this.http.put(`${this.apiUrl}/${idArticulo}`, articulo.toJSON(), {
-      headers: headers
-    });
+    return this.http.put(`${this.apiUrl}/${idArticulo}`, articulo.toJSON(), { headers: this.headers });
   }
 
-  // Obtener un artículo por su ID
   getArticleById(idArticulo: number): Observable<Articulo | null> {
     return this.http.get<any>(`${this.apiUrl}/details/${idArticulo}`).pipe(
-      map(response => {
-        if (response.data) {
-          return Articulo.fromJSON(response.data);
-        }
-        return null;
-      })
+      map(response => response.data ? Articulo.fromJSON(response.data) : null)
     );
   }
 }

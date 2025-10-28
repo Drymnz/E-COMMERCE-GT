@@ -13,11 +13,11 @@ import { AuthService } from '../../../service/local/auth.service';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  email: string = '';
-  password: string = '';
-  loading: boolean = false;
-  errorMessage: string = '';
-  returnUrl: string = '/';
+  email = '';
+  password = '';
+  loading = false;
+  errorMessage = '';
+  returnUrl: string;
 
   constructor(
     private userService: UserService,
@@ -37,7 +37,6 @@ export class LoginComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    //Servicio para el login
     this.userService.login(this.email, this.password).subscribe({
       next: (usuario) => {
         this.authService.login(usuario);
@@ -48,9 +47,7 @@ export class LoginComponent {
         this.errorMessage = 'Credenciales incorrectas. Intente nuevamente.';
         this.loading = false;
       },
-      complete: () => {
-        this.loading = false;
-      }
+      complete: () => this.loading = false
     });
   }
 }

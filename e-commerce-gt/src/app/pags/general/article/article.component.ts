@@ -15,25 +15,16 @@ export class ArticleComponent {
   @Input() mostrarAcciones: boolean = true;
   @Input() estadoNombre: string = 'Sin estado';
   @Input() disponible: boolean = false;
-
   @Output() agregarCarrito = new EventEmitter<Articulo>();
   @Output() verDetalles = new EventEmitter<Articulo>();
-
   imagenError: boolean = false;
-
   tiposCategorias: string[] = [];
 
-  constructor(
-    private constantService: ListConstantService
-  ) { }
+  constructor(private constantService: ListConstantService) { }
 
   ngOnInit(): void {
-    // Cargar las constantes
-    this.constantService.tiposCategorias$.subscribe(estados => {
-      this.tiposCategorias = estados;
-    });
+    this.constantService.tiposCategorias$.subscribe(estados => this.tiposCategorias = estados);
   }
-
 
   get imagenUrl(): string {
     if (!this.articulo || !this.articulo.imagen || this.imagenError) {
@@ -64,7 +55,6 @@ export class ArticleComponent {
     }
     return this.articulo.categorias
       .map(item => {
-        // Verifica si es un número 
         const posicion = Number(item);
         if (!isNaN(posicion) && posicion > 0) {
           return this.tiposCategorias[posicion - 1];
@@ -74,15 +64,13 @@ export class ArticleComponent {
       .filter(categoria => categoria !== undefined && categoria !== '');
   }
 
-  //Verde si disponible, Rojo si no disponible
   get disponibilidadClass(): string {
     if (!this.articulo || this.articulo.stock <= 0) {
-      return 'bg-danger'; // Rojo
+      return 'bg-danger';
     }
-    return 'bg-success'; // Verde
+    return 'bg-success';
   }
 
-  // Obtiene el texto de disponibilidad
   get disponibilidadTexto(): string {
     if (!this.articulo || this.articulo.stock <= 0) {
       return 'No disponible';

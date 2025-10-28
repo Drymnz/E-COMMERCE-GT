@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 import { Usuario } from '../../entities/Usuario';
 import { PaginatedResponse } from '../../entities/PaginatedResponse';
 import { environment } from './article.service';
-
 
 export interface UsuarioDetalle {
   usuario: Usuario;
@@ -20,67 +18,43 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  // Obtener usuarios con paginación
-  obtenerUsuariosPaginados(page: number = 1, pageSize: number = 10): Observable<PaginatedResponse> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-
-    return this.http.get<any>(this.apiUrl, { params }).pipe(
-      map(response => {
-        const usuarios = response.usuarios.map((u: any) => Usuario.crearDesdeDatos(
-          u.id_usuario,
-          u.nombre,
-          u.apellido,
-          u.email,
-          u.id_estado.toString(),
-          u.id_rol.toString()
-        ));
-
-        return PaginatedResponse.crearDesdeDatos(
-          usuarios,
-          response.currentPage,
-          response.pageSize,
-          response.totalUsuarios,
-          response.totalPages
-        );
-      })
+  private mapUsuario(u: any): Usuario {
+    return Usuario.crearDesdeDatos(
+      u.id_usuario,
+      u.nombre,
+      u.apellido,
+      u.email,
+      u.id_estado.toString(),
+      u.id_rol.toString()
     );
   }
 
-  // Obtener usuario con detalle de sanciones
+  obtenerUsuariosPaginados(page: number = 1, pageSize: number = 10): Observable<PaginatedResponse> {
+    const params = new HttpParams().set('page', page.toString()).set('pageSize', pageSize.toString());
+
+    return this.http.get<any>(this.apiUrl, { params }).pipe(
+      map(r => PaginatedResponse.crearDesdeDatos(
+        r.usuarios.map((u: any) => this.mapUsuario(u)),
+        r.currentPage,
+        r.pageSize,
+        r.totalUsuarios,
+        r.totalPages
+      ))
+    );
+  }
+
   obtenerUsuarioConSanciones(idUsuario: number): Observable<UsuarioDetalle> {
     return this.http.get<any>(`${this.apiUrl}/${idUsuario}/detalle`).pipe(
-      map(response => ({
-        usuario: Usuario.crearDesdeDatos(
-          response.usuario.id_usuario,
-          response.usuario.nombre,
-          response.usuario.apellido,
-          response.usuario.email,
-          response.usuario.id_estado.toString(),
-          response.usuario.id_rol.toString()
-        ),
-        cantidadSanciones: response.cantidadSanciones
+      map(r => ({
+        usuario: this.mapUsuario(r.usuario),
+        cantidadSanciones: r.cantidadSanciones
       }))
     );
   }
 
-  // Login de usuario
   login(email: string, password: string): Observable<Usuario> {
-    const params = new HttpParams()
-      .set('email', email)
-      .set('password', password);
-
-    return this.http.get<any>(`${this.apiUrl}/login`, { params }).pipe(
-      map(response => Usuario.crearDesdeDatos(
-        response.id_usuario,
-        response.nombre,
-        response.apellido,
-        response.email,
-        response.id_estado,
-        response.id_rol
-      ))
-    );
+    const params = new HttpParams().set('email', email).set('password', password);
+    return this.http.get<any>(`${this.apiUrl}/login`, { params }).pipe(map(r => this.mapUsuario(r)));
   }
 
   // Crear usuario (versión completa con id_estado)
@@ -101,7 +75,6 @@ export class UserService {
     password: string
   ): Observable<Usuario>;
 
-  // Implementación
   crearUsuario(
     nombre: string,
     apellido: string,
@@ -110,77 +83,36 @@ export class UserService {
     id_rol: number = 1,
     id_estado: number = 2
   ): Observable<Usuario> {
-    const body = {
+    return this.http.post<any>(this.apiUrl, {
       nombre,
       apellido,
       email,
       password,
       id_estado,
       id_rol
-    };
-
-    return this.http.post<any>(this.apiUrl, body).pipe(
-      map(response => Usuario.crearDesdeDatos(
-        response.id_usuario,
-        response.nombre,
-        response.apellido,
-        response.email,
-        response.id_estado.toString(),
-        response.id_rol.toString()
-      ))
-    );
+    }).pipe(map(r => this.mapUsuario(r)));
   }
 
-  // Buscar usuario por email
   buscarUsuario(email: string): Observable<Usuario> {
-    const params = new HttpParams().set('email', email);
-
-    return this.http.get<any>(`${this.apiUrl}/buscar`, { params }).pipe(
-      map(response => Usuario.crearDesdeDatos(
-        response.id_usuario,
-        response.nombre,
-        response.apellido,
-        response.email,
-        response.id_estado.toString(),
-        response.id_rol.toString()
-      ))
-    );
+    return this.http.get<any>(`${this.apiUrl}/buscar`, { 
+      params: new HttpParams().set('email', email) 
+    }).pipe(map(r => this.mapUsuario(r)));
   }
 
-  // Modificar usuario existente
   modificarUsuario(usuario: Usuario): Observable<Usuario> {
-    const body = {
+    return this.http.put<any>(this.apiUrl, {
       id_usuario: usuario.id_usuario,
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
       id_estado: Number(usuario.id_estado),
       id_rol: Number(usuario.id_rol)
-    };
-
-    return this.http.put<any>(this.apiUrl, body).pipe(
-      map(response => Usuario.crearDesdeDatos(
-        response.id_usuario,
-        response.nombre,
-        response.apellido,
-        response.email,
-        response.id_estado.toString(),
-        response.id_rol.toString()
-      ))
-    );
+    }).pipe(map(r => this.mapUsuario(r)));
   }
 
-  // Historial de empleados
   obtenerEmpleados(): Observable<Usuario[]> {
     return this.http.get<any[]>(`${this.apiUrl}/empleados`).pipe(
-      map(response => response.map(u => Usuario.crearDesdeDatos(
-        u.id_usuario,
-        u.nombre,
-        u.apellido,
-        u.email,
-        u.id_estado.toString(),
-        u.id_rol.toString()
-      )))
+      map(r => r.map(u => this.mapUsuario(u)))
     );
   }
 }

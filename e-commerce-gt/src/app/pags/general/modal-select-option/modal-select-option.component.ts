@@ -9,15 +9,15 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./modal-select-option.component.scss']
 })
 export class ModalSelectOptionComponent {
-  @Input() titulo: string = 'Seleccionar opción';
-  @Input() descripcion: string = '';
+  @Input() titulo = 'Seleccionar opción';
+  @Input() descripcion = '';
   @Input() opciones: string[] = [];
-  @Input() mostrar: boolean = false;
+  @Input() mostrar = false;
   
   @Output() seleccionar = new EventEmitter<string>();
   @Output() cancelar = new EventEmitter<void>();
 
-  opcionSeleccionada: string = '';
+  opcionSeleccionada = '';
 
   seleccionarOpcion(opcion: string): void {
     this.opcionSeleccionada = opcion;

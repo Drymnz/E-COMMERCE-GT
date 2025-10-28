@@ -12,80 +12,27 @@ import { HasRoleDirective } from '../../../directives/has-role.directive';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
+  nombreEmpresa = 'E-Commerce GT';
 
-  nombreEmpresa: string = 'E-Commerce GT';
+  constructor(public authService: AuthService, private router: Router) {}
 
-  constructor(
-    public authService: AuthService,
-    private router: Router
-  ) { }
-
-  irHome(): void {
-    this.router.navigate(['/']);
-  }
-
-  irRegistro(): void {
-    this.router.navigate(['/registro']);
-  }
-
-  irLogin(): void {
-    this.router.navigate(['/login']);
-  }
-
-  irAdmin(): void {
-    this.router.navigate(['/admin']);
-  }
-
-  irVentas(): void {
-    this.router.navigate(['/ventas']);
-  }
-
-  irReportes() {
-    this.router.navigate(['/report']);
-  }
-
-  irHistorialNotificaciones() {
-    this.router.navigate(['/notificacion']);
-  }
-
-  irHistorialEmpleados() {
-    this.router.navigate(['/historial-empleados']);
-}
-
-  //Cliente
-  //gestion-tarjetas
-  irGestionarTrajetas() {
-    this.router.navigate(['/gestion-tarjetas']);
-  }
-  irGestionarProductos() {
-    this.router.navigate(['/manage-products-sale']);
-  }
-  irGestionarCarrito() {
-    this.router.navigate(['/manage-shopping-cart']);
-  }
-
-  irSeguimientoPedidos() {
-    this.router.navigate(['/order-tracking']);
-  }
-
-  //Modedador 
-  irGestorProdutosModedador() {
-    this.router.navigate(['/panel-moderator']);
-  }
-
-  irListadoUsuarios() {
-    this.router.navigate(['/lits-usuario']);
-  }
-
-  irListadoSnaciones() {
-    this.router.navigate(['/lits-sanctions']);
-
-  }
-  //logistica
-  irGestionPedidos(): void {
-    this.router.navigate(['/order-management']);
-  }
-
+  irHome(): void { this.router.navigate(['/']); }
+  irRegistro(): void { this.router.navigate(['/registro']); }
+  irLogin(): void { this.router.navigate(['/login']); }
+  irAdmin(): void { this.router.navigate(['/admin']); }
+  irVentas(): void { this.router.navigate(['/ventas']); }
+  irReportes(): void { this.router.navigate(['/report']); }
+  irHistorialNotificaciones(): void { this.router.navigate(['/notificacion']); }
+  irHistorialEmpleados(): void { this.router.navigate(['/historial-empleados']); }
+  irGestionarTrajetas(): void { this.router.navigate(['/gestion-tarjetas']); }
+  irGestionarProductos(): void { this.router.navigate(['/manage-products-sale']); }
+  irGestionarCarrito(): void { this.router.navigate(['/manage-shopping-cart']); }
+  irSeguimientoPedidos(): void { this.router.navigate(['/order-tracking']); }
+  irGestorProdutosModedador(): void { this.router.navigate(['/panel-moderator']); }
+  irListadoUsuarios(): void { this.router.navigate(['/lits-usuario']); }
+  irListadoSnaciones(): void { this.router.navigate(['/lits-sanctions']); }
+  irGestionPedidos(): void { this.router.navigate(['/order-management']); }
+  
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);

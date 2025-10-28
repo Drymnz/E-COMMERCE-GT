@@ -16,11 +16,7 @@ export class OrderTrackingComponent implements OnInit {
   cargando: boolean = false;
   mensaje: string = '';
 
-  constructor(
-    private pedidoService: PedidoService,
-    private listConstantService: ListConstantService,
-    private authService: AuthService
-  ) {}
+  constructor(private pedidoService: PedidoService, private listConstantService: ListConstantService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.cargarEstadosPedido();
@@ -28,19 +24,15 @@ export class OrderTrackingComponent implements OnInit {
   }
 
   cargarEstadosPedido(): void {
-    this.listConstantService.estadosPedido$.subscribe(estados => {
-      this.estadosPedido = estados;
-    });
+    this.listConstantService.estadosPedido$.subscribe(estados => this.estadosPedido = estados);
   }
 
   cargarPedidosUsuario(): void {
     const usuario = this.authService.currentUserValue;
-    
     if (!usuario) {
       this.mensaje = 'No se ha iniciado sesión';
       return;
     }
-
     this.cargando = true;
     this.pedidoService.obtenerPedidosUsuario(usuario.id_usuario).subscribe({
       next: (pedidos) => {
@@ -82,7 +74,6 @@ export class OrderTrackingComponent implements OnInit {
 
   obtenerMensajeTiempo(fecha: string): string {
     const dias = this.calcularDiasRestantes(fecha);
-    
     if (dias < 0) {
       return `Entrega retrasada por ${Math.abs(dias)} día(s)`;
     } else if (dias === 0) {

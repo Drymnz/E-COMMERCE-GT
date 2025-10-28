@@ -9,7 +9,6 @@ import { NotificacionService } from '../../../service/api/notificacion.service';
   styleUrl: './notificacion.component.scss'
 })
 export class NotificacionesComponent implements OnInit {
-  // Signals
   notificaciones = signal<Notificacion[]>([]);
   cargando = signal<boolean>(false);
   currentPage = signal<number>(1);
@@ -25,11 +24,7 @@ export class NotificacionesComponent implements OnInit {
 
   cargarNotificaciones(): void {
     this.cargando.set(true);
-    
-    this.notificacionService.obtenerNotificacionesPaginadas(
-      this.currentPage(),
-      this.pageSize()
-    ).subscribe({
+    this.notificacionService.obtenerNotificacionesPaginadas(this.currentPage(), this.pageSize()).subscribe({
       next: (response) => {
         this.notificaciones.set(response.notificaciones);
         this.currentPage.set(response.currentPage);
@@ -72,23 +67,19 @@ export class NotificacionesComponent implements OnInit {
     const current = this.currentPage();
     const delta = 2;
     const range: number[] = [];
-    
     for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
       range.push(i);
     }
-
     if (current - delta > 2) {
       range.unshift(-1);
     }
     if (current + delta < total - 1) {
       range.push(-1);
     }
-
     range.unshift(1);
     if (total > 1) {
       range.push(total);
     }
-
     return range;
   }
 }

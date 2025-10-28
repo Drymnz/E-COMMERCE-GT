@@ -17,29 +17,18 @@ export class OrderManagementComponent implements OnInit {
   pedidosEnCurso: Pedido[] = [];
   estadosPedido: string[] = [];
   pedidoEditando: number | null = null;
-  nuevaFecha: string = '';
-  cargando: boolean = false;
-  mensaje: string = '';
+  nuevaFecha = '';
+  cargando = false;
+  mensaje = '';
   tipoMensaje: 'success' | 'error' = 'success';
-  
-  // Variables para el modal de cambio de estado
-  mostrarModalEstado: boolean = false;
-  pedidoSeleccionado: number = 0;
+  mostrarModalEstado = false;
+  pedidoSeleccionado = 0;
 
-  constructor(
-    private pedidoService: PedidoService,
-    private listConstantService: ListConstantService
-  ) {}
+  constructor(private pedidoService: PedidoService, private listConstantService: ListConstantService) {}
 
   ngOnInit(): void {
-    this.cargarEstadosPedido();
+    this.listConstantService.estadosPedido$.subscribe(estados => this.estadosPedido = estados);
     this.cargarPedidosEnCurso();
-  }
-
-  cargarEstadosPedido(): void {
-    this.listConstantService.estadosPedido$.subscribe(estados => {
-      this.estadosPedido = estados;
-    });
   }
 
   cargarPedidosEnCurso(): void {
@@ -49,7 +38,7 @@ export class OrderManagementComponent implements OnInit {
         this.pedidosEnCurso = pedidos;
         this.cargando = false;
       },
-      error: (error) => {
+      error: () => {
         this.mostrarMensaje('Error al cargar pedidos', 'error');
         this.cargando = false;
       }
@@ -78,9 +67,7 @@ export class OrderManagementComponent implements OnInit {
         this.cancelarEdicion();
         this.cargarPedidosEnCurso();
       },
-      error: (error) => {
-        this.mostrarMensaje('Error al actualizar fecha', 'error');
-      }
+      error: () => this.mostrarMensaje('Error al actualizar fecha', 'error')
     });
   }
 
@@ -95,8 +82,6 @@ export class OrderManagementComponent implements OnInit {
   }
 
   cambiarEstado(estadoSeleccionado: string): void {
-    // Obtener el índice del estado seleccionado (id_estado_pedido)
-    // Los índices del array empiezan en 0, pero los IDs en BD empiezan en 1
     const nuevoIdEstado = this.estadosPedido.indexOf(estadoSeleccionado) + 1;
     
     this.pedidoService.actualizarEstado(this.pedidoSeleccionado, nuevoIdEstado).subscribe({
@@ -105,7 +90,7 @@ export class OrderManagementComponent implements OnInit {
         this.cerrarModalEstado();
         this.cargarPedidosEnCurso();
       },
-      error: (error) => {
+      error: () => {
         this.mostrarMensaje('Error al actualizar estado', 'error');
         this.cerrarModalEstado();
       }
@@ -118,18 +103,17 @@ export class OrderManagementComponent implements OnInit {
 
   obtenerClaseBadge(idEstado: number): string {
     const clases: { [key: number]: string } = {
-      1: 'bg-warning',      // En curso
-      2: 'bg-success',      // Entregado
-      3: 'bg-info',         // Preparando
-      4: 'bg-primary',      // En camino
-      5: 'bg-danger'        // Cancelado
+      1: 'bg-warning',
+      2: 'bg-success',
+      3: 'bg-info',
+      4: 'bg-primary',
+      5: 'bg-danger'
     };
     return clases[idEstado] || 'bg-secondary';
   }
 
   formatearFecha(fecha: string): string {
-    const date = new Date(fecha);
-    return date.toLocaleString('es-ES', {
+    return new Date(fecha).toLocaleString('es-ES', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -141,8 +125,6 @@ export class OrderManagementComponent implements OnInit {
   mostrarMensaje(texto: string, tipo: 'success' | 'error'): void {
     this.mensaje = texto;
     this.tipoMensaje = tipo;
-    setTimeout(() => {
-      this.mensaje = '';
-    }, 3000);
+    setTimeout(() => this.mensaje = '', 3000);
   }
 }

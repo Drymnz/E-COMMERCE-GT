@@ -18,14 +18,14 @@ import { AuthService } from '../../../service/local/auth.service';
 })
 export class SeeProductComponent implements OnInit {
   articulo: Articulo | null = null;
-  cargando: boolean = true;
+  cargando = true;
   error: string | null = null;
-  puntuacionPromedio: number = 0;
-  totalResenas: number = 0;
+  puntuacionPromedio = 0;
+  totalResenas = 0;
   comentarios: Comentario[] = [];
-  cargandoComentarios: boolean = false;
-  usuarioAutenticado: boolean = false;
-  idUsuarioActual: number = 0;
+  cargandoComentarios = false;
+  usuarioAutenticado = false;
+  idUsuarioActual = 0;
   mensajeExito: string | null = null;
   mensajeError: string | null = null;
 
@@ -35,22 +35,18 @@ export class SeeProductComponent implements OnInit {
     private articleService: ArticleService,
     private commentService: CommentService,
     private authService: AuthService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    this.verificarAutenticacion();
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) this.cargarArticulo(Number(id));
-    });
-  }
-
-  verificarAutenticacion(): void {
     this.usuarioAutenticado = this.authService.isAuthenticated();
     if (this.usuarioAutenticado) {
       const usuario = this.authService.currentUserValue;
       if (usuario?.id_usuario) this.idUsuarioActual = usuario.id_usuario;
     }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) this.cargarArticulo(Number(id));
+    });
   }
 
   cargarArticulo(id: number): void {
@@ -81,13 +77,11 @@ export class SeeProductComponent implements OnInit {
       next: (comentarios) => {
         this.comentarios = comentarios;
         this.calcularPuntuacion();
-        this.cargando = false;
-        this.cargandoComentarios = false;
+        this.cargando = this.cargandoComentarios = false;
       },
       error: () => {
         this.comentarios = [];
-        this.cargando = false;
-        this.cargandoComentarios = false;
+        this.cargando = this.cargandoComentarios = false;
       }
     });
   }
@@ -97,8 +91,7 @@ export class SeeProductComponent implements OnInit {
       this.puntuacionPromedio = this.commentService.calcularPuntuacionPromedio(this.comentarios);
       this.totalResenas = this.comentarios.length;
     } else {
-      this.puntuacionPromedio = 0;
-      this.totalResenas = 0;
+      this.puntuacionPromedio = this.totalResenas = 0;
     }
   }
 
@@ -111,9 +104,9 @@ export class SeeProductComponent implements OnInit {
 
     if (!this.articulo) return;
 
-    const nuevoComentario = new Comentario(0, datos.descripcion, datos.puntuacion, this.idUsuarioActual, this.articulo.id_articulo);
-
-    this.commentService.crearComentario(nuevoComentario).subscribe({
+    this.commentService.crearComentario(
+      new Comentario(0, datos.descripcion, datos.puntuacion, this.idUsuarioActual, this.articulo.id_articulo)
+    ).subscribe({
       next: (comentarioCreado) => {
         this.comentarios.unshift(comentarioCreado);
         this.calcularPuntuacion();

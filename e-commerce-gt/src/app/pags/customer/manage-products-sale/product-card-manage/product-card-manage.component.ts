@@ -12,12 +12,10 @@ import { Articulo } from '../../../../entities/Article';
 export class ProductCardManageComponent {
   @Input() articulo!: Articulo;
   @Input() estadoNombre: string = 'Sin estado';
-  @Input() estadoModeracion: string = 'Pendiente'; 
-  
+  @Input() estadoModeracion: string = 'Pendiente';
   @Output() editar = new EventEmitter<Articulo>();
   @Output() eliminar = new EventEmitter<Articulo>();
   @Output() cambiarEstado = new EventEmitter<Articulo>();
-
   imagenError: boolean = false;
 
   get imagenUrl(): string {
@@ -35,12 +33,11 @@ export class ProductCardManageComponent {
     return this.articulo.stock > 0 ? 'bg-success' : 'bg-secondary';
   }
 
-  // NUEVO 
   get estadoModeracionClass(): string {
     const idAccion = this.articulo.id_accion;
-    if (idAccion === 1) return 'bg-warning text-dark'; // Pendiente
-    if (idAccion === 2) return 'bg-success'; // Aprobado
-    if (idAccion === 3) return 'bg-danger'; // Rechazado
+    if (idAccion === 1) return 'bg-warning text-dark';
+    if (idAccion === 2) return 'bg-success';
+    if (idAccion === 3) return 'bg-danger';
     return 'bg-secondary';
   }
 

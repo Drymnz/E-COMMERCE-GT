@@ -19,22 +19,16 @@ export class GestionTarjetasComponent implements OnInit {
   mensajeError = '';
   mostrarFormulario = false;
   tarjetaEditando: Card | null = null;
-
   nuevaTarjetaForm: FormGroup;
   editarTarjetaForm: FormGroup;
 
-  constructor(
-    private cardService: CardService,
-    private authService: AuthService,
-    private fb: FormBuilder
-  ) {
+  constructor(private cardService: CardService, private authService: AuthService, private fb: FormBuilder) {
     this.nuevaTarjetaForm = this.fb.group({
       numero: ['', [Validators.required, Validators.minLength(16), Validators.maxLength(16), Validators.pattern(/^\d+$/)]],
       cvv: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3), Validators.pattern(/^\d+$/)]],
       fecha_vencimiento: ['', Validators.required],
       saldo: [0, [Validators.required, Validators.min(0)]]
     });
-
     this.editarTarjetaForm = this.fb.group({
       cvv: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3), Validators.pattern(/^\d+$/)]],
       fecha_vencimiento: ['', Validators.required],
@@ -54,10 +48,8 @@ export class GestionTarjetasComponent implements OnInit {
       this.cargando = false;
       return;
     }
-
     this.cargando = true;
     this.error = false;
-
     this.cardService.obtenerTarjetasUsuario(usuario.id_usuario).subscribe({
       next: (data) => {
         this.tarjetas = data;
@@ -86,20 +78,10 @@ export class GestionTarjetasComponent implements OnInit {
       });
       return;
     }
-
     const usuario = this.authService.currentUserValue;
     if (!usuario) return;
-
     const formValue = this.nuevaTarjetaForm.value;
-
-    const tarjeta = Card.crearDesdeDatos(
-      formValue.numero,
-      formValue.cvv,
-      new Date(formValue.fecha_vencimiento),
-      formValue.saldo,
-      usuario.id_usuario
-    );
-
+    const tarjeta = Card.crearDesdeDatos(formValue.numero, formValue.cvv, new Date(formValue.fecha_vencimiento), formValue.saldo, usuario.id_usuario);
     this.cardService.registrarTarjeta(tarjeta).subscribe({
       next: (data) => {
         this.tarjetas.push(data);
@@ -135,16 +117,12 @@ export class GestionTarjetasComponent implements OnInit {
       });
       return;
     }
-
     const tarjeta = this.tarjetaEditando;
     if (!tarjeta) return;
-
     const formValue = this.editarTarjetaForm.value;
-
     tarjeta.cvv = formValue.cvv;
     tarjeta.fecha_vencimiento = new Date(formValue.fecha_vencimiento);
     tarjeta.saldo = formValue.saldo;
-
     this.cancelarEdicion();
     alert('Tarjeta actualizada (solo localmente - implementar endpoint de actualización)');
   }
@@ -153,7 +131,6 @@ export class GestionTarjetasComponent implements OnInit {
     if (!confirm('¿Está seguro de eliminar esta tarjeta?')) {
       return;
     }
-
     this.cardService.eliminarTarjeta(numero).subscribe({
       next: () => {
         this.tarjetas = this.tarjetas.filter(t => t.numero !== numero);

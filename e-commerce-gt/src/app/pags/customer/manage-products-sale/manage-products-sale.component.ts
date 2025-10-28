@@ -20,23 +20,15 @@ export class ManageProductsSaleComponent implements OnInit {
   articulos: Articulo[] = [];
   categorias: string[] = [];
   estadosArticulo: string[] = [];
-  estadosModeracion: string[] = []; 
-
+  estadosModeracion: string[] = [];
   filtroSeleccionado: string = 'todos';
   cargando: boolean = false;
-
   mostrarModalEstado: boolean = false;
   articuloSeleccionado: Articulo | null = null;
-
   mostrarModalEliminar: boolean = false;
   articuloAEliminar: Articulo | null = null;
 
-  constructor(
-    private router: Router,
-    private constantService: ListConstantService,
-    private authService: AuthService,
-    private articleService: ArticleService
-  ) { }
+  constructor(private router: Router, private constantService: ListConstantService, private authService: AuthService, private articleService: ArticleService) { }
 
   ngOnInit(): void {
     this.cargarConstantes();
@@ -44,23 +36,14 @@ export class ManageProductsSaleComponent implements OnInit {
   }
 
   cargarConstantes(): void {
-    this.constantService.tiposCategorias$.subscribe(categorias => {
-      this.categorias = categorias;
-    });
-
-    this.constantService.estadosArticulo$.subscribe(estados => {
-      this.estadosArticulo = estados;
-    });
-
-    this.constantService.estadosModeracion$.subscribe(estados => {
-      this.estadosModeracion = estados;
-    });
+    this.constantService.tiposCategorias$.subscribe(categorias => this.categorias = categorias);
+    this.constantService.estadosArticulo$.subscribe(estados => this.estadosArticulo = estados);
+    this.constantService.estadosModeracion$.subscribe(estados => this.estadosModeracion = estados);
   }
 
   cargarArticulos(): void {
     this.cargando = true;
     const id_user = this.authService.currentUserValue?.id_usuario;
-
     if (id_user) {
       this.articleService.getArticlesByUserId(id_user).subscribe({
         next: (articulos) => {
@@ -104,7 +87,7 @@ export class ManageProductsSaleComponent implements OnInit {
   }
 
   obtenerEstadoNombre(idEstado: number): string {
-    const indice = idEstado - 1 ;
+    const indice = idEstado - 1;
     if (indice >= 0 && indice < this.estadosArticulo.length) {
       return this.estadosArticulo[indice];
     }
@@ -118,7 +101,6 @@ export class ManageProductsSaleComponent implements OnInit {
     }
     return 'Pendiente';
   }
-
 
   irAPublicar(): void {
     this.router.navigate(['/register-article']);
@@ -142,7 +124,6 @@ export class ManageProductsSaleComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al eliminar artículo:', error);
-          // Mostrar mensaje de error al usuario
         }
       });
     }
@@ -162,11 +143,10 @@ export class ManageProductsSaleComponent implements OnInit {
     if (this.articuloSeleccionado) {
       const indiceEstado = this.estadosArticulo.indexOf(nuevoEstado);
       const nuevoIdEstado = indiceEstado + 1;
-      const idArticulo = this.articuloSeleccionado.id_articulo; 
+      const idArticulo = this.articuloSeleccionado.id_articulo;
       this.articuloSeleccionado.id_estado_articulo = nuevoIdEstado-2;
       this.articleService.updateArticleStatus(idArticulo, nuevoIdEstado).subscribe({
         next: (response) => {
-          // Buscar el artículo en el array y actualizar su estado
           const articulo = this.articulos.find(a => a.id_articulo === idArticulo);
           if (articulo) {
             articulo.id_estado_articulo = nuevoIdEstado;
@@ -174,7 +154,6 @@ export class ManageProductsSaleComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al actualizar estado:', error);
-          // Mostrar mensaje de error al usuario
         }
       });
     }

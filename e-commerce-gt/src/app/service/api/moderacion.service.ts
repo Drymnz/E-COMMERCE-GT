@@ -19,33 +19,29 @@ export class ModeratorService {
 
   constructor(private http: HttpClient) { }
 
+  private crearParams(pagina: number, tamanoPagina: number): HttpParams {
+    return new HttpParams()
+      .set('pagina', pagina.toString())
+      .set('tamanoPagina', tamanoPagina.toString());
+  }
 
-  // la clase ModeratorService
   obtenerSancionesPaginadas(pagina: number = 1, tamanoPagina: number = 10): Observable<SancionResponse> {
-    const params = new HttpParams()
-      .set('pagina', pagina.toString())
-      .set('tamanoPagina', tamanoPagina.toString());
-
-    return this.http.get<SancionResponse>(`${this.apiUrl}/sanciones`, { params });
+    return this.http.get<SancionResponse>(`${this.apiUrl}/sanciones`, { 
+      params: this.crearParams(pagina, tamanoPagina) 
+    });
   }
 
-  //Obtiene artículos pendientes con paginación
   obtenerArticulosPendientes(pagina: number = 1, tamanoPagina: number = 5): Observable<PaginacionResponse> {
-    const params = new HttpParams()
-      .set('pagina', pagina.toString())
-      .set('tamanoPagina', tamanoPagina.toString());
-
-    return this.http.get<PaginacionResponse>(`${this.apiUrl}/pendientes`, { params });
+    return this.http.get<PaginacionResponse>(`${this.apiUrl}/pendientes`, { 
+      params: this.crearParams(pagina, tamanoPagina) 
+    });
   }
 
-  //Aprueba un artículo
   aprobarArticulo(idArticulo: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/aprobar/${idArticulo}`, {});
   }
 
-  //Rechaza un artículo
   rechazarArticulo(idArticulo: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/rechazar/${idArticulo}`, {});
   }
 }
-

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, throwError } from 'rxjs';
 import { Comentario } from '../../entities/Comentario';
 import { environment } from './article.service';
@@ -12,44 +12,27 @@ export class CommentService {
 
   constructor(private http: HttpClient) { }
 
-  //obtener todos los comentairos de un articulo
   getComentariosByArticulo(idArticulo: number): Observable<Comentario[]> {
     return this.http.get<any[]>(`${this.apiUrl}/articulo/${idArticulo}`).pipe(
       map(comentarios => comentarios.map(c => Comentario.fromJSON(c))),
-      catchError(error => {
-        console.error('Error al obtener comentarios por artículo:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-  
-
-  //enviar comentario 
-  crearComentario(comentario: Comentario): Observable<Comentario> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    const body = {
-      descripcion: comentario.descripcion,
-      puntuacion: comentario.puntuacion,
-      id_usuario: comentario.id_usuario,
-      id_articulo: comentario.id_articulo
-    };
-
-    return this.http.post<any>(this.apiUrl, body, { headers }).pipe(
-      map(response => Comentario.fromJSON(response)),
-      catchError(error => {
-        console.error('Error al crear comentario:', error);
-        return throwError(() => error);
-      })
+      catchError(e => throwError(() => e))
     );
   }
 
-  //calcular promedio
+  crearComentario(c: Comentario): Observable<Comentario> {
+    return this.http.post<any>(this.apiUrl, {
+      descripcion: c.descripcion,
+      puntuacion: c.puntuacion,
+      id_usuario: c.id_usuario,
+      id_articulo: c.id_articulo
+    }).pipe(
+      map(res => Comentario.fromJSON(res)),
+      catchError(e => throwError(() => e))
+    );
+  }
+
   calcularPuntuacionPromedio(comentarios: Comentario[]): number {
-    if (comentarios.length === 0) return 0;
-    const suma = comentarios.reduce((acc, c) => acc + c.puntuacion, 0);
-    return Math.round((suma / comentarios.length) * 10) / 10;
+    if (!comentarios.length) return 0;
+    return Math.round(comentarios.reduce((acc, c) => acc + c.puntuacion, 0) / comentarios.length * 10) / 10;
   }
 }

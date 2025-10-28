@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 import { environment } from './article.service';
 
 export interface VentaTotal {
@@ -23,15 +22,13 @@ export class VentaService {
 
   constructor(private http: HttpClient) { }
 
- //Obtiene el listado de ventas por artículo
   obtenerTotalVentas(): Observable<VentaTotal[]> {
     return this.http.get<VentaTotal[]>(`${this.apiUrl}/total`);
   }
 
-  //Obtiene el total general de todas las ventas
   obtenerTotalGeneral(): Observable<number> {
     return this.http.get<TotalGeneral>(`${this.apiUrl}/total-general`).pipe(
-      map(response => response.total_general)
+      map(r => r.total_general)
     );
   }
 }

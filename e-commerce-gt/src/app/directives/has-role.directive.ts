@@ -15,7 +15,7 @@ export class HasRoleDirective implements OnInit {
   }
 
   constructor(
-    private templateRef: TemplateRef<any>,     // referencia al contenido que se mostrará
+    private templateRef: TemplateRef<any>,     // control de roles *appHasRole="['admin']" para bloquiar
     private viewContainer: ViewContainerRef,   // contenedor donde se renderiza la vista
     private authService: AuthService           // servicio para verificar roles del usuario
   ) {}

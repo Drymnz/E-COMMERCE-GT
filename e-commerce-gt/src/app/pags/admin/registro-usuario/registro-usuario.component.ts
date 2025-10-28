@@ -16,15 +16,10 @@ export class RegistroUsuarioComponent implements OnInit {
   cargando = false;
   mensajeExito = '';
   mensajeError = '';
-
   roles: string[] = [];
   estadosUsuario: string[] = [];
 
-  constructor(
-    private fb: FormBuilder,
-    private userService: UserService,
-    private constantService: ListConstantService
-  ) {
+  constructor(private fb: FormBuilder, private userService: UserService, private constantService: ListConstantService) {
     this.registroForm = this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
@@ -36,37 +31,20 @@ export class RegistroUsuarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.constantService.roles$.subscribe(roles => {
-      this.roles = roles;
-    });
-
-    this.constantService.estadosUsuario$.subscribe(estados => {
-      this.estadosUsuario = estados;
-    });
+    this.constantService.roles$.subscribe(roles => this.roles = roles);
+    this.constantService.estadosUsuario$.subscribe(estados => this.estadosUsuario = estados);
   }
 
   registrarNuevoUsuario(): void {
     if (this.registroForm.invalid) {
-      Object.keys(this.registroForm.controls).forEach(key => {
-        this.registroForm.get(key)?.markAsTouched();
-      });
+      Object.keys(this.registroForm.controls).forEach(key => this.registroForm.get(key)?.markAsTouched());
       return;
     }
-
     const formValue = this.registroForm.value;
-    
     this.cargando = true;
     this.mensajeError = '';
     this.mensajeExito = '';
-    
-    this.userService.crearUsuario(
-      formValue.nombre,
-      formValue.apellido,
-      formValue.email,
-      formValue.password,
-      Number(formValue.id_rol),
-      Number(formValue.id_estado)
-    ).subscribe({
+    this.userService.crearUsuario(formValue.nombre, formValue.apellido, formValue.email, formValue.password, Number(formValue.id_rol), Number(formValue.id_estado)).subscribe({
       next: () => {
         this.cargando = false;
         this.mensajeExito = 'Usuario registrado correctamente';

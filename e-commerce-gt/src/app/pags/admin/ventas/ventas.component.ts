@@ -22,19 +22,13 @@ export class VentasComponent implements OnInit {
 
   cargarDatos(): void {
     this.cargando = true;
-
-    // Cargar listado de ventas
     this.ventaService.obtenerTotalVentas().subscribe({
-      next: (data) => {
-        this.ventas = data;
-      },
+      next: (data) => this.ventas = data,
       error: (error) => {
         console.error('Error al cargar ventas:', error);
         this.cargando = false;
       }
     });
-
-    // Cargar total general
     this.ventaService.obtenerTotalGeneral().subscribe({
       next: (total) => {
         this.totalGeneral = total;

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 import { Usuario } from '../../entities/Usuario';
 import { Articulo } from '../../entities/Article';
 import { environment } from './article.service';
@@ -14,19 +13,19 @@ export class ReportService {
 
   constructor(private http: HttpClient) { }
 
+  private crearParamsFecha(fechaInicio: string, fechaFin: string): HttpParams {
+    return new HttpParams().set('fechaInicio', fechaInicio).set('fechaFin', fechaFin);
+  }
+
   /**
    * Top 10 productos más vendidos en un intervalo de tiempo
    * @param fechaInicio formato: YYYY-MM-DDTHH:mm:ss
    * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
    */
   obtenerTopProductosVendidos(fechaInicio: string, fechaFin: string): Observable<Articulo[]> {
-    const params = new HttpParams()
-      .set('fechaInicio', fechaInicio)
-      .set('fechaFin', fechaFin);
-
-    return this.http.get<any[]>(`${this.apiUrl}/productos-mas-vendidos`, { params }).pipe(
-      map(response => response.map((a: any) => Articulo.fromJSON(a)))
-    );
+    return this.http.get<any[]>(`${this.apiUrl}/productos-mas-vendidos`, { 
+      params: this.crearParamsFecha(fechaInicio, fechaFin) 
+    }).pipe(map(r => r.map((a: any) => Articulo.fromJSON(a))));
   }
 
   /**
@@ -35,13 +34,9 @@ export class ReportService {
    * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
    */
   obtenerTopClientesCompradores(fechaInicio: string, fechaFin: string): Observable<Usuario[]> {
-    const params = new HttpParams()
-      .set('fechaInicio', fechaInicio)
-      .set('fechaFin', fechaFin);
-
-    return this.http.get<any[]>(`${this.apiUrl}/clientes-mejores-compradores`, { params }).pipe(
-      map(response => response.map((u: any) => this.mapearUsuario(u)))
-    );
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mejores-compradores`, { 
+      params: this.crearParamsFecha(fechaInicio, fechaFin) 
+    }).pipe(map(r => r.map((u: any) => this.mapearUsuario(u))));
   }
 
   /**
@@ -50,13 +45,9 @@ export class ReportService {
    * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
    */
   obtenerTopClientesVendedores(fechaInicio: string, fechaFin: string): Observable<Usuario[]> {
-    const params = new HttpParams()
-      .set('fechaInicio', fechaInicio)
-      .set('fechaFin', fechaFin);
-
-    return this.http.get<any[]>(`${this.apiUrl}/clientes-mejores-vendedores`, { params }).pipe(
-      map(response => response.map((u: any) => this.mapearUsuario(u)))
-    );
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mejores-vendedores`, { 
+      params: this.crearParamsFecha(fechaInicio, fechaFin) 
+    }).pipe(map(r => r.map((u: any) => this.mapearUsuario(u))));
   }
 
   /**
@@ -65,25 +56,20 @@ export class ReportService {
    * @param fechaFin formato: YYYY-MM-DDTHH:mm:ss
    */
   obtenerTopClientesPedidos(fechaInicio: string, fechaFin: string): Observable<Usuario[]> {
-    const params = new HttpParams()
-      .set('fechaInicio', fechaInicio)
-      .set('fechaFin', fechaFin);
-
-    return this.http.get<any[]>(`${this.apiUrl}/clientes-mas-pedidos`, { params }).pipe(
-      map(response => response.map((u: any) => this.mapearUsuario(u)))
-    );
+    return this.http.get<any[]>(`${this.apiUrl}/clientes-mas-pedidos`, { 
+      params: this.crearParamsFecha(fechaInicio, fechaFin) 
+    }).pipe(map(r => r.map((u: any) => this.mapearUsuario(u))));
   }
 
-  //Top 10 clientes que más productos tienen a la venta
   obtenerTopClientesProductosVenta(): Observable<Usuario[]> {
     return this.http.get<any[]>(`${this.apiUrl}/clientes-mas-productos-venta`).pipe(
-      map(response => response.map((u: any) => this.mapearUsuario(u)))
+      map(r => r.map((u: any) => this.mapearUsuario(u)))
     );
   }
 
- //convierte fechas Date 
+  // convierte fechas Date a formato YYYY-MM-DDTHH:mm:ss
   formatearFecha(fecha: Date): string {
-    return fecha.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
+    return fecha.toISOString().slice(0, 19);
   }
 
   // obtiene rango de fechas común (último mes)
@@ -91,7 +77,6 @@ export class ReportService {
     const fechaFin = new Date();
     const fechaInicio = new Date();
     fechaInicio.setMonth(fechaInicio.getMonth() - 1);
-
     return {
       fechaInicio: this.formatearFecha(fechaInicio),
       fechaFin: this.formatearFecha(fechaFin)
@@ -103,14 +88,12 @@ export class ReportService {
     const fechaFin = new Date();
     const fechaInicio = new Date();
     fechaInicio.setFullYear(fechaInicio.getFullYear() - 1);
-
     return {
       fechaInicio: this.formatearFecha(fechaInicio),
       fechaFin: this.formatearFecha(fechaFin)
     };
   }
 
-  // Mapeo de Usuario desde JSON
   private mapearUsuario(data: any): Usuario {
     return Usuario.crearDesdeDatos(
       data.id_usuario,

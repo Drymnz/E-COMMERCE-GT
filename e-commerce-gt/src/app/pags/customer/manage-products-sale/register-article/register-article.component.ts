@@ -21,29 +21,16 @@ export class RegisterArticleComponent implements OnInit {
   categorias: string[] = [];
   estadoArticulo: string[] = [];
   imagenPreviewUrl: string = '';
-
-  // Propiedades para el modo edición
   articuloId: number | null = null;
   isEditMode: boolean = false;
-
-  // Propiedades para mensajes
   mensajeError: string = '';
   mensajeExito: string = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private constantService: ListConstantService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService,
-    private articleService: ArticleService
-  ) { }
+  constructor(private fb: FormBuilder, private constantService: ListConstantService, private route: ActivatedRoute, private router: Router, private authService: AuthService, private articleService: ArticleService) { }
 
   ngOnInit(): void {
     this.initForm();
     this.cargarConstantes();
-
-    // Detectar si estamos en modo edición
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -71,32 +58,24 @@ export class RegisterArticleComponent implements OnInit {
       this.categorias = categorias;
       this.inicializarCategorias();
     });
-
-    this.constantService.estadosArticulo$.subscribe(estados => {
-      this.estadoArticulo = estados;
-    });
+    this.constantService.estadosArticulo$.subscribe(estados => this.estadoArticulo = estados);
   }
 
   inicializarCategorias(): void {
     const categoriasArray = this.articuloForm.get('categorias') as FormArray;
     categoriasArray.clear();
-    this.categorias.forEach(() => {
-      categoriasArray.push(new FormControl(false));
-    });
+    this.categorias.forEach(() => categoriasArray.push(new FormControl(false)));
   }
 
   cargarArticulo(id: number): void {
     const id_user = this.authService.currentUserValue?.id_usuario;
-    
     if (!id_user) {
       this.mostrarError('No hay usuario autenticado');
       return;
     }
-
     this.articleService.getArticleByUserAndId(id_user, id).subscribe({
       next: (articulo) => {
         if (articulo) {
-          // Llenar el formulario con los datos del artículo
           this.articuloForm.patchValue({
             nombre: articulo.nombre,
             descripcion: articulo.descripcion,
@@ -105,8 +84,6 @@ export class RegisterArticleComponent implements OnInit {
             imagen: articulo.imagen,
             id_estado_articulo: articulo.id_estado_articulo
           });
-
-          // Marcar las categorías seleccionadas
           const categoriasArray = this.articuloForm.get('categorias') as FormArray;
           articulo.categorias.forEach(cat => {
             const index = this.categorias.indexOf(cat);
@@ -114,8 +91,6 @@ export class RegisterArticleComponent implements OnInit {
               categoriasArray.at(index).setValue(true);
             }
           });
-
-          // Si hay imagen, mostrarla
           if (articulo.imagen) {
             this.imagenPreviewUrl = articulo.imagen;
           }
@@ -158,39 +133,24 @@ export class RegisterArticleComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-
-      // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
         this.mostrarError('Por favor selecciona un archivo de imagen válido');
         return;
       }
-
-      // Validar tamaño (máximo 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         this.mostrarError('La imagen es demasiado grande. Tamaño máximo: 5MB');
         return;
       }
-
       const reader = new FileReader();
-
       reader.onload = (e) => {
         const base64String = e.target?.result as string;
-
-        // Guardar para el preview
         this.imagenPreviewUrl = base64String;
-
-        // Guardar en el formulario para enviar al backend
-        this.articuloForm.patchValue({
-          imagen: base64String
-        });
+        this.articuloForm.patchValue({ imagen: base64String });
       };
-
       reader.onerror = (error) => {
         this.mostrarError('Error al cargar la imagen');
       };
-
-      // Convertir a base64
       reader.readAsDataURL(file);
     }
   }
@@ -198,8 +158,6 @@ export class RegisterArticleComponent implements OnInit {
   eliminarImagen(): void {
     this.imagenPreviewUrl = '';
     this.articuloForm.patchValue({ imagen: '' });
-
-    // Limpiar el input file
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -212,21 +170,8 @@ export class RegisterArticleComponent implements OnInit {
         ...this.articuloForm.value,
         categorias: this.getCategoriasSeleccionadas()
       };
-
       if (this.isEditMode && this.articuloId) {
-        // MODO EDICIÓN: Actualizar artículo existente
-        const articuloActualizado = new Articulo(
-          this.articuloId,
-          articuloData.nombre,
-          articuloData.descripcion,
-          articuloData.precio,
-          articuloData.imagen,
-          articuloData.stock,
-          articuloData.id_estado_articulo,
-          articuloData.categorias,
-          1
-        );
-
+        const articuloActualizado = new Articulo(this.articuloId, articuloData.nombre, articuloData.descripcion, articuloData.precio, articuloData.imagen, articuloData.stock, articuloData.id_estado_articulo, articuloData.categorias, 1);
         this.articleService.updateArticle(this.articuloId, articuloActualizado).subscribe({
           next: (response) => {
             this.mostrarExito('Artículo actualizado correctamente');
@@ -238,30 +183,14 @@ export class RegisterArticleComponent implements OnInit {
             this.mostrarError('Error al actualizar el artículo: ' + (error.error?.error || error.error?.message || error.message));
           }
         });
-
       } else {
-        // MODO CREACIÓN: Crear nuevo artículo
         const id_user = this.authService.currentUserValue?.id_usuario;
-
         if (!id_user) {
           this.mostrarError('Error: Usuario no autenticado');
           return;
         }
-
-        const nuevoArticulo = new Articulo(
-          0,
-          articuloData.nombre,
-          articuloData.descripcion,
-          articuloData.precio,
-          articuloData.imagen,
-          articuloData.stock,
-          articuloData.id_estado_articulo,
-          articuloData.categorias,
-          1
-        );
-
+        const nuevoArticulo = new Articulo(0, articuloData.nombre, articuloData.descripcion, articuloData.precio, articuloData.imagen, articuloData.stock, articuloData.id_estado_articulo, articuloData.categorias, 1);
         const nuevaPublicacion = new Publicacion(id_user, nuevoArticulo);
-
         this.articleService.createPublicacion(nuevaPublicacion).subscribe({
           next: (response) => {
             this.mostrarExito('Artículo creado correctamente');
@@ -275,7 +204,6 @@ export class RegisterArticleComponent implements OnInit {
         });
       }
     } else {
-      // Validaciones fallidas
       if (this.getCategoriasSeleccionadas().length === 0) {
         this.mostrarError('Debes seleccionar al menos una categoría');
       }
@@ -333,32 +261,24 @@ export class RegisterArticleComponent implements OnInit {
     return this.articuloForm.get('stock')?.value > 0;
   }
 
-
-  //Muestra un mensaje de error al usuario
   mostrarError(mensaje: string): void {
     this.mensajeError = mensaje;
     this.mensajeExito = '';
     console.error('Error:', mensaje);
-    
-    // Auto-limpiar después de 5 segundos
     setTimeout(() => {
       this.limpiarMensajes();
     }, 5000);
   }
 
- //Muestra un mensaje de éxito al usuario
   mostrarExito(mensaje: string): void {
     this.mensajeExito = mensaje;
     this.mensajeError = '';
     console.log('Éxito:', mensaje);
-    
-    // Auto-limpiar después de 3 segundos
     setTimeout(() => {
       this.limpiarMensajes();
     }, 3000);
   }
 
-  //Limpia todos los mensajes de error y éxito
   limpiarMensajes(): void {
     this.mensajeError = '';
     this.mensajeExito = '';

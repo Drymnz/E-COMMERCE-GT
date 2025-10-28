@@ -27,5 +27,9 @@ git checkout main
 ## que puerto se va abrier
 ##ngrok http 8080
 
+## comando de auxi
+#ngrok http --url=${DOMINIO} ${PUERTO}
+#ngrok http --url=scapose-annmarie-heterozygous.ngrok-free.dev 8080
+
 ##screen
 

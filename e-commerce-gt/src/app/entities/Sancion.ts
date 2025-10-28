@@ -8,88 +8,31 @@ export class Sancion {
     private _email_usuario?: string
   ) {}
 
-  /**  Getters */
-  get id_sancion(): number {
-    return this._id_sancion;
-  }
+  get id_sancion(): number { return this._id_sancion; }
+  get motivo(): string { return this._motivo; }
+  get fecha_hora(): Date { return this._fecha_hora; }
+  get id_usuario(): number { return this._id_usuario; }
+  get nombre_usuario(): string | undefined { return this._nombre_usuario; }
+  get email_usuario(): string | undefined { return this._email_usuario; }
+  
+  set motivo(valor: string) { this._motivo = valor; }
+  set fecha_hora(valor: Date) { this._fecha_hora = valor; }
+  set id_usuario(valor: number) { this._id_usuario = valor; }
+  set nombre_usuario(valor: string | undefined) { this._nombre_usuario = valor; }
+  set email_usuario(valor: string | undefined) { this._email_usuario = valor; }
 
-  get motivo(): string {
-    return this._motivo;
-  }
-
-  get fecha_hora(): Date {
-    return this._fecha_hora;
-  }
-
-  get id_usuario(): number {
-    return this._id_usuario;
-  }
-
-  get nombre_usuario(): string | undefined {
-    return this._nombre_usuario;
-  }
-
-  get email_usuario(): string | undefined {
-    return this._email_usuario;
-  }
-
-  /**  Setters */
-  set motivo(valor: string) {
-    this._motivo = valor;
-  }
-
-  set fecha_hora(valor: Date) {
-    this._fecha_hora = valor;
-  }
-
-  set id_usuario(valor: number) {
-    this._id_usuario = valor;
-  }
-
-  set nombre_usuario(valor: string | undefined) {
-    this._nombre_usuario = valor;
-  }
-
-  set email_usuario(valor: string | undefined) {
-    this._email_usuario = valor;
-  }
-
-  // Crea una instancia de Sancion
-  static crearDesdeDatos(
-    id: number,
-    motivo: string,
-    fecha_hora: Date,
-    id_usuario: number,
-    nombre_usuario?: string,
-    email_usuario?: string
-  ): Sancion {
+  static crearDesdeDatos(id: number, motivo: string, fecha_hora: Date, id_usuario: number, nombre_usuario?: string, email_usuario?: string): Sancion {
     return new Sancion(id, motivo, fecha_hora, id_usuario, nombre_usuario, email_usuario);
   }
 
-  // Crea una instancia de Sancion desde un objeto JSON
   static fromJSON(json: any): Sancion {
-    const fechaHora = typeof json.fecha_hora === 'string' 
-      ? new Date(json.fecha_hora) 
-      : json.fecha_hora;
-
-    return new Sancion(
-      json.id_sancion,
-      json.motivo,
-      fechaHora,
-      json.id_usuario,
-      json.nombre_usuario,
-      json.email_usuario
-    );
+    const fechaHora = typeof json.fecha_hora === 'string' ? new Date(json.fecha_hora) : json.fecha_hora;
+    return new Sancion(json.id_sancion, json.motivo, fechaHora, json.id_usuario, json.nombre_usuario, json.email_usuario);
   }
 
-  // Formatea la fecha para mostrar
   get fechaFormateada(): string {
     return this._fecha_hora.toLocaleString('es-GT', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
     });
   }
 }

@@ -23,18 +23,15 @@ export class ReportComponent implements OnInit {
   clientesVendedores = signal<Usuario[]>([]);
   clientesPedidos = signal<Usuario[]>([]);
   clientesProductosVenta = signal<Usuario[]>([]);
-
   cargandoProductos = signal<boolean>(false);
   cargandoCompradores = signal<boolean>(false);
   cargandoVendedores = signal<boolean>(false);
   cargandoPedidos = signal<boolean>(false);
   cargandoProductosVenta = signal<boolean>(false);
-
   filtroProductos: FiltroFechas = this.inicializarFechas();
   filtroCompradores: FiltroFechas = this.inicializarFechas();
   filtroVendedores: FiltroFechas = this.inicializarFechas();
   filtroPedidos: FiltroFechas = this.inicializarFechas();
-
   pestanaActiva = signal<string>('productos');
 
   constructor(private reportService: ReportService) {}
@@ -47,7 +44,6 @@ export class ReportComponent implements OnInit {
     const fechaFin = new Date();
     const fechaInicio = new Date();
     fechaInicio.setMonth(fechaInicio.getMonth() - 1);
-
     return {
       fechaInicio: this.formatearFechaInput(fechaInicio),
       fechaFin: this.formatearFechaInput(fechaFin)
@@ -55,17 +51,15 @@ export class ReportComponent implements OnInit {
   }
 
   private formatearFechaInput(fecha: Date): string {
-    return fecha.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+    return fecha.toISOString().slice(0, 16);
   }
 
   private formatearFechaAPI(fechaInput: string): string {
-    return fechaInput + ':00'; // YYYY-MM-DDTHH:mm:ss
+    return fechaInput + ':00';
   }
 
   cambiarPestana(pestana: string): void {
     this.pestanaActiva.set(pestana);
-    
-    // Cargar datos si aún no se han cargado
     switch(pestana) {
       case 'productos':
         if (this.productosVendidos().length === 0) this.cargarReporteProductos();
@@ -89,7 +83,6 @@ export class ReportComponent implements OnInit {
     this.cargandoProductos.set(true);
     const fechaInicio = this.formatearFechaAPI(this.filtroProductos.fechaInicio);
     const fechaFin = this.formatearFechaAPI(this.filtroProductos.fechaFin);
-
     this.reportService.obtenerTopProductosVendidos(fechaInicio, fechaFin).subscribe({
       next: (productos) => {
         this.productosVendidos.set(productos);
@@ -106,7 +99,6 @@ export class ReportComponent implements OnInit {
     this.cargandoCompradores.set(true);
     const fechaInicio = this.formatearFechaAPI(this.filtroCompradores.fechaInicio);
     const fechaFin = this.formatearFechaAPI(this.filtroCompradores.fechaFin);
-
     this.reportService.obtenerTopClientesCompradores(fechaInicio, fechaFin).subscribe({
       next: (clientes) => {
         this.clientesCompradores.set(clientes);
@@ -123,7 +115,6 @@ export class ReportComponent implements OnInit {
     this.cargandoVendedores.set(true);
     const fechaInicio = this.formatearFechaAPI(this.filtroVendedores.fechaInicio);
     const fechaFin = this.formatearFechaAPI(this.filtroVendedores.fechaFin);
-
     this.reportService.obtenerTopClientesVendedores(fechaInicio, fechaFin).subscribe({
       next: (clientes) => {
         this.clientesVendedores.set(clientes);
@@ -140,7 +131,6 @@ export class ReportComponent implements OnInit {
     this.cargandoPedidos.set(true);
     const fechaInicio = this.formatearFechaAPI(this.filtroPedidos.fechaInicio);
     const fechaFin = this.formatearFechaAPI(this.filtroPedidos.fechaFin);
-
     this.reportService.obtenerTopClientesPedidos(fechaInicio, fechaFin).subscribe({
       next: (clientes) => {
         this.clientesPedidos.set(clientes);
@@ -155,7 +145,6 @@ export class ReportComponent implements OnInit {
 
   cargarReporteProductosVenta(): void {
     this.cargandoProductosVenta.set(true);
-
     this.reportService.obtenerTopClientesProductosVenta().subscribe({
       next: (clientes) => {
         this.clientesProductosVenta.set(clientes);
@@ -171,7 +160,6 @@ export class ReportComponent implements OnInit {
   aplicarRangoRapido(rango: 'semana' | 'mes' | 'anio', filtro: FiltroFechas): void {
     const fechaFin = new Date();
     const fechaInicio = new Date();
-
     switch(rango) {
       case 'semana':
         fechaInicio.setDate(fechaInicio.getDate() - 7);
@@ -183,7 +171,6 @@ export class ReportComponent implements OnInit {
         fechaInicio.setFullYear(fechaInicio.getFullYear() - 1);
         break;
     }
-
     filtro.fechaInicio = this.formatearFechaInput(fechaInicio);
     filtro.fechaFin = this.formatearFechaInput(fechaFin);
   }

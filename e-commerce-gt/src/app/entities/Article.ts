@@ -25,110 +25,39 @@ export class Articulo {
     );
   }
 
-  // Getters
-  get id_articulo(): number {
-    return this._id_articulo;
-  }
+  get id_articulo(): number { return this._id_articulo; }
+  get nombre(): string { return this._nombre; }
+  get descripcion(): string { return this._descripcion; }
+  get precio(): number { return this._precio; }
+  get id_accion(): number { return this._id_accion; }
+  get imagen(): string { return this._imagen; }
+  get stock(): number { return this._stock; }
+  get id_estado_articulo(): number { return this._id_estado_articulo; }
+  get categorias(): string[] { return [...this._categorias]; }
 
-  get nombre(): string {
-    return this._nombre;
-  }
+  set nombre(nombre: string) { this._nombre = nombre; }
+  set descripcion(descripcion: string) { this._descripcion = descripcion; }
+  set precio(precio: number) { this._precio = precio; }
+  set imagen(imagen: string) { this._imagen = imagen; }
+  set stock(stock: number) { this._stock = stock; }
+  set id_estado_articulo(id_estado_articulo: number) { this._id_estado_articulo = id_estado_articulo; }
 
-  get descripcion(): string {
-    return this._descripcion;
-  }
-
-  get precio(): number {
-    return this._precio;
-  }
-
-  get id_accion(): number {
-    return this._id_accion;
-  }
-
-  get imagen(): string {
-    return this._imagen;
-  }
-
-  get stock(): number {
-    return this._stock;
-  }
-
-  get id_estado_articulo(): number {
-    return this._id_estado_articulo;
-  }
-
-  get categorias(): string[] {
-    return [...this._categorias]; 
-  }
-
-  // modificar propiedades 
-  set nombre(nombre: string) {
-    this._nombre = nombre;
-  }
-
-  set descripcion(descripcion: string) {
-    this._descripcion = descripcion;
-  }
-
-  set precio(precio: number) {
-    this._precio = precio;
-  }
-
-  set imagen(imagen: string) {
-    this._imagen = imagen;
-  }
-
-  set stock(stock: number) {
-    this._stock = stock;
-  }
-
-  set id_estado_articulo(id_estado_articulo: number) {
-    this._id_estado_articulo = id_estado_articulo;
-  }
-
-  // manejar categorías
   agregarCategoria(categoria: string): void {
-    if (!this._categorias.includes(categoria)) {
-      this._categorias.push(categoria);
-    }
+    if (!this._categorias.includes(categoria)) this._categorias.push(categoria);
   }
 
   removerCategoria(categoria: string): void {
     this._categorias = this._categorias.filter(cat => cat !== categoria);
   }
 
-  //Presio con Q
-  get precioFormateado(): string {
-    return `Q ${this._precio.toFixed(2)}`;
-  }
-
-  get disponible(): boolean {
-    return this._stock > 0 ;
-  }
-
+  get precioFormateado(): string { return `Q ${this._precio.toFixed(2)}`; }
+  get disponible(): boolean { return this._stock > 0; }
   get estadoStock(): string {
     if (this._stock === 0) return 'Agotado';
-    if (this._stock < 10) return 'Pocas unidades';
+    if (this._stock < 5) return 'Pocas unidades';
     return 'Disponible';
   }
 
-  // copia del objeto
-  clone(): Articulo {
-    return new Articulo(
-      this._id_articulo,
-      this._nombre,
-      this._descripcion,
-      this._precio,
-      this._imagen,
-      this._stock,
-      this._id_estado_articulo,
-      [...this._categorias],
-      this._id_accion
-    );
-  }
-
-  // convertir a JSON
   toJSON(): any {
     return {
       id_articulo: this._id_articulo,
@@ -139,7 +68,7 @@ export class Articulo {
       stock: this._stock,
       id_estado_articulo: this._id_estado_articulo,
       categorias: [...this._categorias],
-      id_accion : this.id_accion
+      id_accion: this.id_accion
     };
   }
 }
