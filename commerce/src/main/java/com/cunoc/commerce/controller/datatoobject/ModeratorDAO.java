@@ -2,205 +2,116 @@ package com.cunoc.commerce.controller.datatoobject;
 
 import com.cunoc.commerce.config.BaseDAO;
 import com.cunoc.commerce.entity.Article;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Repository;
+import java.sql.*;
+import java.util.*;
 
 @Repository 
 public class ModeratorDAO extends BaseDAO {
 
-    // obtenemos saciones por pagina
+    // Obtener sanciones paginadas
     public Map<String, Object> getSancionesPaginadas(int pagina, int tamanoPagina) {
         Map<String, Object> resultado = new HashMap<>();
         List<Map<String, Object>> sanciones = new ArrayList<>();
-
-        int offset = (pagina - 1) * tamanoPagina;
-
+        
         String sql = "SELECT s.id_sancion, s.motivo, s.fecha_hora, s.id_usuario, " +
-                "u.nombre || ' ' || u.apellido as nombre_usuario, " +
-                "u.email as email_usuario " +
-                "FROM Sancion s " +
-                "INNER JOIN Usuario u ON s.id_usuario = u.id_usuario " +
-                "ORDER BY s.fecha_hora DESC " +
-                "LIMIT ? OFFSET ?";
+                "u.nombre || ' ' || u.apellido as nombre_usuario, u.email as email_usuario " +
+                "FROM Sancion s INNER JOIN Usuario u ON s.id_usuario = u.id_usuario " +
+                "ORDER BY s.fecha_hora DESC LIMIT ? OFFSET ?";
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
             stmt.setInt(1, tamanoPagina);
-            stmt.setInt(2, offset);
-
-            rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> sancion = new HashMap<>();
-                sancion.put("id_sancion", rs.getInt("id_sancion"));
-                sancion.put("motivo", rs.getString("motivo"));
-                sancion.put("fecha_hora", rs.getTimestamp("fecha_hora").toLocalDateTime());
-                sancion.put("id_usuario", rs.getInt("id_usuario"));
-                sancion.put("nombre_usuario", rs.getString("nombre_usuario"));
-                sancion.put("email_usuario", rs.getString("email_usuario"));
-
-                sanciones.add(sancion);
+            stmt.setInt(2, (pagina - 1) * tamanoPagina);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> sancion = new HashMap<>();
+                    sancion.put("id_sancion", rs.getInt("id_sancion"));
+                    sancion.put("motivo", rs.getString("motivo"));
+                    sancion.put("fecha_hora", rs.getTimestamp("fecha_hora").toLocalDateTime());
+                    sancion.put("id_usuario", rs.getInt("id_usuario"));
+                    sancion.put("nombre_usuario", rs.getString("nombre_usuario"));
+                    sancion.put("email_usuario", rs.getString("email_usuario"));
+                    sanciones.add(sancion);
+                }
             }
-
-            // Obtener total de sanciones
-            int totalSanciones = contarSanciones();
-            int totalPaginas = (int) Math.ceil((double) totalSanciones / tamanoPagina);
-
+            
+            int totalSanciones = contarRegistros("SELECT COUNT(*) as total FROM Sancion");
             resultado.put("sanciones", sanciones);
             resultado.put("totalSanciones", totalSanciones);
-            resultado.put("totalPaginas", totalPaginas);
+            resultado.put("totalPaginas", (int) Math.ceil((double) totalSanciones / tamanoPagina));
             resultado.put("paginaActual", pagina);
-
+            
         } catch (SQLException e) {
             System.err.println("Error al obtener sanciones: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
         }
-
+        
         return resultado;
     }
 
-    // Mcontar total de sanciones
-    private int contarSanciones() {
-        String sql = "SELECT COUNT(*) as total FROM Sancion";
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("total");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al contar sanciones: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
-        }
-
-        return 0;
-    }
-
-    /// Obtiene artículos pendientes de moderación con paginación
+    // Obtener artículos pendientes paginados
     public Map<String, Object> getArticulosPendientesPaginados(int pagina, int tamanoPagina) {
         Map<String, Object> resultado = new HashMap<>();
         List<Article> articulos = new ArrayList<>();
-
-        int offset = (pagina - 1) * tamanoPagina;
-
+        
         String sql = "SELECT a.id_articulo, a.nombre, a.descripcion, a.precio, " +
-                "a.imagen, a.stock, a.id_estado_articulo, a.id_accion, " +
-                "ea.nombre as nombre_estado, " +
-                "ma.nombre as nombre_accion " +
-                "FROM Articulo a " +
-                "INNER JOIN Estado_Articulo ea ON a.id_estado_articulo = ea.id_estado_articulo " +
-                "INNER JOIN Moderador_Articulo ma ON a.id_accion = ma.id_estado " +
-                "WHERE a.id_accion = 1 " +
-                "ORDER BY a.id_articulo ASC " +
-                "LIMIT ? OFFSET ?";
+                "a.imagen, a.stock, a.id_estado_articulo, a.id_accion " +
+                "FROM Articulo a WHERE a.id_accion = 1 " +
+                "ORDER BY a.id_articulo ASC LIMIT ? OFFSET ?";
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
             stmt.setInt(1, tamanoPagina);
-            stmt.setInt(2, offset);
-
-            rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Article article = mapResultSetToArticle(rs);
-
-                // Cargar categorías del artículo
+            stmt.setInt(2, (pagina - 1) * tamanoPagina);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
                 ArticleDAO articleDAO = new ArticleDAO();
-                List<String> categorias = articleDAO.getCategoriesByArticleId(article.getIdArticulo());
-                article.setCategorias(categorias);
-
-                articulos.add(article);
+                while (rs.next()) {
+                    Article article = mapResultSetToArticle(rs);
+                    article.setCategorias(articleDAO.getCategoriesByArticleId(article.getIdArticulo()));
+                    articulos.add(article);
+                }
             }
-
-            // Obtener total de artículos pendientes
-            int totalArticulos = contarArticulosPendientes();
-            int totalPaginas = (int) Math.ceil((double) totalArticulos / tamanoPagina);
-
+            
+            int totalArticulos = contarRegistros("SELECT COUNT(*) as total FROM Articulo WHERE id_accion = 1");
             resultado.put("articulos", articulos);
             resultado.put("totalArticulos", totalArticulos);
-            resultado.put("totalPaginas", totalPaginas);
+            resultado.put("totalPaginas", (int) Math.ceil((double) totalArticulos / tamanoPagina));
             resultado.put("paginaActual", pagina);
-
+            
         } catch (SQLException e) {
             System.err.println("Error al obtener artículos pendientes: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
         }
-
+        
         return resultado;
     }
 
-    // Cuenta total de artículos pendientes
-    private int contarArticulosPendientes() {
-        String sql = "SELECT COUNT(*) as total FROM Articulo WHERE id_accion = 1";
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("total");
-            }
+    private int contarRegistros(String sql) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
-            System.err.println("Error al contar artículos pendientes: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
+            System.err.println("Error al contar registros: " + e.getMessage());
+            return 0;
         }
-
-        return 0;
     }
 
-    // Aprueba un artículo (2)
+    // Aprobar artículo
     public boolean aprobarArticulo(int idArticulo) {
-        String sql = "UPDATE Articulo SET id_accion = 2 WHERE id_articulo = ?";
-        int filasAfectadas = executeUpdate(sql, idArticulo);
-        return filasAfectadas > 0;
+        return executeUpdate("UPDATE Articulo SET id_accion = 2 WHERE id_articulo = ?", idArticulo) > 0;
     }
 
-    // Rechaza un artículo (3)
+    // Rechazar artículo
     public boolean rechazarArticulo(int idArticulo) {
-        String sql = "UPDATE Articulo SET id_accion = 3 WHERE id_articulo = ?";
-        int filasAfectadas = executeUpdate(sql, idArticulo);
-        return filasAfectadas > 0;
+        return executeUpdate("UPDATE Articulo SET id_accion = 3 WHERE id_articulo = ?", idArticulo) > 0;
     }
 
-    // Mapea ResultSet a objeto Article
     private Article mapResultSetToArticle(ResultSet rs) throws SQLException {
         Article article = new Article();
         article.setIdArticulo(rs.getInt("id_articulo"));

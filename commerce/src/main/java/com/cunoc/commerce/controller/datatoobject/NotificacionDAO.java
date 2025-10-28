@@ -2,112 +2,69 @@ package com.cunoc.commerce.controller.datatoobject;
 
 import com.cunoc.commerce.config.BaseDAO;
 import com.cunoc.commerce.entity.Notificacion;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import org.springframework.stereotype.Repository;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.stereotype.Repository;
 
 @Repository 
 public class NotificacionDAO extends BaseDAO {
 
-    //Obtener todas las notificaciones del sistema paginadas
+    // Obtener notificaciones paginadas
     public List<Notificacion> findAllPaginated(int page, int pageSize) {
-        int offset = (page - 1) * pageSize;
-
-        String sql = """
-                SELECT 
-                    id_notificacion,
-                    mensaje,
-                    fecha_hora,
-                    id_usuario
-                FROM Notificacion
-                ORDER BY fecha_hora DESC
-                LIMIT ? OFFSET ?
-                """;
-
+        String sql = "SELECT id_notificacion, mensaje, fecha_hora, id_usuario " +
+                "FROM Notificacion ORDER BY fecha_hora DESC LIMIT ? OFFSET ?";
+        
         List<Notificacion> notificaciones = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
             stmt.setInt(1, pageSize);
-            stmt.setInt(2, offset);
-
-            rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Notificacion notificacion = new Notificacion(
-                    rs.getInt("id_notificacion"),
-                    rs.getString("mensaje"),
-                    rs.getTimestamp("fecha_hora").toLocalDateTime(),
-                    rs.getInt("id_usuario")
-                );
-                notificaciones.add(notificacion);
+            stmt.setInt(2, (page - 1) * pageSize);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    notificaciones.add(new Notificacion(
+                        rs.getInt("id_notificacion"),
+                        rs.getString("mensaje"),
+                        rs.getTimestamp("fecha_hora").toLocalDateTime(),
+                        rs.getInt("id_usuario")));
+                }
             }
-
         } catch (SQLException e) {
             System.err.println("Error al obtener notificaciones paginadas: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
         }
-
+        
         return notificaciones;
     }
 
-    //Contar total de notificaciones en el sistema
+    // Contar total de notificaciones
     public int countTotal() {
-        String sql = "SELECT COUNT(*) as total FROM Notificacion";
-
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as total FROM Notificacion");
              ResultSet rs = stmt.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt("total");
-            }
-
+            return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
             System.err.println("Error al contar notificaciones: " + e.getMessage());
-            e.printStackTrace();
+            return 0;
         }
-
-        return 0;
     }
 
+    // Insertar nueva notificación
     public boolean insert(Notificacion notificacion) {
-        if (notificacion == null || notificacion.getMensaje() == null) {
-            return false;
-        }
-        
-        String sql = """
-                INSERT INTO Notificacion (mensaje, fecha_hora, id_usuario)
-                VALUES (?, ?, ?)
-                """;
+        if (notificacion == null || notificacion.getMensaje() == null) return false;
         
         try {
-            int rowsAffected = executeUpdate(sql,
-                    notificacion.getMensaje(),
-                    Timestamp.valueOf(notificacion.getFechaHora()),
-                    notificacion.getIdUsuario());
-            
-            return rowsAffected > 0;
-            
+            return executeUpdate(
+                "INSERT INTO Notificacion (mensaje, fecha_hora, id_usuario) VALUES (?, ?, ?)",
+                notificacion.getMensaje(),
+                Timestamp.valueOf(notificacion.getFechaHora()),
+                notificacion.getIdUsuario()) > 0;
         } catch (Exception e) {
             System.err.println("Error al insertar notificacion: " + e.getMessage());
-            e.printStackTrace();
+            return false;
         }
-        
-        return false;
     }
-    
 }

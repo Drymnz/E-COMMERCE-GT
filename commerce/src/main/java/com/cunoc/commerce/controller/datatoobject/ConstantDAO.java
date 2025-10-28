@@ -13,26 +13,32 @@ import org.springframework.stereotype.Repository;
 @Repository 
 public class ConstantDAO extends BaseDAO {
     
+    // Obtener estados de moderación
     public List<String> getEstadosModeracion() {
         return getConstantes("SELECT nombre FROM Moderador_Articulo ORDER BY id_estado");
     }
 
+    // Obtener estados de pedido
     public List<String> getEstadosPedido() {
         return getConstantes("SELECT nombre FROM Estado_Pedido");
     }
 
+    // Obtener estados de usuario
     public List<String> getEstadosUsuario() {
         return getConstantes("SELECT nombre FROM Estado_Usuario");
     }
 
+    // Obtener roles de usuario
     public List<String> getRoles() {
         return getConstantes("SELECT nombre FROM Rol");
     }
 
+    // Obtener tipos de categorías
     public List<String> getTiposCategorias() {
         return getConstantes("SELECT nombre FROM Tipo_Categoria");
     }
 
+    // Obtener estados de artículo
     public List<String> getEstadosArticulo() {
         return getConstantes("SELECT nombre FROM Estado_Articulo");
     }

@@ -184,7 +184,7 @@
                         </button>
                         <button 
                           class="btn btn-sm btn-outline-danger" 
-                          (click)="eliminarTarjeta(tarjeta.numero)"
+                          (click)="solicitarEliminarTarjeta(tarjeta.numero)"
                           title="Eliminar">
                           <i class="bi bi-trash-fill"></i>
                         </button>
@@ -305,3 +305,33 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de confirmación para eliminar -->
+<app-notify-confirm
+  [mostrar]="mostrarConfirmEliminar"
+  titulo="Eliminar Tarjeta"
+  mensaje="¿Está seguro de que desea eliminar esta tarjeta?"
+  mensajeSecundario="Esta acción eliminará permanentemente la tarjeta del sistema."
+  textoConfirmar="Eliminar"
+  textoCancelar="Cancelar"
+  tipoAlerta="danger"
+  iconoAlerta="bi-trash-fill"
+  [mostrarAdvertencia]="true"
+  textoAdvertencia="Esta acción no se puede deshacer."
+  (confirmar)="confirmarEliminar($event)"
+  (cancelar)="cancelarEliminar()">
+</app-notify-confirm>
+
+<!-- Modal de notificación general -->
+<app-notify-confirm
+  [mostrar]="mostrarNotificacion"
+  [titulo]="notificacionTitulo"
+  [mensaje]="notificacionMensaje"
+  [mensajeSecundario]="notificacionMensajeSecundario"
+  [tipoAlerta]="notificacionTipo"
+  [iconoAlerta]="notificacionIcono"
+  textoConfirmar="Aceptar"
+  [mostrarAdvertencia]="false"
+  (confirmar)="cerrarNotificacion()"
+  (cancelar)="cerrarNotificacion()">
+</app-notify-confirm>

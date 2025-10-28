@@ -2,10 +2,7 @@ package com.cunoc.commerce.controller.datatoobject;
 
 import com.cunoc.commerce.entity.VentaTotal;
 import com.cunoc.commerce.config.BaseDAO;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -13,22 +10,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class VentaDAO extends BaseDAO {
 
-    /**
-     * Obtiene un listado de artículos vendidos con su total de ventas
-     */
+    // Obtener total de ventas por artículo
     public List<VentaTotal> obtenerTotalVentas() {
         System.out.println("=== Ejecutando obtenerTotalVentas ===");
-        String sql = """
-                SELECT 
-                    a.id_articulo,
-                    a.nombre as nombre_articulo,
-                    SUM(p.cantidad) as cantidad_vendida,
-                    SUM(p.cantidad * a.precio) as total_ventas
-                FROM Producto p
-                INNER JOIN Articulo a ON p.id_articulo = a.id_articulo
-                GROUP BY a.id_articulo, a.nombre
-                ORDER BY total_ventas DESC
-                """;
+        String sql = "SELECT a.id_articulo, a.nombre as nombre_articulo, SUM(p.cantidad) as cantidad_vendida, " +
+                     "SUM(p.cantidad * a.precio) as total_ventas FROM Producto p " +
+                     "INNER JOIN Articulo a ON p.id_articulo = a.id_articulo " +
+                     "GROUP BY a.id_articulo, a.nombre ORDER BY total_ventas DESC";
 
         List<VentaTotal> ventas = new ArrayList<>();
         Connection conn = null;
@@ -52,48 +40,28 @@ public class VentaDAO extends BaseDAO {
             }
             
             System.out.println("Total de ventas encontradas: " + ventas.size());
-
         } catch (SQLException e) {
             System.err.println("Error al obtener total de ventas: " + e.getMessage());
             e.printStackTrace();
         } finally {
             closeResources(conn, stmt, rs);
         }
-
         return ventas;
     }
 
-    /**
-     * Obtiene el total general de todas las ventas
-     */
+    // Obtener total general de ventas
     public double obtenerTotalGeneral() {
-        String sql = """
-                SELECT 
-                    COALESCE(SUM(p.cantidad * a.precio), 0) as total_general
-                FROM Producto p
-                INNER JOIN Articulo a ON p.id_articulo = a.id_articulo
-                """;
+        String sql = "SELECT COALESCE(SUM(p.cantidad * a.precio), 0) as total_general FROM Producto p " +
+                     "INNER JOIN Articulo a ON p.id_articulo = a.id_articulo";
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getDouble("total_general");
-            }
-
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            return rs.next() ? rs.getDouble("total_general") : 0.0;
         } catch (SQLException e) {
             System.err.println("Error al obtener total general: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            closeResources(conn, stmt, rs);
+            return 0.0;
         }
-
-        return 0.0;
     }
 }

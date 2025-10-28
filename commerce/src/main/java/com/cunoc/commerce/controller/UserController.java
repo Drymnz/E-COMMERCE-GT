@@ -16,12 +16,11 @@ public class UserController {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    // Hisotirial de empleados
+    // Obtener empleados
     @GetMapping("/empleados")
     public ResponseEntity<List<Usuario>> obtenerEmpleados() {
         try {
-            List<Usuario> empleados = usuarioDAO.findEmpleados();
-            return ResponseEntity.ok(empleados);
+            return ResponseEntity.ok(usuarioDAO.findEmpleados());
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }
@@ -32,67 +31,43 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> obtenerUsuariosPaginados(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize) {
-
         try {
-            List<Usuario> usuarios = usuarioDAO.findAllPaginated(page, pageSize);
             int totalUsuarios = usuarioDAO.countTotal();
-            int totalPages = (int) Math.ceil((double) totalUsuarios / pageSize);
-
             Map<String, Object> response = new HashMap<>();
-            response.put("usuarios", usuarios);
+            response.put("usuarios", usuarioDAO.findAllPaginated(page, pageSize));
             response.put("currentPage", page);
             response.put("pageSize", pageSize);
             response.put("totalUsuarios", totalUsuarios);
-            response.put("totalPages", totalPages);
-
+            response.put("totalPages", (int) Math.ceil((double) totalUsuarios / pageSize));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }
     }
 
-    /**
-     * @param email    del usuario
-     * @param password en texto plano
-     */
+    // Login de usuario
     @GetMapping("/login")
-    public ResponseEntity<Usuario> login(
-            @RequestParam String email,
-            @RequestParam String password) {
+    public ResponseEntity<Usuario> login(@RequestParam String email, @RequestParam String password) {
         Usuario usuario = usuarioDAO.login(email, password);
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        }
-        return ResponseEntity.status(401).build();
+        return usuario != null ? ResponseEntity.ok(usuario) : ResponseEntity.status(401).build();
     }
 
     // Crear nuevo usuario
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
-        boolean insertado = usuarioDAO.insert(usuario);
-        if (insertado) {
-            return ResponseEntity.status(201).body(usuario);
-        }
-        return ResponseEntity.badRequest().build();
+        return usuarioDAO.insert(usuario) ? ResponseEntity.status(201).body(usuario) : ResponseEntity.badRequest().build();
     }
 
-    // @param email del usuario a buscar
+    // Buscar usuario por email
     @GetMapping("/buscar")
     public ResponseEntity<Usuario> buscarUsuario(@RequestParam String email) {
         Usuario usuario = usuarioDAO.findByEmailOrId(email);
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        }
-        return ResponseEntity.notFound().build();
+        return usuario != null ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
     }
 
-    // modificar usuario existente
+    // Modificar usuario
     @PutMapping
     public ResponseEntity<Usuario> modificarUsuario(@RequestBody Usuario usuario) {
-        boolean actualizado = usuarioDAO.update(usuario);
-        if (actualizado) {
-            return ResponseEntity.ok(usuario);
-        }
-        return ResponseEntity.notFound().build();
+        return usuarioDAO.update(usuario) ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
     }
 }

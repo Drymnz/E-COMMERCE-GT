@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Card } from '../../../../entities/Card';
 import { CardService } from '../../../../service/api/card.service';
 import { AuthService } from '../../../../service/local/auth.service';
+import { NotifyConfirmComponent } from '../../../general/notify-confirm/notify-confirm.component';
 
 @Component({
   selector: 'app-gestion-tarjetas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NotifyConfirmComponent],
   templateUrl: './gestion-tarjetas.component.html',
   styleUrl: './gestion-tarjetas.component.scss'
 })
@@ -21,6 +22,18 @@ export class GestionTarjetasComponent implements OnInit {
   tarjetaEditando: Card | null = null;
   nuevaTarjetaForm: FormGroup;
   editarTarjetaForm: FormGroup;
+
+  // Para los modales de confirmación y notificación
+  mostrarConfirmEliminar = false;
+  tarjetaAEliminar: string | null = null;
+  
+  // Notificación general
+  mostrarNotificacion = false;
+  notificacionTitulo = '';
+  notificacionMensaje = '';
+  notificacionMensajeSecundario = '';
+  notificacionTipo: 'danger' | 'warning' | 'info' = 'info';
+  notificacionIcono = 'bi-info-circle-fill';
 
   constructor(private cardService: CardService, private authService: AuthService, private fb: FormBuilder) {
     this.nuevaTarjetaForm = this.fb.group({
@@ -87,11 +100,11 @@ export class GestionTarjetasComponent implements OnInit {
         this.tarjetas.push(data);
         this.toggleFormulario();
         this.nuevaTarjetaForm.reset({ saldo: 0 });
-        alert('Tarjeta agregada exitosamente');
+        this.mostrarMensaje('Tarjeta Agregada', 'La tarjeta se ha registrado exitosamente', '', 'info', 'bi-check-circle-fill');
       },
       error: (err) => {
         console.error('Error al agregar tarjeta:', err);
-        alert('Error al agregar la tarjeta');
+        this.mostrarMensaje('Error al Agregar', 'No se pudo agregar la tarjeta', 'Por favor, intente nuevamente', 'danger', 'bi-x-circle-fill');
       }
     });
   }
@@ -124,21 +137,36 @@ export class GestionTarjetasComponent implements OnInit {
     tarjeta.fecha_vencimiento = new Date(formValue.fecha_vencimiento);
     tarjeta.saldo = formValue.saldo;
     this.cancelarEdicion();
-    alert('Tarjeta actualizada (solo localmente - implementar endpoint de actualización)');
+    this.mostrarMensaje('Tarjeta Actualizada', 'Los cambios se guardaron localmente', 'Recuerde implementar el endpoint de actualización', 'warning', 'bi-exclamation-triangle-fill');
+  }
+
+  solicitarEliminarTarjeta(numero: string): void {
+    this.tarjetaAEliminar = numero;
+    this.mostrarConfirmEliminar = true;
+  }
+
+  confirmarEliminar(confirmado: boolean): void {
+    this.mostrarConfirmEliminar = false;
+    if (confirmado && this.tarjetaAEliminar) {
+      this.eliminarTarjeta(this.tarjetaAEliminar);
+    }
+    this.tarjetaAEliminar = null;
+  }
+
+  cancelarEliminar(): void {
+    this.mostrarConfirmEliminar = false;
+    this.tarjetaAEliminar = null;
   }
 
   eliminarTarjeta(numero: string): void {
-    if (!confirm('¿Está seguro de eliminar esta tarjeta?')) {
-      return;
-    }
     this.cardService.eliminarTarjeta(numero).subscribe({
       next: () => {
         this.tarjetas = this.tarjetas.filter(t => t.numero !== numero);
-        alert('Tarjeta eliminada exitosamente');
+        this.mostrarMensaje('Tarjeta Eliminada', 'La tarjeta se ha eliminado exitosamente', '', 'info', 'bi-check-circle-fill');
       },
       error: (err) => {
         console.error('Error al eliminar tarjeta:', err);
-        alert('Error al eliminar la tarjeta');
+        this.mostrarMensaje('Error al Eliminar', 'No se pudo eliminar la tarjeta', 'Por favor, intente nuevamente', 'danger', 'bi-x-circle-fill');
       }
     });
   }
@@ -148,5 +176,20 @@ export class GestionTarjetasComponent implements OnInit {
       return 'border-danger';
     }
     return tarjeta.saldo > 0 ? 'border-success' : 'border-warning';
+  }
+
+  // Método unificado para mostrar mensajes
+  mostrarMensaje(titulo: string, mensaje: string, mensajeSecundario: string, tipo: 'danger' | 'warning' | 'info', icono: string): void {
+    this.notificacionTitulo = titulo;
+    this.notificacionMensaje = mensaje;
+    this.notificacionMensajeSecundario = mensajeSecundario;
+    this.notificacionTipo = tipo;
+    this.notificacionIcono = icono;
+    this.mostrarNotificacion = true;
+  }
+
+  cerrarNotificacion(): void {
+    this.mostrarNotificacion = false;
+    this.notificacionMensajeSecundario = '';
   }
 }
