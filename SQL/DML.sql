@@ -223,12 +223,6 @@ INSERT INTO Moderador_Articulo (nombre) VALUES
 ('Aprobado'),
 ('Rechazado');
 
--- Primero insertar los estados de moderación si no existen
-INSERT INTO Moderador_Articulo (nombre) VALUES 
-('Pendiente'),
-('Aprobado'),
-('Rechazado');
-
 -- Insertar 10 artículos para cada cliente (usuarios 2-11)
 DO $$
 DECLARE
