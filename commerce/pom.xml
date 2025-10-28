@@ -31,6 +31,13 @@
 		<java.version>25</java.version>
 	</properties>
 	<dependencies>
+
+		<!-- Generar mensajes -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
@@ -73,11 +80,8 @@
 			<version>0.10.2</version>
 		</dependency>
 
-		<!-- Generar mensajes -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
+		
+		
 	</dependencies>
 
 	<build>
