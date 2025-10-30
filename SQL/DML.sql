@@ -1,7 +1,7 @@
 -- verificar si ya existe
--- CREATE DATABASE commerce;
+CREATE DATABASE commerce;
 
--- \c commerce;
+\c commerce;
 
 -- Tabla de estados generales del sistema
 CREATE TABLE Estado_Usuario (
@@ -28,6 +28,15 @@ CREATE TABLE Usuario (
     CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES Rol(id_rol)
 );
 
+-- Tarjetas de crédito de los usuarios
+CREATE TABLE Tarjeta_de_Credito (
+    cvv VARCHAR(4) NOT NULL,
+    numero VARCHAR(16) PRIMARY KEY,
+    fecha_vencimiento DATE NOT NULL,
+    id_usuario INT NOT NULL,
+    CONSTRAINT fk_tarjeta_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
+);
+
 -- Notificaciones enviadas a usuarios
 CREATE TABLE Notificacion (
     id_notificacion SERIAL PRIMARY KEY,
@@ -52,15 +61,9 @@ CREATE TABLE Tipo_Categoria (
     nombre VARCHAR(20) NOT NULL
 );
 
--- Estados del artículo
+-- Estados específicos de artículos
 CREATE TABLE Estado_Articulo (
     id_estado_articulo SERIAL PRIMARY KEY,
-    nombre VARCHAR(20) NOT NULL
-);
-
--- Estados del artículo
-CREATE TABLE Moderador_Articulo (
-    id_estado SERIAL PRIMARY KEY,
     nombre VARCHAR(20) NOT NULL
 );
 
@@ -73,9 +76,7 @@ CREATE TABLE Articulo (
     imagen TEXT, --sera base64
     stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
     id_estado_articulo INT NOT NULL,
-    id_accion INT NOT NULL DEFAULT 1,
-    CONSTRAINT fk_articulo_estado FOREIGN KEY (id_estado_articulo) REFERENCES Estado_Articulo(id_estado_articulo),
-    CONSTRAINT fk_id_accion FOREIGN KEY (id_accion) REFERENCES Moderador_Articulo(id_estado)
+    CONSTRAINT fk_articulo_estado FOREIGN KEY (id_estado_articulo) REFERENCES Estado_Articulo(id_estado_articulo)
 );
 
 -- Estados específicos de artículos
